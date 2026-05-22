@@ -1,0 +1,107 @@
+{
+  "name": "mcp-debug-recorder",
+  "version": "1.0.1",
+  "description": "MCP server for recording debug sessions — query your debugging history with natural language",
+  "type": "module",
+  "main": "dist/mcp.js",
+  "exports": {
+    ".": "./dist/mcp.js",
+    "./store": "./dist/store.js",
+    "./db": "./dist/db.js",
+    "./types": "./dist/types.js"
+  },
+  "types": "dist/mcp.d.ts",
+  "bin": {
+    "mcp-debug-recorder": "dist/mcp.js"
+  },
+  "mcpName": "io.github.oaslananka/mcp-debug-recorder",
+  "files": [
+    "dist",
+    "mcp.json",
+    "server.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node --esm src/mcp.ts",
+    "start": "node dist/mcp.js",
+    "start:http": "node dist/server-http.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "npm run typecheck && eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test": "node scripts/run-jest.mjs --testPathIgnorePatterns=e2e",
+    "test:coverage": "node scripts/run-jest.mjs --coverage --testPathIgnorePatterns=e2e",
+    "test:e2e": "node scripts/run-jest.mjs --suite=e2e --testPathPattern=e2e",
+    "docs:api": "typedoc --options typedoc.json",
+    "audit": "npm audit --audit-level=moderate",
+    "check:version": "node scripts/check-version-sync.mjs",
+    "check:mcp": "node scripts/validate-mcp-metadata.mjs",
+    "ci:local": "npm run format:check && npm run lint && npm test && npm run build && npm run audit && npm pack --dry-run && npm run check:version && npm run check:mcp",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run format:check && npm test && npm run build && npm run audit && npm run check:version && npm run check:mcp",
+    "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "debug",
+    "developer-tools",
+    "sqlite",
+    "ai",
+    "mcp-server",
+    "mcp-client"
+  ],
+  "author": "Osman Aslan <oaslananka@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oaslananka/mcp-debug-recorder.git"
+  },
+  "homepage": "https://github.com/oaslananka/mcp-debug-recorder#readme",
+  "bugs": {
+    "url": "https://github.com/oaslananka/mcp-debug-recorder/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "better-sqlite3": "12.8.0",
+    "fuse.js": "7.3.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jest": "^29.5.12",
+    "@types/node": "22.19.17",
+    "@typescript-eslint/eslint-plugin": "8.58.1",
+    "@typescript-eslint/parser": "8.58.1",
+    "eslint": "9.39.4",
+    "globals": "17.4.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "prettier": "^3.3.0",
+    "ts-jest": "^29.1.4",
+    "ts-node": "^10.9.2",
+    "typedoc": "0.28.18",
+    "typedoc-plugin-markdown": "4.11.0",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "express-rate-limit": "8.5.1",
+    "fast-uri": "3.1.2",
+    "hono": "4.12.18",
+    "ip-address": "10.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

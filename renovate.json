@@ -1,0 +1,25 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "schedule:weekly", ":separateMajorReleases"],
+  "packageRules": [
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "@modelcontextprotocol/sdk",
+        "better-sqlite3",
+        "fuse.js",
+        "zod"
+      ],
+      "automerge": false
+    },
+    {
+      "matchPackageNames": ["better-sqlite3"],
+      "description": "Native dependency updates should always be reviewed manually.",
+      "automerge": false
+    }
+  ]
+}

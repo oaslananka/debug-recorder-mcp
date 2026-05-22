@@ -1,0 +1,344 @@
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import type Database from 'better-sqlite3';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
+import { createTestDb } from '../../src/db.js';
+import {
+  closeRuntime,
+  createDebugRecorderServer,
+  createRuntime,
+  createToolHandlers,
+  isClosedDatabaseError,
+  safeHandler,
+  type DebugRecorderRuntime
+} from '../../src/mcp.js';
+import { Store } from '../../src/store.js';
+import type { ExportPayload } from '../../src/types.js';
+
+function parseResponse<T>(response: { content: Array<{ text: string }> }): T {
+  return JSON.parse(response.content[0]?.text ?? '{}') as T;
+}
+
+describe('MCP handlers', () => {
+  let db: Database.Database;
+  let store: Store;
+  let runtime: DebugRecorderRuntime;
+  let handlers: ReturnType<typeof createToolHandlers>;
+
+  beforeEach(() => {
+    db = createTestDb();
+    store = new Store(db);
+    runtime = { db, store };
+    handlers = createToolHandlers(runtime);
+  });
+
+  afterEach(() => {
+    db.close();
+  });
+
+  it('creates a server instance', () => {
+    const server = createDebugRecorderServer(runtime);
+    expect(server).toBeDefined();
+  });
+
+  it('creates and closes a runtime with a custom database path', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'mcp-debug-recorder-runtime-'));
+    const dbPath = join(tempDir, 'sessions.db');
+
+    try {
+      const createdRuntime = createRuntime(dbPath);
+      expect(createdRuntime.dbPath).toBe(dbPath);
+      closeRuntime(createdRuntime);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('detects closed database errors and ignores them during closeRuntime', () => {
+    const closedRuntime = {
+      db: {
+        close: () => {
+          throw new Error('database connection is closed');
+        }
+      } as unknown as Database.Database,
+      store
+    };
+
+    expect(isClosedDatabaseError(new Error('database is closed'))).toBe(true);
+    expect(isClosedDatabaseError(new Error('boom'))).toBe(false);
+    expect(() => closeRuntime(closedRuntime)).not.toThrow();
+  });
+
+  it('rethrows unexpected close errors', () => {
+    const brokenRuntime = {
+      db: {
+        close: () => {
+          throw new Error('boom');
+        }
+      } as unknown as Database.Database,
+      store
+    };
+
+    expect(() => closeRuntime(brokenRuntime)).toThrow(/boom/);
+  });
+
+  it('safeHandler logs and rethrows tool errors', () => {
+    const wrapped = safeHandler('failing_tool', () => {
+      throw new Error('kaboom');
+    });
+
+    expect(() => wrapped({})).toThrow(/kaboom/);
+  });
+
+  it('creates a session and fetches it', () => {
+    const started = parseResponse<{ success: boolean; session_id: string }>(
+      handlers.handleStartDebugSession({
+        title: 'TypeError in handler',
+        error_message: 'Cannot read property user of undefined',
+        language: 'typescript',
+        tags: ['handler']
+      })
+    );
+    const fetched = parseResponse<{
+      id: string;
+      title: string;
+      status: string;
+    }>(handlers.handleGetSession({ session_id: started.session_id }));
+
+    expect(started.success).toBe(true);
+    expect(fetched.id).toBe(started.session_id);
+    expect(fetched.title).toBe('TypeError in handler');
+    expect(fetched.status).toBe('open');
+  });
+
+  it('updates an existing session', () => {
+    const session = store.createSession({ title: 'old title', tags: ['old'] });
+    const updated = parseResponse<{
+      success: boolean;
+      session: { title: string; tags: string[] };
+    }>(
+      handlers.handleUpdateSession({
+        session_id: session.id,
+        title: 'new title',
+        tags: ['new']
+      })
+    );
+
+    expect(updated.success).toBe(true);
+    expect(updated.session.title).toBe('new title');
+    expect(updated.session.tags).toEqual(['new']);
+  });
+
+  it('requires confirm=true before deleting a session', () => {
+    const session = store.createSession({ title: 'delete me', tags: [] });
+    const guarded = parseResponse<{ success: boolean; message: string }>(
+      handlers.handleDeleteSession({ session_id: session.id, confirm: false })
+    );
+    const deleted = parseResponse<{ success: boolean; session_id: string }>(
+      handlers.handleDeleteSession({ session_id: session.id, confirm: true })
+    );
+
+    expect(guarded.success).toBe(false);
+    expect(guarded.message).toContain('confirm: true');
+    expect(deleted.success).toBe(true);
+    expect(store.getSession(session.id)).toBeNull();
+  });
+
+  it('exports and imports sessions through tool handlers', () => {
+    const session = store.createSession({
+      title: 'roundtrip',
+      tags: ['backup']
+    });
+    store.addFix({
+      session_id: session.id,
+      description: 'retry',
+      worked: false
+    });
+    store.recordCommand({
+      session_id: session.id,
+      command: 'npm run lint',
+      output: 'clean',
+      exit_code: 0
+    });
+
+    const exported = parseResponse<ExportPayload & { exported_at: string }>(
+      handlers.handleExportSessions({ format: 'json' })
+    );
+
+    const targetDb = createTestDb();
+    const targetStore = new Store(targetDb);
+    const targetHandlers = createToolHandlers({
+      db: targetDb,
+      store: targetStore
+    });
+
+    try {
+      const imported = parseResponse<{
+        success: boolean;
+        imported: { sessions: number; fixes: number; commands: number };
+      }>(
+        targetHandlers.handleImportSessions({
+          payload: exported,
+          skip_existing: true
+        })
+      );
+
+      expect(imported.success).toBe(true);
+      expect(imported.imported.sessions).toBe(1);
+      expect(imported.imported.fixes).toBe(1);
+      expect(imported.imported.commands).toBe(1);
+      expect(targetStore.getSession(session.id)?.commands).toHaveLength(1);
+    } finally {
+      targetDb.close();
+    }
+  });
+
+  it('rejects unsupported schema versions during import', () => {
+    const payload = store.exportAll();
+
+    expect(() =>
+      handlers.handleImportSessions({
+        payload: {
+          ...payload,
+          schema_version: payload.schema_version + 1
+        },
+        skip_existing: true
+      })
+    ).toThrow(/Unsupported schema_version/);
+  });
+
+  it('builds AI-friendly session context', () => {
+    const session = store.createSession({
+      title: 'nginx 502',
+      description: 'Bad gateway during deploy',
+      error_message: '502 Bad Gateway',
+      framework: 'nginx',
+      tags: ['infra']
+    });
+
+    store.addFix({
+      session_id: session.id,
+      description: 'restart service',
+      worked: false
+    });
+    store.addFix({
+      session_id: session.id,
+      description: 'roll back release',
+      worked: true
+    });
+    store.recordCommand({
+      session_id: session.id,
+      command: 'journalctl -u nginx',
+      output: 'ok'
+    });
+
+    const context = parseResponse<{
+      problem: { title: string; framework: string | null };
+      status: string;
+      fixes_tried: number;
+      failed_fixes: string[];
+      working_fix: { description: string } | null;
+      commands: Array<{ command: string }>;
+    }>(
+      handlers.handleGetSessionContext({
+        session_id: session.id,
+        include_commands: true,
+        include_fixes: true
+      })
+    );
+
+    expect(context.problem.title).toBe('nginx 502');
+    expect(context.problem.framework).toBe('nginx');
+    expect(context.status).toBe('resolved');
+    expect(context.fixes_tried).toBe(2);
+    expect(context.failed_fixes).toContain('restart service');
+    expect(context.working_fix?.description).toBe('roll back release');
+    expect(context.commands[0]?.command).toBe('journalctl -u nginx');
+  });
+
+  it('returns stats including resolution rate', () => {
+    const resolved = store.createSession({ title: 'resolved', tags: [] });
+    const abandoned = store.createSession({ title: 'abandoned', tags: [] });
+
+    store.addFix({ session_id: resolved.id, description: 'fix', worked: true });
+    store.closeSession({ session_id: abandoned.id, status: 'abandoned' });
+
+    const stats = parseResponse<{
+      resolved: number;
+      abandoned: number;
+      resolutionRate: number;
+    }>(handlers.handleGetStats());
+
+    expect(stats.resolved).toBe(1);
+    expect(stats.abandoned).toBe(1);
+    expect(stats.resolutionRate).toBe(50);
+  });
+
+  it('lists sessions and supports summary exports', () => {
+    const session = store.createSession({
+      title: 'summary me',
+      language: 'typescript',
+      error_type: 'TypeError',
+      tags: []
+    });
+
+    const listed = parseResponse<{
+      count: number;
+      sessions: Array<{ id: string }>;
+    }>(handlers.handleListSessions({ limit: 10, offset: 0 }));
+    const summary = parseResponse<{
+      schema_version: number;
+      stats: { total: number };
+      sessions: Array<{ id: string; title: string }>;
+    }>(handlers.handleExportSessions({ format: 'summary' }));
+
+    expect(listed.count).toBe(1);
+    expect(listed.sessions[0]?.id).toBe(session.id);
+    expect(summary.stats.total).toBe(1);
+    expect(summary.sessions[0]?.title).toBe('summary me');
+  });
+
+  it('returns empty search and similar-error results when nothing matches', () => {
+    const search = parseResponse<{ count: number; results: unknown[] }>(
+      handlers.handleSearchSessions({ query: 'missing term', limit: 5 })
+    );
+    const similar = parseResponse<{ found: number; message: string }>(
+      handlers.handleFindSimilarErrors({
+        error_message: 'missing error',
+        limit: 5
+      })
+    );
+
+    expect(search.count).toBe(0);
+    expect(search.results).toHaveLength(0);
+    expect(similar.found).toBe(0);
+    expect(similar.message).toContain('No similar errors found');
+  });
+
+  it('throws for missing sessions in read and mutation handlers', () => {
+    expect(() => handlers.handleGetSession({ session_id: 'missing' })).toThrow(
+      /Session not found/
+    );
+    expect(() =>
+      handlers.handleUpdateSession({
+        session_id: 'missing',
+        title: 'nope'
+      })
+    ).toThrow(/Session not found/);
+    expect(() =>
+      handlers.handleCloseSession({
+        session_id: 'missing',
+        status: 'resolved',
+        summary: 'done'
+      })
+    ).toThrow(/Session not found/);
+    expect(() =>
+      handlers.handleGetSessionContext({
+        session_id: 'missing',
+        include_commands: true,
+        include_fixes: true
+      })
+    ).toThrow(/Session not found/);
+  });
+});

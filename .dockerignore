@@ -1,0 +1,12 @@
+.git
+.github
+.azure
+.TEMP
+coverage
+dist
+node_modules
+test-results
+*.log
+.env
+doppler.yaml
+mcp-debug-recorder-*.tgz

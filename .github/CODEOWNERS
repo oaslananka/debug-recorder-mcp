@@ -1,0 +1,20 @@
+# CODEOWNERS — mcp-debug-recorder
+# GitHub automatically requests review from these owners on every PR.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @oaslananka
+
+# Search algorithm — FTS5 + Fuse.js hybrid logic
+src/search.ts        @oaslananka
+
+# Database schema and migration changes
+src/db.ts            @oaslananka
+src/store.ts         @oaslananka
+
+# MCP tool definitions — public API surface
+src/mcp.ts           @oaslananka
+
+# CI/CD pipeline changes
+.azure/              @oaslananka
+azure-pipelines.yml  @oaslananka

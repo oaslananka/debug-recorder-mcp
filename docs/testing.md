@@ -1,0 +1,46 @@
+# Testing
+
+## Local gate
+
+Run the full local gate before opening or updating a release pull request:
+
+```bash
+npm ci
+npm run format:check
+npm run lint
+npm test
+npm run build
+npm audit --audit-level=moderate
+npm pack --dry-run
+node scripts/check-version-sync.mjs
+node scripts/validate-mcp-metadata.mjs
+```
+
+Run the e2e stdio flow after building:
+
+```bash
+npm run build
+npm run test:e2e
+```
+
+Run the Docker gate when the Dockerfile or HTTP runtime changes:
+
+```bash
+docker build -t mcp-debug-recorder:local .
+```
+
+## Coverage focus
+
+The unit suite covers:
+
+- database migrations and store behavior
+- missing-session domain errors
+- import/export boundaries
+- search behavior
+- tool handler validation
+- secret redaction
+- HTTP host, origin, auth, body limit, malformed JSON, and transport isolation
+
+CI also runs dependency audit, package dry run, version synchronization, MCP
+metadata validation, workflow linting, workflow security scanning, secret
+scanning, Trivy, CodeQL, and scheduled OpenSSF Scorecard.

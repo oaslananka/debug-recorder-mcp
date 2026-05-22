@@ -1,0 +1,9 @@
+{
+  "entryPoints": ["src/mcp.ts", "src/store.ts", "src/types.ts"],
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "readme": "none",
+  "hideGenerator": true
+}
