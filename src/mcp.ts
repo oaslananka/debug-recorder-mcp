@@ -81,7 +81,7 @@ export function createDebugRecorderServer(
   runtime: DebugRecorderRuntime
 ): McpServer {
   const server = new McpServer(
-    { name: 'mcp-debug-recorder', version: getVersion() },
+    { name: 'debug-recorder-mcp', version: getVersion() },
     { capabilities: { logging: {} } }
   );
   const handlers = createToolHandlers(runtime);
@@ -242,7 +242,7 @@ export function createDebugRecorderServer(
       name: 'import_sessions',
       title: 'Import Debug Sessions',
       description:
-        'Import sessions previously exported from mcp-debug-recorder',
+        'Import sessions previously exported from debug-recorder-mcp',
       inputSchema: ImportSessionsSchema,
       handler: 'handleImportSessions',
       annotations: {
@@ -328,7 +328,7 @@ export async function startStdioServer(
 
   try {
     await server.connect(transport);
-    log('info', 'mcp-debug-recorder stdio server started', {
+    log('info', 'debug-recorder-mcp stdio server started', {
       db_path: ownedRuntime.dbPath ?? getDbPath()
     });
   } catch (error) {

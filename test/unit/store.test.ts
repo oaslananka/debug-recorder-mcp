@@ -28,7 +28,7 @@ describe('Store', () => {
   });
 
   it('creates and closes a store via the static factory', () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'mcp-debug-recorder-store-'));
+    const tempDir = mkdtempSync(join(tmpdir(), 'debug-recorder-mcp-store-'));
     const dbPath = join(tempDir, 'sessions.db');
 
     try {

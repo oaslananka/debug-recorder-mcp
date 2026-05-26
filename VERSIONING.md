@@ -2,8 +2,12 @@
 
 This project publishes in two layers:
 
-1. The installable npm package: `mcp-debug-recorder`
+1. The installable npm package: `debug-recorder-mcp`
 2. The Official MCP Registry metadata entry
+
+The former `mcp-debug-recorder` npm name was unpublished and is no longer the
+documented public artifact. New releases use `debug-recorder-mcp`, which matches
+the repository name and the release workflow package identifiers.
 
 The npm package and the MCP Registry entry are related, but they do not always need
 to move together. This document defines when each one should change.
@@ -28,7 +32,7 @@ When this project is published with GitHub authentication, the intended MCP
 Registry name is:
 
 ```text
-io.github.oaslananka/mcp-debug-recorder
+io.github.oaslananka/debug-recorder-mcp
 ```
 
 That name should be used in:
@@ -69,7 +73,7 @@ Example:
   "version": "1.3.5",
   "packages": [
     {
-      "identifier": "mcp-debug-recorder",
+      "identifier": "debug-recorder-mcp",
       "version": "1.3.5"
     }
   ]
@@ -98,7 +102,7 @@ Example:
   "version": "1.3.5-1",
   "packages": [
     {
-      "identifier": "mcp-debug-recorder",
+      "identifier": "debug-recorder-mcp",
       "version": "1.3.5"
     }
   ]

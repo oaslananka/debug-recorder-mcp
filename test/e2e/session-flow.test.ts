@@ -26,7 +26,7 @@ describe('full stdio session flow', () => {
   beforeAll(async () => {
     expect(existsSync(distEntry)).toBe(true);
 
-    tempDir = mkdtempSync(join(tmpdir(), 'mcp-debug-recorder-e2e-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'debug-recorder-mcp-e2e-'));
     transport = new StdioClientTransport({
       command: process.execPath,
       args: [distEntry],
@@ -40,7 +40,7 @@ describe('full stdio session flow', () => {
     });
     client = new Client(
       {
-        name: 'mcp-debug-recorder-e2e',
+        name: 'debug-recorder-mcp-e2e',
         version: '1.0.0'
       },
       {

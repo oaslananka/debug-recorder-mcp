@@ -1,8 +1,8 @@
-[**mcp-debug-recorder**](../README.md)
+[**debug-recorder-mcp**](../README.md)
 
 ***
 
-[mcp-debug-recorder](../README.md) / types
+[debug-recorder-mcp](../README.md) / types
 
 # types
 
@@ -48,6 +48,7 @@
 - [GetSessionSchema](variables/GetSessionSchema.md)
 - [GetStatsSchema](variables/GetStatsSchema.md)
 - [ImportSessionsSchema](variables/ImportSessionsSchema.md)
+- [INPUT\_LIMITS](variables/INPUT_LIMITS.md)
 - [ListSessionsSchema](variables/ListSessionsSchema.md)
 - [RecordCommandSchema](variables/RecordCommandSchema.md)
 - [SearchSchema](variables/SearchSchema.md)

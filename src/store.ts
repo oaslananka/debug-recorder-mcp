@@ -22,7 +22,8 @@ import {
   type UpdateSession
 } from './types.js';
 
-type SessionListOptions = {
+/** Filters and pagination controls for listing recorded debug sessions. */
+export type SessionListOptions = {
   status?: ListSessions['status'];
   language?: string;
   framework?: string;

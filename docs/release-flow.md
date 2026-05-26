@@ -57,18 +57,24 @@ The npm publish step uses provenance and is intended for npm trusted publishing
 through GitHub OIDC. A long-lived `NPM_TOKEN` is only a fallback when trusted
 publishing is not available.
 
+The repository Actions setting must keep default `GITHUB_TOKEN` permissions at
+read-only while enabling "Allow GitHub Actions to create and approve pull
+requests". Release Please still receives only the job-level permissions in
+`.github/workflows/release.yml`, but GitHub blocks release PR creation unless
+that repository setting is enabled.
+
 ## MCP Registry
 
 The registry identity remains:
 
 ```text
-io.github.oaslananka/mcp-debug-recorder
+io.github.oaslananka/debug-recorder-mcp
 ```
 
 Before an MCP Registry update:
 
 - `server.json.name` must match `package.json.mcpName`
-- `server.json.packages[].identifier` must remain `mcp-debug-recorder`
+- `server.json.packages[].identifier` must remain `debug-recorder-mcp`
 - `server.json.version` must match `package.json.version` for package releases
 - `server.json.packages[].version` must exist on npm
 - `node scripts/check-version-sync.mjs` must pass

@@ -39,7 +39,7 @@ describe('database migrations', () => {
 
   it('is idempotent when opening the same file database twice', () => {
     const tempDir = mkdtempSync(
-      join(tmpdir(), 'mcp-debug-recorder-migrations-')
+      join(tmpdir(), 'debug-recorder-mcp-migrations-')
     );
     const dbPath = join(tempDir, 'sessions.db');
 

@@ -1,14 +1,14 @@
-[**mcp-debug-recorder**](../../README.md)
+[**debug-recorder-mcp**](../../README.md)
 
 ***
 
-[mcp-debug-recorder](../../README.md) / [mcp](../README.md) / startStdioServer
+[debug-recorder-mcp](../../README.md) / [mcp](../README.md) / startStdioServer
 
 # Function: startStdioServer()
 
 > **startStdioServer**(`runtime?`): `Promise`\<`void`\>
 
-Defined in: mcp.ts:287
+Defined in: [src/mcp.ts:287](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/mcp.ts#L287)
 
 ## Parameters
 

@@ -1,22 +1,21 @@
-# mcp-debug-recorder
+# debug-recorder-mcp
 
-[![npm version](https://img.shields.io/npm/v/mcp-debug-recorder.svg)](https://www.npmjs.com/package/mcp-debug-recorder)
-[![License](https://img.shields.io/npm/l/mcp-debug-recorder.svg)](./LICENSE)
-[![npm downloads](https://img.shields.io/npm/dm/mcp-debug-recorder.svg)](https://www.npmjs.com/package/mcp-debug-recorder)
-[![LobeHub](https://lobehub.com/badge/mcp/mcp-debug-recorder)](https://lobehub.com/mcp/mcp-debug-recorder)
-[![Glama](https://glama.ai/mcp/servers/@oaslananka/mcp-debug-recorder/badge)](https://glama.ai/mcp/servers/@oaslananka/mcp-debug-recorder)
+[![npm version](https://img.shields.io/npm/v/debug-recorder-mcp.svg)](https://www.npmjs.com/package/debug-recorder-mcp)
+[![License](https://img.shields.io/npm/l/debug-recorder-mcp.svg)](./LICENSE)
+[![npm downloads](https://img.shields.io/npm/dm/debug-recorder-mcp.svg)](https://www.npmjs.com/package/debug-recorder-mcp)
 
-`mcp-debug-recorder` answers a simple question fast: have I fixed this before?
+`debug-recorder-mcp` answers a simple question fast: have I fixed this before?
 
 It records debug sessions, terminal commands, failed attempts, and successful fixes in a local SQLite database so your MCP client can query your own debugging history in natural language.
 
 ## Quick Start
 
 ```bash
-npx mcp-debug-recorder
+npx debug-recorder-mcp
 ```
 
-By default, data is stored at `~/.mcp-debug-recorder/sessions.db`.
+By default, data is stored at `~/.mcp-debug-recorder/sessions.db`. The storage
+directory keeps the original name so existing local histories continue to load.
 
 ## Architecture
 
@@ -40,7 +39,7 @@ The database schema is versioned via `PRAGMA user_version`. Migrations run autom
 ### Adding a custom database path
 
 ```bash
-DEBUG_RECORDER_DB=/path/to/custom.db npx mcp-debug-recorder
+DEBUG_RECORDER_DB=/path/to/custom.db npx debug-recorder-mcp
 ```
 
 ## Configuration
@@ -83,9 +82,9 @@ DEBUG_RECORDER_DB=/path/to/custom.db npx mcp-debug-recorder
 ```json
 {
   "mcpServers": {
-    "mcp-debug-recorder": {
+    "debug-recorder-mcp": {
       "command": "npx",
-      "args": ["mcp-debug-recorder"]
+      "args": ["debug-recorder-mcp"]
     }
   }
 }
@@ -98,10 +97,10 @@ Create or update `.vscode/mcp.json`:
 ```json
 {
   "servers": {
-    "mcp-debug-recorder": {
+    "debug-recorder-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["mcp-debug-recorder"]
+      "args": ["debug-recorder-mcp"]
     }
   }
 }
@@ -110,21 +109,21 @@ Create or update `.vscode/mcp.json`:
 ### CLI MCP Clients
 
 ```bash
-mcp-client add mcp-debug-recorder -- npx mcp-debug-recorder
+mcp-client add debug-recorder-mcp -- npx debug-recorder-mcp
 mcp-client list
 ```
 
 ### Gemini CLI
 
 ```bash
-gemini mcp add mcp-debug-recorder npx mcp-debug-recorder
+gemini mcp add debug-recorder-mcp npx debug-recorder-mcp
 gemini mcp list
 ```
 
 ### Antigravity
 
 ```powershell
-antigravity --add-mcp "{\"name\":\"mcp-debug-recorder\",\"command\":\"npx\",\"args\":[\"mcp-debug-recorder\"]}"
+antigravity --add-mcp "{\"name\":\"debug-recorder-mcp\",\"command\":\"npx\",\"args\":[\"debug-recorder-mcp\"]}"
 ```
 
 ## Real Usage Examples
@@ -194,14 +193,14 @@ accepted for remote mode.
 ## Docker
 
 ```bash
-docker build -t mcp-debug-recorder:local .
+docker build -t debug-recorder-mcp:local .
 docker run --rm -p 127.0.0.1:3000:3000 \
   -e HOST=0.0.0.0 \
   -e DEBUG_RECORDER_REMOTE_HTTP=true \
   -e DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token \
   -e DEBUG_RECORDER_ALLOWED_HOSTS=127.0.0.1:3000,localhost:3000 \
   -e DEBUG_RECORDER_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
-  mcp-debug-recorder:local
+  debug-recorder-mcp:local
 ```
 
 The image is built with `npm ci`, preserves native install scripts for

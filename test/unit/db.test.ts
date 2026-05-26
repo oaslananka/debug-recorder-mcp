@@ -20,7 +20,7 @@ describe('db module', () => {
   });
 
   it('creates parent directories and uses WAL mode for file databases', () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'mcp-debug-recorder-db-'));
+    const tempDir = mkdtempSync(join(tmpdir(), 'debug-recorder-mcp-db-'));
     const nestedPath = join(tempDir, 'nested', 'sessions.db');
 
     try {

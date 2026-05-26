@@ -43,7 +43,7 @@ describe('MCP handlers', () => {
   });
 
   it('creates and closes a runtime with a custom database path', () => {
-    const tempDir = mkdtempSync(join(tmpdir(), 'mcp-debug-recorder-runtime-'));
+    const tempDir = mkdtempSync(join(tmpdir(), 'debug-recorder-mcp-runtime-'));
     const dbPath = join(tempDir, 'sessions.db');
 
     try {

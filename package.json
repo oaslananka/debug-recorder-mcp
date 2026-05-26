@@ -1,5 +1,5 @@
 {
-  "name": "mcp-debug-recorder",
+  "name": "debug-recorder-mcp",
   "version": "1.0.1",
   "description": "MCP server for recording debug sessions — query your debugging history with natural language",
   "type": "module",
@@ -12,9 +12,9 @@
   },
   "types": "dist/mcp.d.ts",
   "bin": {
-    "mcp-debug-recorder": "dist/mcp.js"
+    "debug-recorder-mcp": "dist/mcp.js"
   },
-  "mcpName": "io.github.oaslananka/mcp-debug-recorder",
+  "mcpName": "io.github.oaslananka/debug-recorder-mcp",
   "files": [
     "dist",
     "mcp.json",
@@ -65,11 +65,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oaslananka/mcp-debug-recorder.git"
+    "url": "git+https://github.com/oaslananka/debug-recorder-mcp.git"
   },
-  "homepage": "https://github.com/oaslananka/mcp-debug-recorder#readme",
+  "homepage": "https://github.com/oaslananka/debug-recorder-mcp#readme",
   "bugs": {
-    "url": "https://github.com/oaslananka/mcp-debug-recorder/issues"
+    "url": "https://github.com/oaslananka/debug-recorder-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
