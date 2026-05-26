@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private vulnerability report
+    url: https://github.com/oaslananka/debug-recorder-mcp/security/advisories/new
+    about: Report exploitable vulnerabilities privately through GitHub Security Advisories.
+  - name: Support policy
+    url: https://github.com/oaslananka/debug-recorder-mcp/blob/main/SUPPORT.md
+    about: Learn which questions belong in issues and what response targets to expect.

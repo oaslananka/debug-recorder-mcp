@@ -1,0 +1,83 @@
+name: Bug report
+description: Report reproducible broken behavior in debug-recorder-mcp.
+title: '[BUG] '
+labels: ['type:bug', 'priority:P2', 'risk:medium']
+assignees: ['oaslananka']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. Do not include secrets,
+        tokens, private debug logs, or full local database contents.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing open and closed issues first.
+          required: true
+        - label: This is not a private security vulnerability.
+          required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - MCP tools
+        - SQLite storage
+        - Search
+        - HTTP transport
+        - CLI/package install
+        - Docker
+        - CI/release
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and impact.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe the expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest command sequence or MCP calls that reproduces the issue.
+      placeholder: |
+        1. Run `...`
+        2. Configure `...`
+        3. Observe `...`
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, Node.js version, npm version, package version, and MCP client.
+      render: text
+      placeholder: |
+        OS:
+        node --version:
+        npm --version:
+        debug-recorder-mcp version:
+        MCP client:
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or evidence
+      description: Redact secrets before pasting output.
+      render: shell
+    validations:
+      required: false
