@@ -130,7 +130,13 @@ jobs:
 
       - name: Publish tarball with provenance
         shell: bash
-        run: npm publish release-assets/debug-recorder-mcp-*.tgz --access public --provenance
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: |
+          set -euo pipefail
+          tarball="./release-assets/debug-recorder-mcp-${VERSION}.tgz"
+          test -f "$tarball"
+          npm publish "$tarball" --access public --provenance
 
       - name: Verify npm publication
         shell: bash
