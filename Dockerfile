@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-bookworm-slim AS build
+FROM node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf AS build
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run build
 
 RUN npm prune --omit=dev
 
-FROM node:24-bookworm-slim AS runtime
+FROM node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf AS runtime
 
 ENV NODE_ENV=production \
     HOST=127.0.0.1 \
