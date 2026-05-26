@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2](https://github.com/oaslananka/debug-recorder-mcp/compare/mcp-debug-recorder-v1.0.1...mcp-debug-recorder-v1.0.2) (2026-05-26)
+
+
+### Bug Fixes
+
+* **security:** restore dependency and workflow gates ([#12](https://github.com/oaslananka/debug-recorder-mcp/issues/12)) ([436dcb9](https://github.com/oaslananka/debug-recorder-mcp/commit/436dcb9a64584c03a54058180f18c25ae0e6c347)), closes [#3](https://github.com/oaslananka/debug-recorder-mcp/issues/3)
+
 ## [Unreleased]
 
 ### Added
