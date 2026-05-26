@@ -46,13 +46,26 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Unit tests
-        run: npm test
+      - name: Coverage tests
+        run: npm run test:coverage
         env:
-          JEST_JUNIT_OUTPUT_DIR: test-results/node-${{ matrix.node-version }}
+          JEST_JUNIT_OUTPUT_DIR: >-
+            test-results/node-${{ matrix.node-version }}/coverage
+
+      - name: Fuzz regression tests
+        run: npm run test:fuzz
+        env:
+          JEST_JUNIT_OUTPUT_DIR: >-
+            test-results/node-${{ matrix.node-version }}/fuzz
 
       - name: Build
         run: npm run build
+
+      - name: E2E tests
+        run: npm run test:e2e
+        env:
+          JEST_JUNIT_OUTPUT_DIR: >-
+            test-results/node-${{ matrix.node-version }}/e2e
 
       - name: Dependency audit
         run: npm audit --audit-level=moderate
@@ -66,12 +79,14 @@ jobs:
       - name: MCP metadata
         run: node scripts/validate-mcp-metadata.mjs
 
-      - name: Upload test results
+      - name: Upload quality artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: test-results-node-${{ matrix.node-version }}
-          path: test-results
+          name: quality-node-${{ matrix.node-version }}
+          path: |
+            coverage
+            test-results
           if-no-files-found: ignore
 
   docker:
