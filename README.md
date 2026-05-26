@@ -243,5 +243,6 @@ Additional project docs:
 - [Testing](./docs/testing.md)
 - [Search Algorithm](./docs/search-algorithm.md)
 - [Release Flow](./docs/release-flow.md)
+- [Support](./SUPPORT.md)
 - [Versioning Policy](./VERSIONING.md)
 - [Roadmap](./ROADMAP.md)

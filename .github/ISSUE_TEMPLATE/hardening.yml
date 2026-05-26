@@ -1,0 +1,68 @@
+name: Security hardening or supply-chain task
+description: Request public security hardening that is not a private vulnerability report.
+title: '[SECURITY] '
+labels: ['type:security', 'area:security', 'priority:P1', 'risk:medium']
+assignees: ['oaslananka']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for public hardening, CI, dependency, release, and supply-chain
+        improvements. Do not use it for exploitable private vulnerabilities. Report
+        those through GitHub Security Advisories instead:
+        https://github.com/oaslananka/debug-recorder-mcp/security/advisories/new
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: This can be discussed publicly without exposing a vulnerability or secret.
+          required: true
+        - label: I searched existing open and closed issues first.
+          required: true
+  - type: dropdown
+    id: hardening-area
+    attributes:
+      label: Hardening area
+      options:
+        - Dependencies
+        - GitHub Actions
+        - Release provenance
+        - Docker or OCI image
+        - Secret handling
+        - HTTP transport security
+        - Storage safety
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What control is missing or weak, and what is the impact?
+    validations:
+      required: true
+  - type: textarea
+    id: required-change
+    attributes:
+      label: Required change
+      description: List the files, workflows, commands, or settings that should change.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Include Linux/macOS and Windows commands where possible.
+      placeholder: |
+        Linux/macOS:
+        ```bash
+        ...
+        ```
+
+        Windows 11 PowerShell:
+        ```powershell
+        ...
+        ```
+    validations:
+      required: true

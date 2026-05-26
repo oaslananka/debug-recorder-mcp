@@ -1,0 +1,58 @@
+name: Feature request
+description: Propose a new capability or user-visible improvement.
+title: '[FEATURE] '
+labels: ['type:enhancement', 'priority:P3', 'risk:low']
+assignees: ['oaslananka']
+body:
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing open and closed issues first.
+          required: true
+        - label: This request is not a private security vulnerability.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior, command, tool, configuration, or output you want.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What can users do today, and why is it not enough?
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - MCP tools
+        - Storage
+        - Search
+        - HTTP transport
+        - Packaging
+        - Documentation
+        - Developer experience
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Acceptance and validation
+      description: How should maintainers verify the feature works?
+    validations:
+      required: true
