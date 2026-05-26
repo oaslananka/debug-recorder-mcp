@@ -73,7 +73,7 @@ jobs:
           mkdir -p release-assets
           npm pack --pack-destination release-assets
           npm sbom --sbom-format=cyclonedx > "release-assets/mcp-debug-recorder-${VERSION}.cdx.json"
-          (cd release-assets && sha256sum * > SHA256SUMS)
+          (cd release-assets && sha256sum ./* > SHA256SUMS)
 
       - name: Attest package tarball
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32

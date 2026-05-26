@@ -30,7 +30,13 @@ Before writing code, research current stable versions and update the approved ta
 | `@types/node` | `22.19.17` | Stable Node type line compatible with Node 20 and Node 24 runtime support. |
 | `globals` | `17.4.0` | Required to define environment globals explicitly in ESLint flat config. |
 | `ts-node` | `10.9.2` | Required helper tool for `npm run dev`. |
-| `jest-junit` | `16.0.0` | Required to publish Azure DevOps test results as JUnit XML. |
+| `@types/jest` | `30.0.0` | Current stable Jest type package aligned with the Jest 30 test runtime. |
+| `jest` | `30.4.2` | Current stable Jest release used to keep the test runner on the maintained major line. |
+| `jest-junit` | `17.0.0` | Current stable release with patched `uuid` transitive dependency, required to publish Azure DevOps test results as JUnit XML. |
+| `ts-jest` | `29.4.11` | Current stable transformer release compatible with Jest 30 and TypeScript 5.9. |
+| `babel-plugin-istanbul` | `8.0.0` | Current stable coverage instrumentation plugin used through overrides to avoid deprecated transitive glob paths. |
+| `glob` | `13.0.6` | Current stable glob release used through overrides to keep Jest coverage tooling off deprecated glob versions. |
+| `test-exclude` | `8.0.0` | Current stable coverage exclusion helper compatible with `babel-plugin-istanbul` 8 and `glob` 13. |
 | `typedoc` | `0.28.18` | API documentation generator compatible with TypeScript 5.9. |
 | `typedoc-plugin-markdown` | `4.11.0` | Selected to generate TypeDoc output as Markdown under `docs/api`. |
 
