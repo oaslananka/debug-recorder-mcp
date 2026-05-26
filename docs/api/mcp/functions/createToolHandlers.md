@@ -1,14 +1,14 @@
-[**mcp-debug-recorder**](../../README.md)
+[**debug-recorder-mcp**](../../README.md)
 
 ***
 
-[mcp-debug-recorder](../../README.md) / [mcp](../README.md) / createToolHandlers
+[debug-recorder-mcp](../../README.md) / [mcp](../README.md) / createToolHandlers
 
 # Function: createToolHandlers()
 
 > **createToolHandlers**(`runtime`): `object`
 
-Defined in: mcp.ts:76
+Defined in: [src/mcp.ts:76](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/mcp.ts#L76)
 
 ## Parameters
 
@@ -22,56 +22,56 @@ Defined in: mcp.ts:76
 
 ### handleAddFix
 
-> **handleAddFix**: `ToolHandler`\<\{ `code_snippet?`: `string`; `description`: `string`; `notes?`: `string`; `session_id`: `string`; `worked`: `boolean`; \}\>
+> **handleAddFix**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `code_snippet?`: `string`; `description`: `string`; `notes?`: `string`; `session_id`: `string`; `worked`: `boolean`; \}\>
 
 ### handleCloseSession
 
-> **handleCloseSession**: `ToolHandler`\<\{ `session_id`: `string`; `status`: `"resolved"` \| `"abandoned"`; `summary?`: `string`; \}\>
+> **handleCloseSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `session_id`: `string`; `status`: `"resolved"` \| `"abandoned"`; `summary?`: `string`; \}\>
 
 ### handleDeleteSession
 
-> **handleDeleteSession**: `ToolHandler`\<\{ `confirm`: `boolean`; `session_id`: `string`; \}\>
+> **handleDeleteSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `confirm`: `boolean`; `session_id`: `string`; \}\>
 
 ### handleExportSessions
 
-> **handleExportSessions**: `ToolHandler`\<\{ `format`: `"summary"` \| `"json"`; \}\>
+> **handleExportSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `format`: `"summary"` \| `"json"`; \}\>
 
 ### handleFindSimilarErrors
 
-> **handleFindSimilarErrors**: `ToolHandler`\<\{ `error_message`: `string`; `limit`: `number`; \}\>
+> **handleFindSimilarErrors**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `error_message`: `string`; `limit`: `number`; \}\>
 
 ### handleGetSession
 
-> **handleGetSession**: `ToolHandler`\<\{ `session_id`: `string`; \}\>
+> **handleGetSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `session_id`: `string`; \}\>
 
 ### handleGetSessionContext
 
-> **handleGetSessionContext**: `ToolHandler`\<\{ `include_commands`: `boolean`; `include_fixes`: `boolean`; `session_id`: `string`; \}\>
+> **handleGetSessionContext**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `include_commands`: `boolean`; `include_fixes`: `boolean`; `session_id`: `string`; \}\>
 
 ### handleGetStats
 
-> **handleGetStats**: `ToolHandler`\<\{ \}\>
+> **handleGetStats**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ \}\>
 
 ### handleImportSessions
 
-> **handleImportSessions**: `ToolHandler`\<\{ `payload`: \{ `commands`: `object`[]; `exported_at?`: `string`; `fixes`: `object`[]; `schema_version`: `number`; `sessions`: `object`[]; \}; `skip_existing`: `boolean`; \}\>
+> **handleImportSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `payload`: \{ `commands`: `object`[]; `exported_at?`: `string`; `fixes`: `object`[]; `schema_version`: `number`; `sessions`: `object`[]; \}; `skip_existing`: `boolean`; \}\>
 
 ### handleListSessions
 
-> **handleListSessions**: `ToolHandler`\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `offset`: `number`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
+> **handleListSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `offset`: `number`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
 
 ### handleRecordCommand
 
-> **handleRecordCommand**: `ToolHandler`\<\{ `command`: `string`; `exit_code?`: `number`; `output?`: `string`; `session_id`: `string`; \}\>
+> **handleRecordCommand**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `command`: `string`; `exit_code?`: `number`; `output?`: `string`; `session_id`: `string`; \}\>
 
 ### handleSearchSessions
 
-> **handleSearchSessions**: `ToolHandler`\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `query`: `string`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
+> **handleSearchSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `query`: `string`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
 
 ### handleStartDebugSession
 
-> **handleStartDebugSession**: `ToolHandler`\<\{ `description?`: `string`; `environment?`: `string`; `error_message?`: `string`; `error_type?`: `string`; `framework?`: `string`; `language?`: `string`; `stack_trace?`: `string`; `tags`: `string`[]; `title`: `string`; \}\>
+> **handleStartDebugSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `description?`: `string`; `environment?`: `string`; `error_message?`: `string`; `error_type?`: `string`; `framework?`: `string`; `language?`: `string`; `stack_trace?`: `string`; `tags`: `string`[]; `title`: `string`; \}\>
 
 ### handleUpdateSession
 
-> **handleUpdateSession**: `ToolHandler`\<\{ `description?`: `string`; `session_id`: `string`; `tags?`: `string`[]; `title?`: `string`; \}\>
+> **handleUpdateSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `description?`: `string`; `session_id`: `string`; `tags?`: `string`[]; `title?`: `string`; \}\>

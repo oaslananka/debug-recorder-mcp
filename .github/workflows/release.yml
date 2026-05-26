@@ -72,13 +72,13 @@ jobs:
           set -euo pipefail
           mkdir -p release-assets
           npm pack --pack-destination release-assets
-          npm sbom --sbom-format=cyclonedx > "release-assets/mcp-debug-recorder-${VERSION}.cdx.json"
+          npm sbom --sbom-format=cyclonedx > "release-assets/debug-recorder-mcp-${VERSION}.cdx.json"
           (cd release-assets && sha256sum ./* > SHA256SUMS)
 
       - name: Attest package tarball
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32
         with:
-          subject-path: release-assets/mcp-debug-recorder-*.tgz
+          subject-path: release-assets/debug-recorder-mcp-*.tgz
 
       - name: Upload release assets to workflow
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -94,7 +94,7 @@ jobs:
 
   npm-publish:
     name: Publish npm Package
-    if: ${{ needs.release-please.outputs.release_created == 'true' && github.repository == 'oaslananka/mcp-debug-recorder' }}
+    if: ${{ needs.release-please.outputs.release_created == 'true' && github.repository == 'oaslananka/debug-recorder-mcp' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     needs:
@@ -123,17 +123,17 @@ jobs:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           set -euo pipefail
-          if npm view "mcp-debug-recorder@${VERSION}" version >/dev/null 2>&1; then
-            echo "mcp-debug-recorder@${VERSION} already exists on npm"
+          if npm view "debug-recorder-mcp@${VERSION}" version >/dev/null 2>&1; then
+            echo "debug-recorder-mcp@${VERSION} already exists on npm"
             exit 1
           fi
 
       - name: Publish tarball with provenance
         shell: bash
-        run: npm publish release-assets/mcp-debug-recorder-*.tgz --access public --provenance
+        run: npm publish release-assets/debug-recorder-mcp-*.tgz --access public --provenance
 
       - name: Verify npm publication
         shell: bash
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
-        run: test "$(npm view "mcp-debug-recorder@${VERSION}" version)" = "$VERSION"
+        run: test "$(npm view "debug-recorder-mcp@${VERSION}" version)" = "$VERSION"

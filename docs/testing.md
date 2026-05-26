@@ -26,7 +26,7 @@ npm run test:e2e
 Run the Docker gate when the Dockerfile or HTTP runtime changes:
 
 ```bash
-docker build -t mcp-debug-recorder:local .
+docker build -t debug-recorder-mcp:local .
 ```
 
 ## Coverage focus

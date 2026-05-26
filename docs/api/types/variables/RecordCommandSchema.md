@@ -1,11 +1,11 @@
-[**mcp-debug-recorder**](../../README.md)
+[**debug-recorder-mcp**](../../README.md)
 
 ***
 
-[mcp-debug-recorder](../../README.md) / [types](../README.md) / RecordCommandSchema
+[debug-recorder-mcp](../../README.md) / [types](../README.md) / RecordCommandSchema
 
 # Variable: RecordCommandSchema
 
 > `const` **RecordCommandSchema**: `ZodObject`\<\{ `command`: `ZodString`; `exit_code`: `ZodOptional`\<`ZodNumber`\>; `output`: `ZodOptional`\<`ZodString`\>; `session_id`: `ZodString`; \}, `"strip"`, `ZodTypeAny`, \{ `command`: `string`; `exit_code?`: `number`; `output?`: `string`; `session_id`: `string`; \}, \{ `command`: `string`; `exit_code?`: `number`; `output?`: `string`; `session_id`: `string`; \}\>
 
-Defined in: types.ts:90
+Defined in: [src/types.ts:152](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L152)

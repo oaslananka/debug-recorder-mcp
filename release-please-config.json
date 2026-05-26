@@ -2,7 +2,7 @@
   "release-type": "node",
   "packages": {
     ".": {
-      "package-name": "mcp-debug-recorder",
+      "package-name": "debug-recorder-mcp",
       "changelog-path": "CHANGELOG.md"
     }
   }

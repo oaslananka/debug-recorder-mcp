@@ -1,6 +1,6 @@
 # Search Algorithm
 
-`mcp-debug-recorder` uses a hybrid approach so search remains useful as the session history grows.
+`debug-recorder-mcp` uses a hybrid approach so search remains useful as the session history grows.
 
 ## Step 1: FTS5 recall
 

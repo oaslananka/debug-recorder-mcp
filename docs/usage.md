@@ -1,6 +1,6 @@
 # Usage
 
-`mcp-debug-recorder` stores debug sessions in a local SQLite database and exposes them through MCP tools over stdio or Streamable HTTP.
+`debug-recorder-mcp` stores debug sessions in a local SQLite database and exposes them through MCP tools over stdio or Streamable HTTP.
 
 ## Core workflow
 
@@ -76,7 +76,7 @@ FTS5 becomes especially valuable when:
 To keep multiple isolated histories, point the process at a custom path:
 
 ```bash
-DEBUG_RECORDER_DB=/path/to/custom.db npx mcp-debug-recorder
+DEBUG_RECORDER_DB=/path/to/custom.db npx debug-recorder-mcp
 ```
 
 This is useful for:

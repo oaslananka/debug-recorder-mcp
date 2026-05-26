@@ -1,9 +1,9 @@
 {
-  "name": "mcp-debug-recorder",
+  "name": "debug-recorder-mcp",
   "version": "1.0.1",
-  "mcpName": "io.github.oaslananka/mcp-debug-recorder",
+  "mcpName": "io.github.oaslananka/debug-recorder-mcp",
   "description": "MCP server for recording debug sessions, errors and fixes",
   "transport": "stdio",
   "command": "npx",
-  "args": ["mcp-debug-recorder"]
+  "args": ["debug-recorder-mcp"]
 }

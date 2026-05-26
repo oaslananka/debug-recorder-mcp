@@ -410,7 +410,7 @@ export function createHttpServer(
 
         if (url.pathname === '/version') {
           writeJson(response, 200, {
-            name: 'mcp-debug-recorder',
+            name: 'debug-recorder-mcp',
             version: getVersion()
           });
           return;
@@ -520,7 +520,7 @@ export async function startHttpServer(
     throw error;
   }
 
-  log('info', 'mcp-debug-recorder HTTP server started', {
+  log('info', 'debug-recorder-mcp HTTP server started', {
     host: config.host,
     port: config.port
   });

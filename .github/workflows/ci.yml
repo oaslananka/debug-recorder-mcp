@@ -87,7 +87,7 @@ jobs:
           persist-credentials: false
 
       - name: Build image
-        run: docker build -t mcp-debug-recorder:ci .
+        run: docker build -t debug-recorder-mcp:ci .
 
       - name: HTTP smoke test
         shell: bash
@@ -101,7 +101,7 @@ jobs:
             -e DEBUG_RECORDER_HTTP_TOKEN=ci-local-token \
             -e DEBUG_RECORDER_ALLOWED_HOSTS=127.0.0.1:3000,localhost:3000 \
             -e DEBUG_RECORDER_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
-            mcp-debug-recorder:ci)"
+            debug-recorder-mcp:ci)"
           trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
           for _ in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:3000/health; then
@@ -115,7 +115,7 @@ jobs:
       - name: Trivy container scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25
         with:
-          image-ref: mcp-debug-recorder:ci
+          image-ref: debug-recorder-mcp:ci
           format: table
           exit-code: '1'
           severity: HIGH,CRITICAL

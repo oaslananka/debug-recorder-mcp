@@ -1,14 +1,14 @@
-[**mcp-debug-recorder**](../../README.md)
+[**debug-recorder-mcp**](../../README.md)
 
 ***
 
-[mcp-debug-recorder](../../README.md) / [types](../README.md) / ImportResult
+[debug-recorder-mcp](../../README.md) / [types](../README.md) / ImportResult
 
 # Type Alias: ImportResult
 
 > **ImportResult** = `object`
 
-Defined in: types.ts:202
+Defined in: [src/types.ts:276](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L276)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: types.ts:202
 
 > **errors**: `string`[]
 
-Defined in: types.ts:207
+Defined in: [src/types.ts:281](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L281)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: types.ts:207
 
 > **imported**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: types.ts:204
+Defined in: [src/types.ts:278](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L278)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: types.ts:204
 
 > **invalid**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: types.ts:206
+Defined in: [src/types.ts:280](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L280)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: types.ts:206
 
 > **schema\_version**: `number`
 
-Defined in: types.ts:203
+Defined in: [src/types.ts:277](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L277)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: types.ts:203
 
 > **skipped**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: types.ts:205
+Defined in: [src/types.ts:279](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/types.ts#L279)

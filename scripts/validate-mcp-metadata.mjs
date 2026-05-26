@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 const SERVER_SCHEMA_HOST = 'static.modelcontextprotocol.io';
-const EXPECTED_SERVER_NAME = 'io.github.oaslananka/mcp-debug-recorder';
+const EXPECTED_SERVER_NAME = 'io.github.oaslananka/debug-recorder-mcp';
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
@@ -44,7 +44,7 @@ const pkg = readJson('package.json');
 const mcp = readJson('mcp.json');
 const server = readJson('server.json');
 
-assert(pkg.name === 'mcp-debug-recorder', 'Unexpected package name');
+assert(pkg.name === 'debug-recorder-mcp', 'Unexpected package name');
 assert(pkg.mcpName === EXPECTED_SERVER_NAME, 'Unexpected MCP package identity');
 assert(mcp.name === pkg.name, 'mcp.json name mismatch');
 assert(mcp.mcpName === pkg.mcpName, 'mcp.json mcpName mismatch');
@@ -62,7 +62,7 @@ assert(server.name === EXPECTED_SERVER_NAME, 'server.json name mismatch');
 assert(server.name === pkg.mcpName, 'server.json/package mcpName mismatch');
 assert(server.version === pkg.version, 'server.json version mismatch');
 assert(
-  server.repository?.url === 'https://github.com/oaslananka/mcp-debug-recorder',
+  server.repository?.url === 'https://github.com/oaslananka/debug-recorder-mcp',
   'server.json repository URL mismatch'
 );
 

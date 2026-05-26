@@ -19,7 +19,7 @@
 ## Example
 
 ```bash
-DEBUG_RECORDER_DB=/tmp/debug-memory.db LOG_LEVEL=warn FUZZY_THRESHOLD=0.4 npx mcp-debug-recorder
+DEBUG_RECORDER_DB=/tmp/debug-memory.db LOG_LEVEL=warn FUZZY_THRESHOLD=0.4 npx debug-recorder-mcp
 ```
 
 ## HTTP security model

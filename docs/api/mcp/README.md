@@ -1,8 +1,8 @@
-[**mcp-debug-recorder**](../README.md)
+[**debug-recorder-mcp**](../README.md)
 
 ***
 
-[mcp-debug-recorder](../README.md) / mcp
+[debug-recorder-mcp](../README.md) / mcp
 
 # mcp
 

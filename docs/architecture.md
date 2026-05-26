@@ -1,6 +1,6 @@
 # Architecture
 
-`mcp-debug-recorder` keeps runtime responsibilities intentionally narrow:
+`debug-recorder-mcp` keeps runtime responsibilities intentionally narrow:
 
 - MCP transports accept tool calls.
 - Tool handlers translate those calls into store operations.

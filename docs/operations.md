@@ -5,7 +5,7 @@
 Run the default stdio server:
 
 ```bash
-npx mcp-debug-recorder
+npx debug-recorder-mcp
 ```
 
 Use `DEBUG_RECORDER_DB` to place the SQLite database somewhere other than
@@ -26,7 +26,7 @@ limit. Set `DEBUG_RECORDER_HTTP_TOKEN` if local token auth is desired.
 Build:
 
 ```bash
-docker build -t mcp-debug-recorder:local .
+docker build -t debug-recorder-mcp:local .
 ```
 
 Run with a host-published port:
@@ -38,7 +38,7 @@ docker run --rm -p 127.0.0.1:3000:3000 \
   -e DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token \
   -e DEBUG_RECORDER_ALLOWED_HOSTS=127.0.0.1:3000,localhost:3000 \
   -e DEBUG_RECORDER_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
-  mcp-debug-recorder:local
+  debug-recorder-mcp:local
 ```
 
 The image installs native dependencies with `npm ci`, prunes development
