@@ -44,6 +44,17 @@ docker run --rm -p 127.0.0.1:3000:3000 \
 The image installs native dependencies with `npm ci`, prunes development
 dependencies, and runs as the non-root `node` user.
 
+The Dockerfile pins `node:24-bookworm-slim` by multi-architecture digest. When
+refreshing the base image, verify the digest with:
+
+```bash
+docker buildx imagetools inspect node:24-bookworm-slim
+```
+
+Security workflow tools must stay pinned and updateable. `actionlint` is
+installed through a fixed Go module version, and `zizmor` runs through the
+official pinned `zizmor-action` commit with an exact `zizmor` version.
+
 ## Backups
 
 Use `export_sessions` for JSON backups and `import_sessions` for restores.

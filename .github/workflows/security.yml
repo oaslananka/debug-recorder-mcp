@@ -29,21 +29,25 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install actionlint and zizmor
+      - name: Install actionlint
         shell: bash
         run: |
           set -euo pipefail
           export GOPATH="$RUNNER_TEMP/go"
           echo "$GOPATH/bin" >> "$GITHUB_PATH"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
-          python3 -m pip install --user --break-system-packages zizmor==1.24.1
 
       - name: actionlint
         run: actionlint -color
 
       - name: zizmor
-        run: zizmor --persona auditor --min-severity low .github/workflows
+        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        with:
+          inputs: .github/workflows
+          persona: auditor
+          min-severity: low
+          version: 1.25.2
+          advanced-security: false
 
   secret-scan:
     name: Gitleaks Secret Scan
