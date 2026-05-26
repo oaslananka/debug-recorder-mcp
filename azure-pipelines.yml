@@ -32,10 +32,10 @@ stages:
         displayName: Lint, test, and build
         strategy:
           matrix:
-            node20:
-              NODE_VERSION: 20.x
+            node22:
+              NODE_VERSION: 22.22.3
             node24:
-              NODE_VERSION: 24.x
+              NODE_VERSION: 24.16.0
         steps:
           - checkout: self
 

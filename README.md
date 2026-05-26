@@ -10,6 +10,8 @@ It records debug sessions, terminal commands, failed attempts, and successful fi
 
 ## Quick Start
 
+Requires Node.js 22 LTS or 24 LTS.
+
 ```bash
 npx debug-recorder-mcp
 ```

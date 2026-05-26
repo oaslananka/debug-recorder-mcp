@@ -19,7 +19,7 @@ Before writing code, research current stable versions and update the approved ta
 | Package | Version | Why |
 | ----- | -------- | ----- |
 | `@modelcontextprotocol/sdk` | `1.29.0` | Current stable release on the MCP SDK v1.x line as of April 2026. |
-| `better-sqlite3` | `12.8.0` | Current stable native SQLite release compatible with Node 20 and Node 24. |
+| `better-sqlite3` | `12.8.0` | Current stable native SQLite release compatible with the supported Node 22 and Node 24 LTS lines. |
 | `fuse.js` | `7.3.0` | Current stable Fuse.js release compatible with the existing fuzzy search API. |
 | `zod` | `3.25.76` | Stable patch release that satisfies the `3.25+` requirement and behaves well with TypeScript inference. |
 | `eslint` | `9.39.4` | Current stable release on the ESLint 9 maintenance line, selected for flat config migration. |
@@ -27,7 +27,7 @@ Before writing code, research current stable versions and update the approved ta
 | `@typescript-eslint/eslint-plugin` | `8.58.1` | Current stable plugin release compatible with ESLint 9 and TypeScript 5.9. |
 | `@typescript-eslint/parser` | `8.58.1` | Parser release compatible with ESLint 9 and TypeScript 5.9. |
 | `typescript` | `5.9.3` | Current TypeScript 5.9 patch line for the conservative quality pass. |
-| `@types/node` | `22.19.17` | Stable Node type line compatible with Node 20 and Node 24 runtime support. |
+| `@types/node` | `22.19.17` | Stable Node type line for the Node 22 support floor while runtime CI also covers Node 24 LTS. |
 | `globals` | `17.4.0` | Required to define environment globals explicitly in ESLint flat config. |
 | `ts-node` | `10.9.2` | Required helper tool for `npm run dev`. |
 | `@types/jest` | `30.0.0` | Current stable Jest type package aligned with the Jest 30 test runtime. |

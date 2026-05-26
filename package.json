@@ -49,7 +49,7 @@
     "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": "^22.0.0 || ^24.0.0",
     "npm": ">=10.0.0"
   },
   "keywords": [

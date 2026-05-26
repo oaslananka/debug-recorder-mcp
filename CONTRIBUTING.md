@@ -14,7 +14,7 @@ node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
 ```
 
-Supported local development targets are Node 20 and Node 24.
+Supported local development targets are Node 22 LTS and Node 24 LTS.
 
 ## Adding a New Tool
 
@@ -58,8 +58,8 @@ All changes to `main` must go through a pull request. The branch protection
 rule requires the pull request branch to be up to date, code owner approval,
 resolved conversations, and these passing checks:
 
-- `Quality / Node 20.19.5`
-- `Quality / Node 24.15.0`
+- `Quality / Node 22.22.3`
+- `Quality / Node 24.16.0`
 - `Docker Build, Smoke, and Scan`
 - `Workflow Lint and Security`
 - `Gitleaks Secret Scan`
