@@ -1,4 +1,4 @@
-# Contributing to mcp-debug-recorder
+# Contributing to debug-recorder-mcp
 
 ## Development Setup
 
@@ -49,8 +49,27 @@ node scripts/validate-mcp-metadata.mjs
 For Docker changes, also run:
 
 ```bash
-docker build -t mcp-debug-recorder:local .
+docker build -t debug-recorder-mcp:local .
 ```
+
+## Protected Main Branch
+
+All changes to `main` must go through a pull request. The branch protection
+rule requires the pull request branch to be up to date, code owner approval,
+resolved conversations, and these passing checks:
+
+- `Quality / Node 20.19.5`
+- `Quality / Node 24.15.0`
+- `Docker Build, Smoke, and Scan`
+- `Workflow Lint and Security`
+- `Gitleaks Secret Scan`
+- `Trivy Filesystem Scan`
+- `CodeQL / JavaScript-TypeScript`
+- `CodeQL`
+
+Force pushes and branch deletion are disabled for `main`.
+Repository administrators retain emergency bypass because this is currently a
+single-maintainer repository.
 
 ## Commit Style
 
