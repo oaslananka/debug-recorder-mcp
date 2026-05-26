@@ -30,11 +30,13 @@ Before writing code, research current stable versions and update the approved ta
 | `@types/node` | `22.19.17` | Stable Node type line for the Node 22 support floor while runtime CI also covers Node 24 LTS. |
 | `globals` | `17.4.0` | Required to define environment globals explicitly in ESLint flat config. |
 | `ts-node` | `10.9.2` | Required helper tool for `npm run dev`. |
+| `@jest/globals` | `30.4.1` | Current stable explicit Jest globals package used by TypeScript test imports. |
 | `@types/jest` | `30.0.0` | Current stable Jest type package aligned with the Jest 30 test runtime. |
 | `jest` | `30.4.2` | Current stable Jest release used to keep the test runner on the maintained major line. |
 | `jest-junit` | `17.0.0` | Current stable release with patched `uuid` transitive dependency, required to publish Azure DevOps test results as JUnit XML. |
 | `ts-jest` | `29.4.11` | Current stable transformer release compatible with Jest 30 and TypeScript 5.9. |
 | `fast-check` | `4.8.0` | Current stable property-based testing release for Jest-compatible TypeScript fuzz/regression tests. |
+| `knip` | `6.14.2` | Current stable dead-code and dependency checker compatible with the supported Node 22 and Node 24 LTS lines. |
 | `babel-plugin-istanbul` | `8.0.0` | Current stable coverage instrumentation plugin used through overrides to avoid deprecated transitive glob paths. |
 | `glob` | `13.0.6` | Current stable glob release used through overrides to keep Jest coverage tooling off deprecated glob versions. |
 | `test-exclude` | `8.0.0` | Current stable coverage exclusion helper compatible with `babel-plugin-istanbul` 8 and `glob` 13. |

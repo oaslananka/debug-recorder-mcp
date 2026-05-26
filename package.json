@@ -43,11 +43,13 @@
     "test:fuzz": "node scripts/run-jest.mjs --suite=fuzz --testPathPatterns=fuzz --runInBand",
     "docs:api": "typedoc --options typedoc.json",
     "audit": "npm audit --audit-level=moderate",
+    "check:dead-code": "knip --config knip.json --reporter compact",
+    "check:package-size": "node scripts/check-package-size.mjs",
     "check:version": "node scripts/check-version-sync.mjs",
     "check:mcp": "node scripts/validate-mcp-metadata.mjs",
-    "ci:local": "npm run format:check && npm run lint && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm pack --dry-run && npm run check:version && npm run check:mcp",
+    "ci:local": "npm run format:check && npm run lint && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm pack --dry-run && npm run check:package-size && npm run check:version && npm run check:mcp",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run format:check && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:version && npm run check:mcp",
+    "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:package-size && npm run check:version && npm run check:mcp",
     "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json"
   },
   "engines": {
@@ -81,6 +83,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
+    "@jest/globals": "30.4.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
     "@types/node": "22.19.17",
@@ -91,6 +94,7 @@
     "globals": "17.4.0",
     "jest": "^30.4.2",
     "jest-junit": "^17.0.0",
+    "knip": "6.14.2",
     "prettier": "^3.3.0",
     "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",

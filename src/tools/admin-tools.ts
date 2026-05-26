@@ -49,5 +49,3 @@ export function createAdminToolHandlers(store: Store) {
     handleImportSessions
   };
 }
-
-export type AdminToolHandlers = ReturnType<typeof createAdminToolHandlers>;

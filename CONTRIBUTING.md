@@ -7,11 +7,13 @@ node --version
 npm ci
 npm run format:check
 npm run lint
+npm run check:dead-code
 npm run test:coverage
 npm run test:fuzz
 npm run build
 npm run test:e2e
 npm audit --audit-level=moderate
+npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
 ```
@@ -40,15 +42,23 @@ Run these before opening a PR:
 ```bash
 npm run lint
 npm run format:check
+npm run check:dead-code
 npm run test:coverage
 npm run test:fuzz
 npm run build
 npm run test:e2e
 npm audit --audit-level=moderate
 npm pack --dry-run
+npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
 ```
+
+`npm run check:dead-code` must complete without unused files, exports,
+dependencies, or binaries. `npm run check:package-size` must report
+`Package artifact OK` for the npm tarball and fails if required package files
+are missing, source/test/generated files leak into the package, or the packed
+artifact exceeds the project budget.
 
 For Docker changes, also run:
 

@@ -33,5 +33,3 @@ export function createSearchToolHandlers(store: Store, db: Database.Database) {
     handleFindSimilarErrors
   };
 }
-
-export type SearchToolHandlers = ReturnType<typeof createSearchToolHandlers>;

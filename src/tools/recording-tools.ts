@@ -33,7 +33,3 @@ export function createRecordingToolHandlers(store: Store) {
     handleCloseSession
   };
 }
-
-export type RecordingToolHandlers = ReturnType<
-  typeof createRecordingToolHandlers
->;

@@ -46,6 +46,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Dead-code check
+        run: npm run check:dead-code
+
       - name: Coverage tests
         run: npm run test:coverage
         env:
@@ -72,6 +75,9 @@ jobs:
 
       - name: Package dry run
         run: npm pack --dry-run
+
+      - name: Package size check
+        run: npm run check:package-size
 
       - name: Version sync
         run: node scripts/check-version-sync.mjs
