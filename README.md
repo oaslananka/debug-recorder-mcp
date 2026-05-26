@@ -215,8 +215,10 @@ The image is built with `npm ci`, preserves native install scripts for
 npm ci
 npm run format:check
 npm run lint
-npm test
+npm run test:coverage
+npm run test:fuzz
 npm run build
+npm run test:e2e
 npm audit --audit-level=moderate
 npm pack --dry-run
 node scripts/check-version-sync.mjs
@@ -230,6 +232,7 @@ For release verification:
 ```bash
 npm run format:check
 npm run test:coverage
+npm run test:fuzz
 npm run prepublishOnly
 ```
 

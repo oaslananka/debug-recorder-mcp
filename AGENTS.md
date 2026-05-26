@@ -34,6 +34,7 @@ Before writing code, research current stable versions and update the approved ta
 | `jest` | `30.4.2` | Current stable Jest release used to keep the test runner on the maintained major line. |
 | `jest-junit` | `17.0.0` | Current stable release with patched `uuid` transitive dependency, required to publish Azure DevOps test results as JUnit XML. |
 | `ts-jest` | `29.4.11` | Current stable transformer release compatible with Jest 30 and TypeScript 5.9. |
+| `fast-check` | `4.8.0` | Current stable property-based testing release for Jest-compatible TypeScript fuzz/regression tests. |
 | `babel-plugin-istanbul` | `8.0.0` | Current stable coverage instrumentation plugin used through overrides to avoid deprecated transitive glob paths. |
 | `glob` | `13.0.6` | Current stable glob release used through overrides to keep Jest coverage tooling off deprecated glob versions. |
 | `test-exclude` | `8.0.0` | Current stable coverage exclusion helper compatible with `babel-plugin-istanbul` 8 and `glob` 13. |

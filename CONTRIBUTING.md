@@ -7,8 +7,10 @@ node --version
 npm ci
 npm run format:check
 npm run lint
-npm test
+npm run test:coverage
+npm run test:fuzz
 npm run build
+npm run test:e2e
 npm audit --audit-level=moderate
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
@@ -39,7 +41,9 @@ Run these before opening a PR:
 npm run lint
 npm run format:check
 npm run test:coverage
+npm run test:fuzz
 npm run build
+npm run test:e2e
 npm audit --audit-level=moderate
 npm pack --dry-run
 node scripts/check-version-sync.mjs
