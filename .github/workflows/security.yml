@@ -63,7 +63,7 @@ jobs:
           set -euo pipefail
           export GOPATH="$RUNNER_TEMP/go"
           echo "$GOPATH/bin" >> "$GITHUB_PATH"
-          go install github.com/gitleaks/gitleaks/v8@v8.30.1
+          go install github.com/zricethezav/gitleaks/v8@v8.30.1
 
       - name: Scan current tree
         run: gitleaks dir . --redact --no-banner --verbose
