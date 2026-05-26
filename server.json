@@ -3,7 +3,7 @@
   "name": "io.github.oaslananka/debug-recorder-mcp",
   "title": "MCP Debug Recorder",
   "description": "Record debug sessions, commands, failed attempts, and successful fixes in local SQLite storage.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "repository": {
     "url": "https://github.com/oaslananka/debug-recorder-mcp",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "debug-recorder-mcp",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "transport": {
         "type": "stdio"
       },
