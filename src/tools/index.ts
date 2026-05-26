@@ -13,7 +13,3 @@ export function createSplitToolHandlers(store: Store, db: Database.Database) {
     ...createAdminToolHandlers(store)
   };
 }
-
-export type DebugRecorderToolHandlers = ReturnType<
-  typeof createSplitToolHandlers
->;

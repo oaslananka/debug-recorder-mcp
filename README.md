@@ -215,15 +215,16 @@ The image is built with `npm ci`, preserves native install scripts for
 npm ci
 npm run format:check
 npm run lint
+npm run check:dead-code
 npm run test:coverage
 npm run test:fuzz
 npm run build
 npm run test:e2e
 npm audit --audit-level=moderate
 npm pack --dry-run
+npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
-npm run test:e2e
 npm run docs:api
 ```
 
@@ -231,8 +232,10 @@ For release verification:
 
 ```bash
 npm run format:check
+npm run check:dead-code
 npm run test:coverage
 npm run test:fuzz
+npm run check:package-size
 npm run prepublishOnly
 ```
 

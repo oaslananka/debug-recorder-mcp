@@ -101,5 +101,3 @@ export function createSessionToolHandlers(store: Store) {
     handleGetSessionContext
   };
 }
-
-export type SessionToolHandlers = ReturnType<typeof createSessionToolHandlers>;

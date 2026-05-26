@@ -8,12 +8,14 @@ Run the full local gate before opening or updating a release pull request:
 npm ci
 npm run format:check
 npm run lint
+npm run check:dead-code
 npm run test:coverage
 npm run test:fuzz
 npm run build
 npm run test:e2e
 npm audit --audit-level=moderate
 npm pack --dry-run
+npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
 ```
@@ -30,6 +32,14 @@ normalization, HTTP allowlist validation, and redaction:
 
 ```bash
 npm run test:fuzz
+```
+
+Run the package hygiene checks whenever exports, scripts, package metadata, or
+the `files` allowlist changes:
+
+```bash
+npm run check:dead-code
+npm run check:package-size
 ```
 
 Run the Docker gate when the Dockerfile or HTTP runtime changes:
@@ -53,6 +63,7 @@ The unit suite covers:
   normalization, HTTP allowlists, and redaction
 
 CI enforces coverage thresholds, e2e flow coverage, deterministic fuzz
-regression tests, dependency audit, package dry run, version synchronization,
-MCP metadata validation, workflow linting, workflow security scanning, secret
-scanning, Trivy, CodeQL, and scheduled OpenSSF Scorecard.
+regression tests, dead-code checks, dependency audit, package dry run, package
+size checks, version synchronization, MCP metadata validation, workflow
+linting, workflow security scanning, secret scanning, Trivy, CodeQL, and
+scheduled OpenSSF Scorecard.
