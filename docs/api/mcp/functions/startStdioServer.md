@@ -8,7 +8,7 @@
 
 > **startStdioServer**(`runtime?`): `Promise`\<`void`\>
 
-Defined in: [src/mcp.ts:287](https://github.com/oaslananka/debug-recorder-mcp/blob/436dcb9a64584c03a54058180f18c25ae0e6c347/src/mcp.ts#L287)
+Defined in: [src/mcp.ts:287](https://github.com/oaslananka/debug-recorder-mcp/blob/c44ef35e21165f8448f11e1853bea59f1948a373/src/mcp.ts#L287)
 
 ## Parameters
 

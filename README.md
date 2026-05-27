@@ -246,6 +246,7 @@ Additional project docs:
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)
 - [Operations](./docs/operations.md)
+- [Architecture Decision Records](./docs/adr/README.md)
 - [Testing](./docs/testing.md)
 - [Search Algorithm](./docs/search-algorithm.md)
 - [Release Flow](./docs/release-flow.md)

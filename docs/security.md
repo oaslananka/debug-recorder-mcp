@@ -44,3 +44,8 @@ credential patterns before storing session, fix, and command text.
 
 Never commit tokens, package credentials, registry credentials, private keys, or
 local transcript/scratch files. Pull request validation includes Gitleaks.
+
+## Architecture decisions
+
+- [ADR-0003: Local-First Streamable HTTP Security Model](./adr/0003-local-first-streamable-http-security.md)
+- [ADR-0004: Release, Provenance, and Publish Flow](./adr/0004-release-provenance-and-publish-flow.md)
