@@ -35,3 +35,10 @@ flowchart TD
 - File-backed databases use `WAL`, `synchronous = NORMAL`, `foreign_keys = ON`, and a 64 MB negative cache size hint.
 - Search stays local and in-process; no external services are required.
 - Import/export stays JSON-compatible with the existing MCP tools.
+
+## Architecture decisions
+
+- [ADR-0001: Local SQLite Storage and Versioned Migrations](./adr/0001-local-sqlite-storage-and-versioned-migrations.md)
+- [ADR-0002: Hybrid FTS5 Recall with Fuse.js Reranking](./adr/0002-hybrid-fts5-and-fuse-search.md)
+- [ADR-0003: Local-First Streamable HTTP Security Model](./adr/0003-local-first-streamable-http-security.md)
+- [ADR-0005: MCP Registry Identity and Version Metadata](./adr/0005-mcp-registry-versioning-and-metadata.md)

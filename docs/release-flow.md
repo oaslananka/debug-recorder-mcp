@@ -22,10 +22,14 @@ Pull requests run validation only:
 
 - format check
 - typecheck and lint
-- unit tests
+- dead-code check
+- coverage tests
+- deterministic fuzz regression tests
 - build
+- e2e tests
 - dependency audit
 - package dry run
+- package size check
 - version synchronization
 - MCP metadata validation
 - Docker build, smoke, and scan
@@ -82,3 +86,8 @@ Before an MCP Registry update:
 
 Registry publishing is intentionally separate from npm publishing and should be
 gated after npm publish verification succeeds.
+
+## Architecture decisions
+
+- [ADR-0004: Release, Provenance, and Publish Flow](./adr/0004-release-provenance-and-publish-flow.md)
+- [ADR-0005: MCP Registry Identity and Version Metadata](./adr/0005-mcp-registry-versioning-and-metadata.md)
