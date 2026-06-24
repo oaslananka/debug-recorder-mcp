@@ -216,6 +216,59 @@ describe('HTTP server hardening', () => {
     ).toThrow(/HTTP_TOKEN/);
   });
 
+  it('accepts explicit remote HTTP configuration with token and allowlists', () => {
+    const config = resolveHttpConfig({
+      host: '0.0.0.0',
+      port: 8080,
+      remoteHttp: true,
+      token: 'remote-token',
+      allowedHosts: ['debug.example.com:443'],
+      allowedOrigins: ['https://debug.example.com']
+    });
+
+    expect(config.remoteHttp).toBe(true);
+    expect(config.token).toBe('remote-token');
+    expect(config.allowedHosts.has('debug.example.com:443')).toBe(true);
+    expect(config.allowedOrigins.has('https://debug.example.com')).toBe(true);
+  });
+
+  it('rejects unsafe wildcard remote origins and invalid numeric environment values', () => {
+    expect(() =>
+      resolveHttpConfig({
+        host: '0.0.0.0',
+        port: 8080,
+        remoteHttp: true,
+        token: 'remote-token',
+        allowedHosts: ['debug.example.com:443'],
+        allowedOrigins: ['*']
+      })
+    ).toThrow(/ALLOWED_ORIGINS/);
+
+    process.env.PORT = 'not-a-port';
+    expect(() => resolveHttpConfig()).toThrow(/Invalid PORT/);
+
+    restoreEnv();
+    process.env.DEBUG_RECORDER_MAX_BODY_BYTES = '0';
+    expect(() => resolveHttpConfig()).toThrow(/MAX_BODY_BYTES/);
+  });
+
+  it('serves health, version, and not-found responses for allowed hosts', async () => {
+    const { baseUrl } = await listen();
+    const host = new URL(baseUrl).host;
+    const health = await rawGet(baseUrl, '/health', { host });
+    const version = await rawGet(baseUrl, '/version', { host });
+    const missing = await rawGet(baseUrl, '/missing', { host });
+
+    expect(health.statusCode).toBe(200);
+    expect(JSON.parse(health.body)).toEqual({ ok: true });
+    expect(version.statusCode).toBe(200);
+    expect(JSON.parse(version.body)).toMatchObject({
+      name: 'debug-recorder-mcp'
+    });
+    expect(missing.statusCode).toBe(404);
+    expect(JSON.parse(missing.body)).toEqual({ error: 'Not found' });
+  });
+
   it('rejects DNS rebinding host headers', async () => {
     const { baseUrl } = await listen();
     const response = await rawGet(baseUrl, '/health', {

@@ -15,15 +15,32 @@ export default {
       }
     ]
   },
-  collectCoverageFrom: ['src/**/*.ts', '!src/version.ts', '!src/server-http.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/version.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'cobertura'],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 75,
-      lines: 75,
-      statements: 75
+      branches: 75,
+      functions: 85,
+      lines: 85,
+      statements: 85
+    },
+    './src/server-http.ts': {
+      branches: 65,
+      functions: 65,
+      lines: 70,
+      statements: 70
+    },
+    './src/tools/common.ts': {
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100
+    },
+    './src/tools/recording-tools.ts': {
+      functions: 100,
+      lines: 90,
+      statements: 90
     },
     './src/store.ts': {
       lines: 85
@@ -40,7 +57,8 @@ export default {
     [
       'jest-junit',
       {
-        outputDirectory: process.env.JEST_JUNIT_OUTPUT_DIR ?? 'test-results/unit',
+        outputDirectory:
+          process.env.JEST_JUNIT_OUTPUT_DIR ?? 'test-results/unit',
         outputName: process.env.JEST_JUNIT_OUTPUT_NAME ?? 'junit.xml'
       }
     ]
