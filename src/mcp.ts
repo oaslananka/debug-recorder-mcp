@@ -9,6 +9,12 @@ import { Store } from './store.js';
 import { type ToolHandler } from './tools/common.js';
 import { createSplitToolHandlers } from './tools/index.js';
 import {
+  DeleteSearchPresetOutputSchema,
+  ListSearchPresetsOutputSchema,
+  SaveSearchPresetOutputSchema,
+  DeleteSearchPresetSchema,
+  ListSearchPresetsSchema,
+  SaveSearchPresetSchema,
   UpdateSessionOutputSchema,
   StatsOutputSchema,
   StartDebugSessionOutputSchema,
@@ -165,6 +171,46 @@ export function createDebugRecorderServer(
       handler: 'handleSearchSessions',
       annotations: {
         readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false
+      }
+    },
+    {
+      name: 'save_search_preset',
+      title: 'Save Search Preset',
+      description:
+        'Save or update a reusable search preset with query, filters, and result limit',
+      inputSchema: SaveSearchPresetSchema,
+      outputSchema: SaveSearchPresetOutputSchema,
+      handler: 'handleSaveSearchPreset',
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        openWorldHint: false
+      }
+    },
+    {
+      name: 'list_search_presets',
+      title: 'List Search Presets',
+      description: 'List reusable saved search presets',
+      inputSchema: ListSearchPresetsSchema,
+      outputSchema: ListSearchPresetsOutputSchema,
+      handler: 'handleListSearchPresets',
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false
+      }
+    },
+    {
+      name: 'remove_search_preset',
+      title: 'Remove Search Preset',
+      description: 'Remove a saved search preset by name',
+      inputSchema: DeleteSearchPresetSchema,
+      outputSchema: DeleteSearchPresetOutputSchema,
+      handler: 'handleDeleteSearchPreset',
+      annotations: {
+        readOnlyHint: false,
         destructiveHint: false,
         openWorldHint: false
       }

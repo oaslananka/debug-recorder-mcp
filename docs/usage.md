@@ -28,6 +28,43 @@ When you come back to an old issue, use this sequence:
 
 This is the fastest way to rehydrate context into an assistant conversation.
 
+## Search workflows
+
+`search_sessions` supports pagination and incident-oriented output:
+
+```json
+{
+  "query": "postgres ECONNREFUSED",
+  "language": "typescript",
+  "status": "resolved",
+  "limit": 10,
+  "offset": 0,
+  "include_related": true,
+  "markdown": true
+}
+```
+
+The response includes:
+
+- `pagination`: `limit`, `offset`, `returned`, `has_more`, and `next_offset`
+- `related_groups`: result-page clusters by tag, error type, language, or framework
+- `markdown`: optional Markdown export for incident notes or postmortems
+
+Saved presets help agents reuse known investigation patterns:
+
+```json
+{
+  "name": "node-postgres-crashes",
+  "query": "postgres ECONNREFUSED",
+  "language": "typescript",
+  "framework": "node",
+  "status": "resolved",
+  "limit": 10
+}
+```
+
+Use `save_search_preset` to create or update a preset, `list_search_presets` to inspect stored presets, and `remove_search_preset` to remove one by name.
+
 ## Updating and deleting sessions
 
 - Use `update_session` when the title, notes, or tags need cleanup after the incident becomes clearer.

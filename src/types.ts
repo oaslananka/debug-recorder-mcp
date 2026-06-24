@@ -57,6 +57,23 @@ export const CommandRowSchema = z.object({
   ran_at: z.number().int()
 });
 
+const SavedSearchPresetRowSchema = z.object({
+  name: z.string().min(1).max(INPUT_LIMITS.shortText),
+  query: z.string().min(1).max(INPUT_LIMITS.longText),
+  language: z.string().max(INPUT_LIMITS.shortText).nullable(),
+  framework: z.string().max(INPUT_LIMITS.shortText).nullable(),
+  status: SessionStatusSchema.nullable(),
+  limit_value: z.number().int().min(1).max(50),
+  created_at: z.number().int(),
+  updated_at: z.number().int()
+});
+
+const SavedSearchPresetSchema = SavedSearchPresetRowSchema.omit({
+  limit_value: true
+}).extend({
+  limit: z.number().int().min(1).max(50)
+});
+
 export const CreateSessionSchema = z.object({
   title: z
     .string()
@@ -138,7 +155,42 @@ export const SearchSchema = z.object({
     .optional()
     .describe('Filter by framework'),
   status: SessionStatusSchema.optional().describe('Filter by status'),
-  limit: z.number().int().min(1).max(50).default(10)
+  limit: z.number().int().min(1).max(50).default(10),
+  offset: z
+    .number()
+    .int()
+    .min(0)
+    .max(10_000)
+    .default(0)
+    .describe('Number of matching results to skip for pagination'),
+  include_related: z
+    .boolean()
+    .default(true)
+    .describe('Include related-session groups for the current result page'),
+  markdown: z
+    .boolean()
+    .default(false)
+    .describe(
+      'Include a Markdown incident/postmortem export for the current page'
+    )
+});
+
+export const SaveSearchPresetSchema = SearchSchema.omit({
+  offset: true,
+  include_related: true,
+  markdown: true
+}).extend({
+  name: z
+    .string()
+    .min(1)
+    .max(INPUT_LIMITS.shortText)
+    .describe('Stable preset name, for example recent-node-crashes')
+});
+
+export const ListSearchPresetsSchema = z.object({});
+
+export const DeleteSearchPresetSchema = z.object({
+  name: z.string().min(1).max(INPUT_LIMITS.shortText)
 });
 
 export const FindSimilarErrorsSchema = z.object({
@@ -298,9 +350,43 @@ export const SearchResultOutputSchema = SessionSchema.extend({
   _score: z.number().optional()
 });
 
+const SearchPaginationSchema = z.object({
+  limit: z.number().int().min(1),
+  offset: z.number().int().min(0),
+  returned: z.number().int().min(0),
+  has_more: z.boolean(),
+  next_offset: z.number().int().min(0).nullable()
+});
+
+const RelatedSessionGroupSchema = z.object({
+  reason: z.enum(['tag', 'error_type', 'language', 'framework']),
+  value: z.string(),
+  session_ids: z.array(IdSchema),
+  count: z.number().int().min(0)
+});
+
 export const SearchSessionsOutputSchema = z.object({
   count: z.number().int().min(0),
-  results: z.array(SearchResultOutputSchema)
+  results: z.array(SearchResultOutputSchema),
+  pagination: SearchPaginationSchema,
+  related_groups: z.array(RelatedSessionGroupSchema),
+  markdown: z.string().optional()
+});
+
+export const SaveSearchPresetOutputSchema = z.object({
+  success: z.boolean(),
+  preset: SavedSearchPresetSchema
+});
+
+export const ListSearchPresetsOutputSchema = z.object({
+  count: z.number().int().min(0),
+  presets: z.array(SavedSearchPresetSchema)
+});
+
+export const DeleteSearchPresetOutputSchema = z.object({
+  success: z.boolean(),
+  name: z.string(),
+  deleted: z.boolean()
 });
 
 export const FindSimilarErrorsOutputSchema = z.object({
@@ -371,9 +457,22 @@ export const GetSessionContextOutputSchema = z.object({
 export type SessionRow = z.infer<typeof SessionRowSchema>;
 export type FixRow = z.infer<typeof FixRowSchema>;
 export type CommandRow = z.infer<typeof CommandRowSchema>;
+export type SavedSearchPresetRow = {
+  name: string;
+  query: string;
+  language: string | null;
+  framework: string | null;
+  status: SessionStatus | null;
+  limit_value: number;
+  created_at: number;
+  updated_at: number;
+};
 export type CreateSession = z.infer<typeof CreateSessionSchema>;
 export type AddFix = z.infer<typeof AddFixSchema>;
 export type Search = z.infer<typeof SearchSchema>;
+export type SaveSearchPreset = z.infer<typeof SaveSearchPresetSchema>;
+export type ListSearchPresets = z.infer<typeof ListSearchPresetsSchema>;
+export type DeleteSearchPreset = z.infer<typeof DeleteSearchPresetSchema>;
 export type FindSimilarErrors = z.infer<typeof FindSimilarErrorsSchema>;
 export type RecordCommand = z.infer<typeof RecordCommandSchema>;
 export type CloseSession = z.infer<typeof CloseSessionSchema>;
@@ -393,6 +492,10 @@ export type Session = Omit<SessionRow, 'tags'> & {
   tags: string[];
   fixes: Fix[];
   commands: Command[];
+};
+
+export type SavedSearchPreset = Omit<SavedSearchPresetRow, 'limit_value'> & {
+  limit: number;
 };
 
 export type ImportCounts = {

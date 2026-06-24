@@ -154,6 +154,35 @@ describe('Store', () => {
     );
   });
 
+  it('saves, lists, updates, and removes search presets', () => {
+    const first = store.saveSearchPreset({
+      name: 'node-crashes',
+      query: 'TypeError undefined',
+      language: 'typescript',
+      framework: 'node',
+      status: 'open',
+      limit: 10
+    });
+    const updated = store.saveSearchPreset({
+      name: 'node-crashes',
+      query: 'ECONNREFUSED',
+      language: 'typescript',
+      framework: 'node',
+      status: 'resolved',
+      limit: 5
+    });
+    const presets = store.listSearchPresets();
+
+    expect(first.name).toBe('node-crashes');
+    expect(updated.query).toBe('ECONNREFUSED');
+    expect(updated.status).toBe('resolved');
+    expect(updated.limit).toBe(5);
+    expect(presets).toHaveLength(1);
+    expect(store.removeSearchPreset('node-crashes')).toBe(true);
+    expect(store.removeSearchPreset('node-crashes')).toBe(false);
+    expect(store.listSearchPresets()).toHaveLength(0);
+  });
+
   it('hydrates sessions by ids in requested order and handles empty inputs', () => {
     const first = store.createSession({ title: 'first', tags: [] });
     const second = store.createSession({ title: 'second', tags: [] });

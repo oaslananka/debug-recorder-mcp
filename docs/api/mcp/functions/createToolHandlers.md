@@ -8,7 +8,7 @@
 
 > **createToolHandlers**(`runtime`): `object`
 
-Defined in: [src/mcp.ts:76](https://github.com/oaslananka/debug-recorder-mcp/blob/c44ef35e21165f8448f11e1853bea59f1948a373/src/mcp.ts#L76)
+Defined in: [src/mcp.ts:96](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/mcp.ts#L96)
 
 ## Parameters
 
@@ -27,6 +27,10 @@ Defined in: [src/mcp.ts:76](https://github.com/oaslananka/debug-recorder-mcp/blo
 ### handleCloseSession
 
 > **handleCloseSession**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `session_id`: `string`; `status`: `"resolved"` \| `"abandoned"`; `summary?`: `string`; \}\>
+
+### handleDeleteSearchPreset
+
+> **handleDeleteSearchPreset**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `name`: `string`; \}\>
 
 ### handleDeleteSession
 
@@ -56,6 +60,10 @@ Defined in: [src/mcp.ts:76](https://github.com/oaslananka/debug-recorder-mcp/blo
 
 > **handleImportSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `payload`: \{ `commands`: `object`[]; `exported_at?`: `string`; `fixes`: `object`[]; `schema_version`: `number`; `sessions`: `object`[]; \}; `skip_existing`: `boolean`; \}\>
 
+### handleListSearchPresets
+
+> **handleListSearchPresets**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ \}\>
+
 ### handleListSessions
 
 > **handleListSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `offset`: `number`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
@@ -64,9 +72,13 @@ Defined in: [src/mcp.ts:76](https://github.com/oaslananka/debug-recorder-mcp/blo
 
 > **handleRecordCommand**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `command`: `string`; `exit_code?`: `number`; `output?`: `string`; `session_id`: `string`; \}\>
 
+### handleSaveSearchPreset
+
+> **handleSaveSearchPreset**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `name`: `string`; `query`: `string`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
+
 ### handleSearchSessions
 
-> **handleSearchSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `language?`: `string`; `limit`: `number`; `query`: `string`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
+> **handleSearchSessions**: [`ToolHandler`](../../tools/common/type-aliases/ToolHandler.md)\<\{ `framework?`: `string`; `include_related`: `boolean`; `language?`: `string`; `limit`: `number`; `markdown`: `boolean`; `offset`: `number`; `query`: `string`; `status?`: `"open"` \| `"resolved"` \| `"abandoned"`; \}\>
 
 ### handleStartDebugSession
 

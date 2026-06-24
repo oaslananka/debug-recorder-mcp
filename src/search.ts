@@ -5,12 +5,36 @@ import type { Search, Session } from './types.js';
 
 export type SearchResult = Session & { _score: number | undefined };
 
+export type SearchPagination = {
+  limit: number;
+  offset: number;
+  returned: number;
+  has_more: boolean;
+  next_offset: number | null;
+};
+
+export type RelatedSessionGroup = {
+  reason: 'tag' | 'error_type' | 'language' | 'framework';
+  value: string;
+  session_ids: string[];
+  count: number;
+};
+
+export type SearchPage = {
+  count: number;
+  results: SearchResult[];
+  pagination: SearchPagination;
+  related_groups: RelatedSessionGroup[];
+  markdown?: string;
+};
+
 type FtsCandidateRow = {
   session_id: string;
   rank: number;
 };
 
 const DEFAULT_FUZZY_THRESHOLD = 0.5;
+const MAX_SEARCH_WINDOW = 1_000;
 
 function getFuzzyThreshold(): number {
   const configured = Number.parseFloat(
@@ -149,7 +173,7 @@ export function searchSessions(
   store: Store,
   db: Database.Database
 ): SearchResult[] {
-  const ftsLimit = Math.min(params.limit * 20, 200);
+  const ftsLimit = Math.min(params.limit * 20, MAX_SEARCH_WINDOW);
 
   try {
     const candidateRows = queryFtsCandidates(params.query, ftsLimit, db, {
@@ -256,4 +280,155 @@ export function findSimilarErrors(
   } catch {
     return fuseOnlySimilar(errorMessage, store, limit);
   }
+}
+
+function addRelatedGroup(
+  groups: Map<string, RelatedSessionGroup>,
+  reason: RelatedSessionGroup['reason'],
+  value: string | null,
+  sessionId: string
+): void {
+  if (!value) {
+    return;
+  }
+
+  const key = `${reason}:${value}`;
+  const group = groups.get(key) ?? {
+    reason,
+    value,
+    session_ids: [],
+    count: 0
+  };
+
+  if (!group.session_ids.includes(sessionId)) {
+    group.session_ids.push(sessionId);
+    group.count = group.session_ids.length;
+  }
+
+  groups.set(key, group);
+}
+
+export function buildRelatedSessionGroups(
+  results: SearchResult[]
+): RelatedSessionGroup[] {
+  const groups = new Map<string, RelatedSessionGroup>();
+
+  for (const result of results) {
+    for (const tag of result.tags) {
+      addRelatedGroup(groups, 'tag', tag, result.id);
+    }
+
+    addRelatedGroup(groups, 'error_type', result.error_type, result.id);
+    addRelatedGroup(groups, 'language', result.language, result.id);
+    addRelatedGroup(groups, 'framework', result.framework, result.id);
+  }
+
+  return [...groups.values()]
+    .filter((group) => group.count > 1)
+    .sort((left, right) => {
+      if (right.count !== left.count) {
+        return right.count - left.count;
+      }
+
+      return `${left.reason}:${left.value}`.localeCompare(
+        `${right.reason}:${right.value}`
+      );
+    })
+    .slice(0, 10);
+}
+
+function formatResultLine(result: SearchResult, index: number): string {
+  const details = [
+    result.status,
+    result.language,
+    result.framework,
+    result.error_type
+  ].filter(Boolean);
+  const score =
+    result._score === undefined ? '' : ` score=${result._score.toFixed(3)}`;
+
+  return `${index + 1}. **${result.title}** (${result.id}) — ${details.join(' / ') || 'no metadata'}${score}`;
+}
+
+export function formatSearchMarkdown(
+  params: Search,
+  results: SearchResult[],
+  relatedGroups: RelatedSessionGroup[],
+  pagination: SearchPagination
+): string {
+  const lines = [
+    '# Debug Search Export',
+    '',
+    `- Query: ${params.query}`,
+    `- Returned: ${pagination.returned}`,
+    `- Offset: ${pagination.offset}`,
+    `- Has more: ${pagination.has_more ? 'yes' : 'no'}`,
+    '',
+    '## Results',
+    ''
+  ];
+
+  if (results.length === 0) {
+    lines.push('No matching debug sessions found.');
+  } else {
+    lines.push(
+      ...results.map((result, index) => formatResultLine(result, index))
+    );
+  }
+
+  if (relatedGroups.length > 0) {
+    lines.push('', '## Related session groups', '');
+    for (const group of relatedGroups) {
+      lines.push(
+        `- ${group.reason}: ${group.value} — ${group.count} sessions (${group.session_ids.join(', ')})`
+      );
+    }
+  }
+
+  lines.push('', '## Postmortem prompts', '');
+  lines.push('- What was the common failure mode?');
+  lines.push('- Which fix attempts failed before the working fix?');
+  lines.push('- Which guardrail would have detected this earlier?');
+
+  return lines.join('\n');
+}
+
+export function searchSessionsPage(
+  params: Search,
+  store: Store,
+  db: Database.Database
+): SearchPage {
+  const offset = params.offset ?? 0;
+  const limit = params.limit;
+  const windowLimit = Math.min(offset + limit + 1, MAX_SEARCH_WINDOW);
+  const window = searchSessions({ ...params, limit: windowLimit }, store, db);
+  const results = window.slice(offset, offset + limit);
+  const hasMore = window.length > offset + limit;
+  const pagination: SearchPagination = {
+    limit,
+    offset,
+    returned: results.length,
+    has_more: hasMore,
+    next_offset: hasMore ? offset + results.length : null
+  };
+  const relatedGroups = params.include_related
+    ? buildRelatedSessionGroups(results)
+    : [];
+
+  return {
+    count: results.length,
+    results,
+    pagination,
+    related_groups: relatedGroups,
+    ...(params.markdown
+      ? {
+          markdown: formatSearchMarkdown(
+            params,
+            results,
+            relatedGroups,
+            pagination
+          )
+        }
+      : {})
+  };
 }

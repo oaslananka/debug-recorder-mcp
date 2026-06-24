@@ -21,6 +21,7 @@ describe('database migrations', () => {
       expect(names).toContain('fixes');
       expect(names).toContain('commands');
       expect(names).toContain('sessions_fts');
+      expect(names).toContain('saved_search_presets');
     } finally {
       db.close();
     }

@@ -68,7 +68,10 @@ DEBUG_RECORDER_DB=/path/to/custom.db npx debug-recorder-mcp
 - `close_session`: mark a session as resolved or abandoned
 - `update_session`: edit title, description, or tags
 - `delete_session`: permanently delete a session with explicit confirmation
-- `search_sessions`: search historical sessions with FTS5 + fuzzy reranking
+- `search_sessions`: search historical sessions with FTS5 + fuzzy reranking, pagination metadata, related groups, and optional Markdown export
+- `save_search_preset`: store a reusable search query with filters and limit
+- `list_search_presets`: list saved search presets
+- `remove_search_preset`: remove a saved search preset by name
 - `find_similar_errors`: ask whether you have seen a similar error before
 - `get_session`: fetch full session details
 - `get_session_context`: fetch an AI-friendly summary of a session

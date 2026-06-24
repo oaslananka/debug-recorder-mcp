@@ -14,6 +14,9 @@ import {
   type FixRow,
   type ImportCounts,
   type ImportResult,
+  type SavedSearchPreset,
+  type SavedSearchPresetRow,
+  type SaveSearchPreset,
   type ListSessions,
   type RecordCommand,
   type Session,
@@ -109,6 +112,19 @@ function mapFix(row: FixRow): Fix {
   };
 }
 
+function mapSavedSearchPreset(row: SavedSearchPresetRow): SavedSearchPreset {
+  return {
+    name: row.name,
+    query: row.query,
+    language: row.language,
+    framework: row.framework,
+    status: row.status,
+    limit: row.limit_value,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
 function mapSession(
   row: SessionRow,
   fixes: Fix[] = [],
@@ -157,6 +173,72 @@ export class Store {
     if (!row) {
       throw new SessionNotFoundError(id);
     }
+  }
+
+  saveSearchPreset(data: SaveSearchPreset): SavedSearchPreset {
+    const now = Date.now();
+    const existing = this.db
+      .prepare('SELECT created_at FROM saved_search_presets WHERE name = ?')
+      .get(data.name) as { created_at: number } | undefined;
+    const createdAt = existing?.created_at ?? now;
+
+    this.db
+      .prepare(
+        `
+          INSERT INTO saved_search_presets (
+            name, query, language, framework, status, limit_value, created_at, updated_at
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(name) DO UPDATE SET
+            query = excluded.query,
+            language = excluded.language,
+            framework = excluded.framework,
+            status = excluded.status,
+            limit_value = excluded.limit_value,
+            updated_at = excluded.updated_at
+        `
+      )
+      .run(
+        data.name,
+        data.query,
+        data.language ?? null,
+        data.framework ?? null,
+        data.status ?? null,
+        data.limit,
+        createdAt,
+        now
+      );
+
+    return this.getSearchPresetOrThrow(data.name);
+  }
+
+  listSearchPresets(): SavedSearchPreset[] {
+    return (
+      this.db
+        .prepare(
+          'SELECT * FROM saved_search_presets ORDER BY updated_at DESC, name ASC'
+        )
+        .all() as SavedSearchPresetRow[]
+    ).map((row) => mapSavedSearchPreset(row));
+  }
+
+  removeSearchPreset(name: string): boolean {
+    const result = this.db
+      .prepare('DELETE FROM saved_search_presets WHERE name = ?')
+      .run(name);
+    return result.changes > 0;
+  }
+
+  private getSearchPresetOrThrow(name: string): SavedSearchPreset {
+    const row = this.db
+      .prepare('SELECT * FROM saved_search_presets WHERE name = ?')
+      .get(name) as SavedSearchPresetRow | undefined;
+
+    if (!row) {
+      throw new Error(`Saved search preset not found after write: ${name}`);
+    }
+
+    return mapSavedSearchPreset(row);
   }
 
   createSession(data: CreateSession): Session {

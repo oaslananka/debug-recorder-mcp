@@ -1,14 +1,18 @@
 import type Database from 'better-sqlite3';
-import { findSimilarErrors, searchSessions } from '../search.js';
+import { findSimilarErrors, searchSessionsPage } from '../search.js';
 import type { Store } from '../store.js';
-import type { FindSimilarErrors, Search } from '../types.js';
+import type {
+  DeleteSearchPreset,
+  FindSimilarErrors,
+  ListSearchPresets,
+  SaveSearchPreset,
+  Search
+} from '../types.js';
 import { jsonContent, type ToolHandler } from './common.js';
 
 export function createSearchToolHandlers(store: Store, db: Database.Database) {
-  const handleSearchSessions: ToolHandler<Search> = (input) => {
-    const results = searchSessions(input, store, db);
-    return jsonContent({ count: results.length, results });
-  };
+  const handleSearchSessions: ToolHandler<Search> = (input) =>
+    jsonContent(searchSessionsPage(input, store, db));
 
   const handleFindSimilarErrors: ToolHandler<FindSimilarErrors> = (input) => {
     const results = findSimilarErrors(
@@ -28,8 +32,26 @@ export function createSearchToolHandlers(store: Store, db: Database.Database) {
     });
   };
 
+  const handleSaveSearchPreset: ToolHandler<SaveSearchPreset> = (input) =>
+    jsonContent({ success: true, preset: store.saveSearchPreset(input) });
+
+  const handleListSearchPresets: ToolHandler<ListSearchPresets> = () => {
+    const presets = store.listSearchPresets();
+    return jsonContent({ count: presets.length, presets });
+  };
+
+  const handleDeleteSearchPreset: ToolHandler<DeleteSearchPreset> = (input) =>
+    jsonContent({
+      success: true,
+      name: input.name,
+      deleted: store.removeSearchPreset(input.name)
+    });
+
   return {
     handleSearchSessions,
-    handleFindSimilarErrors
+    handleFindSimilarErrors,
+    handleSaveSearchPreset,
+    handleListSearchPresets,
+    handleDeleteSearchPreset
   };
 }

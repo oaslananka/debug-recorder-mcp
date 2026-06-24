@@ -150,6 +150,24 @@ const MIGRATIONS: Migration[] = [
         );
       END;
     `
+  },
+  {
+    description: 'Add saved search presets',
+    sql: `
+      CREATE TABLE saved_search_presets (
+        name TEXT PRIMARY KEY,
+        query TEXT NOT NULL,
+        language TEXT,
+        framework TEXT,
+        status TEXT CHECK(status IN ('open','resolved','abandoned')),
+        limit_value INTEGER NOT NULL DEFAULT 10 CHECK(limit_value BETWEEN 1 AND 50),
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      CREATE INDEX idx_saved_search_presets_updated_at
+        ON saved_search_presets(updated_at);
+    `
   }
 ];
 

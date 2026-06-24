@@ -1,7 +1,11 @@
 import type Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { createTestDb } from '../../src/db.js';
-import { findSimilarErrors, searchSessions } from '../../src/search.js';
+import {
+  findSimilarErrors,
+  searchSessions,
+  searchSessionsPage
+} from '../../src/search.js';
 import { Store } from '../../src/store.js';
 
 describe('search', () => {
@@ -123,6 +127,52 @@ describe('search', () => {
 
     expect(results).toHaveLength(1);
     expect(results[0]?.title).toBe('Parser failure');
+  });
+
+  it('returns pagination metadata, related groups, and Markdown export', () => {
+    for (let index = 0; index < 4; index += 1) {
+      store.createSession({
+        title: `Postgres connection failure ${index}`,
+        error_message: 'ECONNREFUSED 127.0.0.1:5432',
+        error_type: 'ConnectionError',
+        language: 'typescript',
+        framework: 'node',
+        tags: ['postgres', 'incident']
+      });
+    }
+
+    const page = searchSessionsPage(
+      {
+        query: 'postgres connection refused',
+        limit: 2,
+        offset: 1,
+        markdown: true,
+        include_related: true
+      },
+      store,
+      db
+    );
+
+    expect(page.count).toBe(2);
+    expect(page.pagination).toEqual({
+      limit: 2,
+      offset: 1,
+      returned: 2,
+      has_more: true,
+      next_offset: 3
+    });
+    expect(page.related_groups).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ reason: 'tag', value: 'postgres', count: 2 }),
+        expect.objectContaining({
+          reason: 'error_type',
+          value: 'ConnectionError',
+          count: 2
+        })
+      ])
+    );
+    expect(page.markdown).toContain('# Debug Search Export');
+    expect(page.markdown).toContain('## Postmortem prompts');
   });
 
   it('finds similar errors and returns a similarity score', () => {
