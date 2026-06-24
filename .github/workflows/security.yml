@@ -92,3 +92,7 @@ jobs:
           exit-code: '1'
           severity: HIGH,CRITICAL
           ignore-unfixed: true
+
+      - name: SBOM/VEX policy reference
+        if: ${{ failure() }}
+        run: echo "Trivy filesystem scan failed. Review docs/security-sbom-vex.md before fixing or recording a VEX decision."

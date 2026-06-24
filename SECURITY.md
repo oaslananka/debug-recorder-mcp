@@ -41,6 +41,11 @@ Set `DEBUG_RECORDER_REDACT_BEFORE_STORE=true` if you want common credential
 patterns redacted before debug text is persisted. The default remains `false` so
 local users can preserve exact debugging context when they control the database.
 
+
+## Dependency Findings, SBOM, and VEX
+
+Dependency and scanner findings are handled by the repository SBOM/VEX policy in [`docs/security-sbom-vex.md`](docs/security-sbom-vex.md). The default baseline is zero `npm audit --audit-level=moderate` findings, no unreviewed npm install scripts, and release assets that include SBOM, checksums, and provenance attestations.
+
 ## Release and Secret Handling
 
 Pull request validation never publishes packages, registry metadata, containers,

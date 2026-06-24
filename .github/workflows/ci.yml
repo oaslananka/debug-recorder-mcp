@@ -71,7 +71,13 @@ jobs:
             test-results/node-${{ matrix.node-version }}/e2e
 
       - name: Dependency audit
-        run: npm audit --audit-level=moderate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm audit --audit-level=moderate || {
+            echo "::error::Dependency audit failed. Review docs/security-sbom-vex.md before fixing or recording a VEX decision."
+            exit 1
+          }
 
       - name: Package dry run
         run: npm pack --dry-run
@@ -141,3 +147,7 @@ jobs:
           exit-code: '1'
           severity: HIGH,CRITICAL
           ignore-unfixed: true
+
+      - name: SBOM/VEX policy reference
+        if: ${{ failure() }}
+        run: echo "Trivy container scan failed. Review docs/security-sbom-vex.md before fixing or recording a VEX decision."
