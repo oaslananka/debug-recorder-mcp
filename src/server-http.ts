@@ -6,6 +6,10 @@ import {
 } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import {
+  recordHttpRejection,
+  type HttpRejectionReason
+} from './diagnostics.js';
 import { log } from './logging.js';
 import {
   closeRuntime,
@@ -50,6 +54,34 @@ class HttpRequestError extends Error {
     super(message);
     this.name = 'HttpRequestError';
   }
+}
+
+function classifyHttpRejection(error: HttpRequestError): HttpRejectionReason {
+  if (error.message === 'Forbidden host') {
+    return 'forbidden_host';
+  }
+
+  if (error.message === 'Forbidden origin') {
+    return 'forbidden_origin';
+  }
+
+  if (error.message === 'Unauthorized') {
+    return 'unauthorized';
+  }
+
+  if (error.message === 'Unsupported media type: expected application/json') {
+    return 'unsupported_media_type';
+  }
+
+  if (error.message === 'Parse error: Invalid JSON') {
+    return 'parse_error';
+  }
+
+  if (error.message === 'Request body too large') {
+    return 'body_too_large';
+  }
+
+  return 'other';
 }
 
 function parseBoolean(value: string | undefined): boolean {
@@ -409,6 +441,7 @@ async function handleMcpRequest(
   config: HttpServerConfig
 ): Promise<void> {
   if (request.method !== 'POST') {
+    recordHttpRejection('method_not_allowed');
     writeJsonRpcError(response, 405, -32000, 'Method not allowed');
     return;
   }
@@ -489,6 +522,10 @@ export function createHttpServer(
           error instanceof HttpRequestError
             ? error.message
             : 'Internal server error';
+
+        if (error instanceof HttpRequestError) {
+          recordHttpRejection(classifyHttpRejection(error));
+        }
 
         log(statusCode >= 500 ? 'error' : 'warn', 'HTTP request rejected', {
           method: request.method,

@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3';
+import { recordDiagnosticEvent } from '../diagnostics.js';
 import { findSimilarErrors, searchSessionsPage } from '../search.js';
 import type { Store } from '../store.js';
 import type {
@@ -11,8 +12,10 @@ import type {
 import { jsonContent, type ToolHandler } from './common.js';
 
 export function createSearchToolHandlers(store: Store, db: Database.Database) {
-  const handleSearchSessions: ToolHandler<Search> = (input) =>
-    jsonContent(searchSessionsPage(input, store, db));
+  const handleSearchSessions: ToolHandler<Search> = (input) => {
+    recordDiagnosticEvent('search');
+    return jsonContent(searchSessionsPage(input, store, db));
+  };
 
   const handleFindSimilarErrors: ToolHandler<FindSimilarErrors> = (input) => {
     const results = findSimilarErrors(

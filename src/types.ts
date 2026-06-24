@@ -292,6 +292,8 @@ export const GetSessionContextSchema = z.object({
 
 export const GetStatsSchema = z.object({});
 
+export const GetDiagnosticsSchema = z.object({});
+
 export const FixSchema = FixRowSchema.omit({ worked: true }).extend({
   worked: z.boolean()
 });
@@ -322,6 +324,37 @@ export const StatsOutputSchema = z.object({
     z.object({ error_type: z.string(), count: z.number().int().min(0) })
   ),
   resolutionRate: z.number().min(0).max(100)
+});
+
+export const DiagnosticsOutputSchema = z.object({
+  app: z.object({
+    name: z.string(),
+    version: z.string(),
+    schema_version: z.number().int().min(1)
+  }),
+  runtime: z.object({
+    node: z.string(),
+    platform: z.string(),
+    arch: z.string()
+  }),
+  config: z.object({
+    database_path: z.enum(['[CONFIGURED]', '[DEFAULT]']),
+    database_path_configured: z.boolean(),
+    redact_before_store: z.boolean(),
+    remote_http: z.boolean(),
+    http_auth_configured: z.boolean(),
+    allowed_hosts_configured: z.boolean(),
+    allowed_origins_configured: z.boolean(),
+    log_level: z.string()
+  }),
+  counters: z.object({
+    sessions_created: z.number().int().min(0),
+    searches: z.number().int().min(0),
+    imports: z.number().int().min(0),
+    exports: z.number().int().min(0),
+    http_rejections: z.record(z.string(), z.number().int().min(0))
+  }),
+  stats: StatsOutputSchema
 });
 
 export const StartDebugSessionOutputSchema = z.object({
@@ -485,6 +518,7 @@ export type ExportPayload = z.infer<typeof ExportPayloadSchema>;
 export type ImportSessions = z.infer<typeof ImportSessionsSchema>;
 export type GetSessionContext = z.infer<typeof GetSessionContextSchema>;
 export type GetStats = z.infer<typeof GetStatsSchema>;
+export type GetDiagnostics = z.infer<typeof GetDiagnosticsSchema>;
 
 export type Fix = Omit<FixRow, 'worked'> & { worked: boolean };
 export type Command = CommandRow;

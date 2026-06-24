@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type Database from 'better-sqlite3';
 import { CURRENT_SCHEMA_VERSION, openDb } from './db.js';
+import { recordDiagnosticEvent } from './diagnostics.js';
 import { redactSecrets } from './logging.js';
 import {
   type AddFix,
@@ -269,6 +270,8 @@ export class Store {
         now,
         now
       );
+
+    recordDiagnosticEvent('session_created');
 
     return this.getSessionOrThrow(id);
   }
@@ -546,6 +549,8 @@ export class Store {
   }
 
   exportAll(): ExportPayload {
+    recordDiagnosticEvent('export');
+
     return {
       schema_version: CURRENT_SCHEMA_VERSION,
       sessions: this.db
@@ -573,6 +578,7 @@ export class Store {
     }
 
     const data = parsed.data;
+    recordDiagnosticEvent('import');
 
     if (data.schema_version !== CURRENT_SCHEMA_VERSION) {
       throw new Error(

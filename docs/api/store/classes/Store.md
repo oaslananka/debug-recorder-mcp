@@ -6,7 +6,7 @@
 
 # Class: Store
 
-Defined in: [src/store.ts:157](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L157)
+Defined in: [src/store.ts:158](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L158)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [src/store.ts:157](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **new Store**(`db`): `Store`
 
-Defined in: [src/store.ts:158](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L158)
+Defined in: [src/store.ts:159](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L159)
 
 #### Parameters
 
@@ -32,7 +32,7 @@ Defined in: [src/store.ts:158](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **addFix**(`data`): `object`
 
-Defined in: [src/store.ts:393](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L393)
+Defined in: [src/store.ts:396](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L396)
 
 #### Parameters
 
@@ -72,7 +72,7 @@ Defined in: [src/store.ts:393](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **close**(): `void`
 
-Defined in: [src/store.ts:164](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L164)
+Defined in: [src/store.ts:165](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L165)
 
 #### Returns
 
@@ -84,7 +84,7 @@ Defined in: [src/store.ts:164](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **closeSession**(`data`): [`Session`](../../types/type-aliases/Session.md) \| `null`
 
-Defined in: [src/store.ts:458](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L458)
+Defined in: [src/store.ts:461](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L461)
 
 #### Parameters
 
@@ -112,7 +112,7 @@ Defined in: [src/store.ts:458](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **createSession**(`data`): [`Session`](../../types/type-aliases/Session.md)
 
-Defined in: [src/store.ts:244](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L244)
+Defined in: [src/store.ts:245](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L245)
 
 #### Parameters
 
@@ -164,7 +164,7 @@ Defined in: [src/store.ts:244](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **deleteSession**(`id`): `boolean`
 
-Defined in: [src/store.ts:361](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L361)
+Defined in: [src/store.ts:364](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L364)
 
 #### Parameters
 
@@ -182,7 +182,7 @@ Defined in: [src/store.ts:361](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **exportAll**(): `object`
 
-Defined in: [src/store.ts:548](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L548)
+Defined in: [src/store.ts:551](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L551)
 
 #### Returns
 
@@ -214,7 +214,7 @@ Defined in: [src/store.ts:548](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **getSession**(`id`): [`Session`](../../types/type-aliases/Session.md) \| `null`
 
-Defined in: [src/store.ts:276](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L276)
+Defined in: [src/store.ts:279](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L279)
 
 #### Parameters
 
@@ -232,7 +232,7 @@ Defined in: [src/store.ts:276](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **getSessionsByIds**(`ids`): [`Session`](../../types/type-aliases/Session.md)[]
 
-Defined in: [src/store.ts:302](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L302)
+Defined in: [src/store.ts:305](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L305)
 
 #### Parameters
 
@@ -250,7 +250,7 @@ Defined in: [src/store.ts:302](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **getStats**(): `object`
 
-Defined in: [src/store.ts:488](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L488)
+Defined in: [src/store.ts:491](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L491)
 
 #### Returns
 
@@ -290,7 +290,7 @@ Defined in: [src/store.ts:488](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **importAll**(`payload`, `options?`): [`ImportResult`](../../types/type-aliases/ImportResult.md)
 
-Defined in: [src/store.ts:563](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L563)
+Defined in: [src/store.ts:568](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L568)
 
 #### Parameters
 
@@ -314,7 +314,7 @@ Defined in: [src/store.ts:563](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **listSearchPresets**(): [`SavedSearchPreset`](../../types/type-aliases/SavedSearchPreset.md)[]
 
-Defined in: [src/store.ts:215](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L215)
+Defined in: [src/store.ts:216](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L216)
 
 #### Returns
 
@@ -326,7 +326,7 @@ Defined in: [src/store.ts:215](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **listSessions**(`options`): [`Session`](../../types/type-aliases/Session.md)[]
 
-Defined in: [src/store.ts:366](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L366)
+Defined in: [src/store.ts:369](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L369)
 
 #### Parameters
 
@@ -344,7 +344,7 @@ Defined in: [src/store.ts:366](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **recordCommand**(`data`): `object`
 
-Defined in: [src/store.ts:429](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L429)
+Defined in: [src/store.ts:432](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L432)
 
 #### Parameters
 
@@ -380,7 +380,7 @@ Defined in: [src/store.ts:429](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **removeSearchPreset**(`name`): `boolean`
 
-Defined in: [src/store.ts:225](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L225)
+Defined in: [src/store.ts:226](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L226)
 
 #### Parameters
 
@@ -398,7 +398,7 @@ Defined in: [src/store.ts:225](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **saveSearchPreset**(`data`): [`SavedSearchPreset`](../../types/type-aliases/SavedSearchPreset.md)
 
-Defined in: [src/store.ts:178](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L178)
+Defined in: [src/store.ts:179](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L179)
 
 #### Parameters
 
@@ -438,7 +438,7 @@ Defined in: [src/store.ts:178](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **updateSession**(`id`, `data`): [`Session`](../../types/type-aliases/Session.md) \| `null`
 
-Defined in: [src/store.ts:330](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L330)
+Defined in: [src/store.ts:333](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L333)
 
 #### Parameters
 
@@ -460,7 +460,7 @@ Defined in: [src/store.ts:330](https://github.com/oaslananka/debug-recorder-mcp/
 
 > `static` **create**(`dbPath?`): `Store`
 
-Defined in: [src/store.ts:160](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L160)
+Defined in: [src/store.ts:161](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/store.ts#L161)
 
 #### Parameters
 

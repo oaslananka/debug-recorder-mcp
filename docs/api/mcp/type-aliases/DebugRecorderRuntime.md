@@ -8,7 +8,7 @@
 
 > **DebugRecorderRuntime** = `object`
 
-Defined in: [src/mcp.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/mcp.ts#L49)
+Defined in: [src/mcp.ts:51](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/mcp.ts#L51)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/mcp.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blo
 
 > **db**: `Database.Database`
 
-Defined in: [src/mcp.ts:50](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/mcp.ts#L50)
+Defined in: [src/mcp.ts:52](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/mcp.ts#L52)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/mcp.ts:50](https://github.com/oaslananka/debug-recorder-mcp/blo
 
 > `optional` **dbPath?**: `string`
 
-Defined in: [src/mcp.ts:52](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/mcp.ts#L52)
+Defined in: [src/mcp.ts:54](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/mcp.ts#L54)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/mcp.ts:52](https://github.com/oaslananka/debug-recorder-mcp/blo
 
 > **store**: [`Store`](../../store/classes/Store.md)
 
-Defined in: [src/mcp.ts:51](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/mcp.ts#L51)
+Defined in: [src/mcp.ts:53](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/mcp.ts#L53)

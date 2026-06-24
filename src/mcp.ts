@@ -37,6 +37,8 @@ import {
   FindSimilarErrorsSchema,
   GetSessionContextSchema,
   GetSessionSchema,
+  GetDiagnosticsSchema,
+  DiagnosticsOutputSchema,
   GetStatsSchema,
   ImportSessionsSchema,
   ListSessionsSchema,
@@ -291,6 +293,20 @@ export function createDebugRecorderServer(
       inputSchema: GetStatsSchema,
       outputSchema: StatsOutputSchema,
       handler: 'handleGetStats',
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false
+      }
+    },
+    {
+      name: 'get_diagnostics',
+      title: 'Get Operational Diagnostics',
+      description:
+        'Get a redacted operational diagnostics snapshot for troubleshooting local runtime issues',
+      inputSchema: GetDiagnosticsSchema,
+      outputSchema: DiagnosticsOutputSchema,
+      handler: 'handleGetDiagnostics',
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,

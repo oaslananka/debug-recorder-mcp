@@ -8,7 +8,7 @@
 
 > **JsonContentResponse** = `object`
 
-Defined in: [src/tools/common.ts:2](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/tools/common.ts#L2)
+Defined in: [src/tools/common.ts:2](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/tools/common.ts#L2)
 
 JSON content returned by MCP tool handlers.
 
@@ -18,7 +18,7 @@ JSON content returned by MCP tool handlers.
 
 > **content**: `object`[]
 
-Defined in: [src/tools/common.ts:3](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/tools/common.ts#L3)
+Defined in: [src/tools/common.ts:3](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/tools/common.ts#L3)
 
 #### text
 
@@ -34,4 +34,4 @@ Defined in: [src/tools/common.ts:3](https://github.com/oaslananka/debug-recorder
 
 > **structuredContent**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/tools/common.ts:7](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/tools/common.ts#L7)
+Defined in: [src/tools/common.ts:7](https://github.com/oaslananka/debug-recorder-mcp/blob/20272cd1072b6aef857877584767083da479c64b/src/tools/common.ts#L7)
