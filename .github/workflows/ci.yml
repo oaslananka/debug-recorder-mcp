@@ -91,6 +91,9 @@ jobs:
       - name: MCP metadata
         run: node scripts/validate-mcp-metadata.mjs
 
+      - name: SBOM/VEX policy invariants
+        run: npm run check:security-policy
+
       - name: Upload quality artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

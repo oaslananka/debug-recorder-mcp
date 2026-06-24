@@ -47,9 +47,10 @@
     "check:package-size": "node scripts/check-package-size.mjs",
     "check:version": "node scripts/check-version-sync.mjs",
     "check:mcp": "node scripts/validate-mcp-metadata.mjs",
-    "ci:local": "npm run format:check && npm run lint && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm pack --dry-run && npm run check:package-size && npm run check:version && npm run check:mcp",
+    "check:security-policy": "node scripts/validate-security-policy.mjs",
+    "ci:local": "npm run format:check && npm run lint && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm pack --dry-run && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:package-size && npm run check:version && npm run check:mcp",
+    "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
     "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json"
   },
   "engines": {
