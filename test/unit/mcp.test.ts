@@ -2,6 +2,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type Database from 'better-sqlite3';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { createTestDb } from '../../src/db.js';
 import {
@@ -40,6 +42,70 @@ describe('MCP handlers', () => {
   it('creates a server instance', () => {
     const server = createDebugRecorderServer(runtime);
     expect(server).toBeDefined();
+  });
+
+  it('exposes MCP input and output schemas plus structured tool content', async () => {
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    const server = createDebugRecorderServer(runtime);
+    const client = new Client(
+      { name: 'schema-contract-test', version: '1.0.0' },
+      { capabilities: {} }
+    );
+
+    try {
+      await Promise.all([
+        server.connect(serverTransport),
+        client.connect(clientTransport)
+      ]);
+
+      const listed = await client.listTools();
+      const toolNames = listed.tools.map((tool) => tool.name);
+
+      expect(toolNames).toEqual(
+        expect.arrayContaining([
+          'start_debug_session',
+          'add_fix',
+          'record_command',
+          'close_session',
+          'search_sessions',
+          'find_similar_errors',
+          'get_session',
+          'update_session',
+          'delete_session',
+          'list_sessions',
+          'get_stats',
+          'export_sessions',
+          'import_sessions',
+          'get_session_context'
+        ])
+      );
+
+      for (const tool of listed.tools) {
+        expect(tool.title).toBeTruthy();
+        expect(tool.description).toBeTruthy();
+        expect(tool.inputSchema.type).toBe('object');
+        expect(tool.outputSchema?.type).toBe('object');
+        expect(tool.annotations?.openWorldHint).toBe(false);
+      }
+
+      const result = await client.callTool({
+        name: 'start_debug_session',
+        arguments: {
+          title: 'schema contract',
+          tags: ['mcp']
+        }
+      });
+
+      expect(result.structuredContent).toMatchObject({
+        success: true,
+        message: 'Debug session started: schema contract'
+      });
+      expect(result.content[0]).toMatchObject({ type: 'text' });
+    } finally {
+      await client.close();
+      await server.close();
+    }
   });
 
   it('creates and closes a runtime with a custom database path', () => {

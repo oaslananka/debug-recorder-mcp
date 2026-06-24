@@ -9,6 +9,20 @@ import { Store } from './store.js';
 import { type ToolHandler } from './tools/common.js';
 import { createSplitToolHandlers } from './tools/index.js';
 import {
+  UpdateSessionOutputSchema,
+  StatsOutputSchema,
+  StartDebugSessionOutputSchema,
+  SearchSessionsOutputSchema,
+  RecordCommandOutputSchema,
+  ListSessionsOutputSchema,
+  ImportSessionsOutputSchema,
+  SessionSchema,
+  GetSessionContextOutputSchema,
+  FindSimilarErrorsOutputSchema,
+  ExportSessionsOutputSchema,
+  DeleteSessionOutputSchema,
+  CloseSessionOutputSchema,
+  AddFixOutputSchema,
   AddFixSchema,
   CloseSessionSchema,
   CreateSessionSchema,
@@ -92,6 +106,7 @@ export function createDebugRecorderServer(
       title: 'Start Debug Session',
       description: 'Start recording a new debug session for a bug or error',
       inputSchema: CreateSessionSchema,
+      outputSchema: StartDebugSessionOutputSchema,
       handler: 'handleStartDebugSession',
       annotations: {
         readOnlyHint: false,
@@ -105,6 +120,7 @@ export function createDebugRecorderServer(
       description:
         'Record a fix attempt for a debug session. If it worked, session is marked resolved.',
       inputSchema: AddFixSchema,
+      outputSchema: AddFixOutputSchema,
       handler: 'handleAddFix',
       annotations: {
         readOnlyHint: false,
@@ -118,6 +134,7 @@ export function createDebugRecorderServer(
       description:
         'Record a terminal command and its output during a debug session',
       inputSchema: RecordCommandSchema,
+      outputSchema: RecordCommandOutputSchema,
       handler: 'handleRecordCommand',
       annotations: {
         readOnlyHint: false,
@@ -130,6 +147,7 @@ export function createDebugRecorderServer(
       title: 'Close Debug Session',
       description: 'Mark a debug session as resolved or abandoned',
       inputSchema: CloseSessionSchema,
+      outputSchema: CloseSessionOutputSchema,
       handler: 'handleCloseSession',
       annotations: {
         readOnlyHint: false,
@@ -143,6 +161,7 @@ export function createDebugRecorderServer(
       description:
         'Search past debug sessions by error message, keyword, or description',
       inputSchema: SearchSchema,
+      outputSchema: SearchSessionsOutputSchema,
       handler: 'handleSearchSessions',
       annotations: {
         readOnlyHint: true,
@@ -156,6 +175,7 @@ export function createDebugRecorderServer(
       description:
         'Find past sessions with similar error messages — answers "have I seen this before?"',
       inputSchema: FindSimilarErrorsSchema,
+      outputSchema: FindSimilarErrorsOutputSchema,
       handler: 'handleFindSimilarErrors',
       annotations: {
         readOnlyHint: true,
@@ -169,6 +189,7 @@ export function createDebugRecorderServer(
       description:
         'Get full details of a debug session including all fixes and commands',
       inputSchema: GetSessionSchema,
+      outputSchema: SessionSchema,
       handler: 'handleGetSession',
       annotations: {
         readOnlyHint: true,
@@ -182,6 +203,7 @@ export function createDebugRecorderServer(
       description:
         'Update title, description, or tags of an existing debug session',
       inputSchema: UpdateSessionSchema,
+      outputSchema: UpdateSessionOutputSchema,
       handler: 'handleUpdateSession',
       annotations: {
         readOnlyHint: false,
@@ -195,6 +217,7 @@ export function createDebugRecorderServer(
       description:
         'Permanently delete a debug session and all related fixes and commands',
       inputSchema: DeleteSessionSchema,
+      outputSchema: DeleteSessionOutputSchema,
       handler: 'handleDeleteSession',
       annotations: {
         readOnlyHint: false,
@@ -207,6 +230,7 @@ export function createDebugRecorderServer(
       title: 'List Debug Sessions',
       description: 'List debug sessions with optional filters',
       inputSchema: ListSessionsSchema,
+      outputSchema: ListSessionsOutputSchema,
       handler: 'handleListSessions',
       annotations: {
         readOnlyHint: true,
@@ -219,6 +243,7 @@ export function createDebugRecorderServer(
       title: 'Get Debug Statistics',
       description: 'Get statistics about your debug history',
       inputSchema: GetStatsSchema,
+      outputSchema: StatsOutputSchema,
       handler: 'handleGetStats',
       annotations: {
         readOnlyHint: true,
@@ -231,6 +256,7 @@ export function createDebugRecorderServer(
       title: 'Export Debug Sessions',
       description: 'Export all debug sessions for backup or migration',
       inputSchema: ExportSessionsSchema,
+      outputSchema: ExportSessionsOutputSchema,
       handler: 'handleExportSessions',
       annotations: {
         readOnlyHint: true,
@@ -244,6 +270,7 @@ export function createDebugRecorderServer(
       description:
         'Import sessions previously exported from debug-recorder-mcp',
       inputSchema: ImportSessionsSchema,
+      outputSchema: ImportSessionsOutputSchema,
       handler: 'handleImportSessions',
       annotations: {
         readOnlyHint: false,
@@ -257,6 +284,7 @@ export function createDebugRecorderServer(
       description:
         'Get a structured summary of a debug session formatted for AI context',
       inputSchema: GetSessionContextSchema,
+      outputSchema: GetSessionContextOutputSchema,
       handler: 'handleGetSessionContext',
       annotations: {
         readOnlyHint: true,
@@ -274,6 +302,7 @@ export function createDebugRecorderServer(
         title: registration.title,
         description: registration.description,
         inputSchema: registration.inputSchema,
+        outputSchema: registration.outputSchema,
         annotations: registration.annotations
       },
       safeHandler(registration.name, handler)

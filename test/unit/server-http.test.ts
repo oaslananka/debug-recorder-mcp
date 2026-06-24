@@ -1,4 +1,8 @@
-import { request as httpRequest, type Server as HttpServer } from 'node:http';
+import {
+  request as httpRequest,
+  type IncomingHttpHeaders,
+  type Server as HttpServer
+} from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type Database from 'better-sqlite3';
 import { afterEach, describe, expect, it } from '@jest/globals';
@@ -125,11 +129,17 @@ async function postMcp(
   });
 }
 
-function rawGet(
+function rawRequest(
   baseUrl: string,
   path: string,
-  headers: Record<string, string>
-): Promise<{ body: string; statusCode: number }> {
+  method: string,
+  headers: Record<string, string>,
+  body?: string
+): Promise<{
+  body: string;
+  headers: IncomingHttpHeaders;
+  statusCode: number;
+}> {
   const url = new URL(path, baseUrl);
 
   return new Promise((resolve, reject) => {
@@ -138,7 +148,7 @@ function rawGet(
         hostname: url.hostname,
         port: url.port,
         path: url.pathname,
-        method: 'GET',
+        method,
         headers
       },
       (response) => {
@@ -147,6 +157,7 @@ function rawGet(
         response.on('end', () => {
           resolve({
             body: Buffer.concat(chunks).toString('utf8'),
+            headers: response.headers,
             statusCode: response.statusCode ?? 0
           });
         });
@@ -154,8 +165,20 @@ function rawGet(
     );
 
     request.on('error', reject);
-    request.end();
+    request.end(body);
   });
+}
+
+function rawGet(
+  baseUrl: string,
+  path: string,
+  headers: Record<string, string>
+): Promise<{
+  body: string;
+  headers: IncomingHttpHeaders;
+  statusCode: number;
+}> {
+  return rawRequest(baseUrl, path, 'GET', headers);
 }
 
 afterEach(async () => {
@@ -234,6 +257,63 @@ describe('HTTP server hardening', () => {
     expect(valid.status).toBe(200);
     expect(valid.headers.get('mcp-session-id')).toBeNull();
     await valid.text();
+  });
+
+  it('serves CORS preflight only for allowed MCP origins', async () => {
+    const { baseUrl } = await listen();
+    const allowed = await rawRequest(baseUrl, '/mcp', 'OPTIONS', {
+      host: new URL(baseUrl).host,
+      origin: baseUrl,
+      'access-control-request-method': 'POST'
+    });
+    const rejected = await rawRequest(baseUrl, '/mcp', 'OPTIONS', {
+      host: new URL(baseUrl).host,
+      origin: 'https://evil.example',
+      'access-control-request-method': 'POST'
+    });
+
+    expect(allowed.statusCode).toBe(204);
+    expect(allowed.headers['access-control-allow-origin']).toBe(baseUrl);
+    expect(allowed.headers['access-control-allow-methods']).toContain('POST');
+    expect(allowed.headers['access-control-allow-headers']).toContain(
+      'authorization'
+    );
+    expect(rejected.statusCode).toBe(403);
+  });
+
+  it('sets CORS response headers for allowed Streamable HTTP origins', async () => {
+    const { baseUrl } = await listen();
+    const response = await postMcp(baseUrl, initializeRequest(1), {
+      origin: baseUrl
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('access-control-allow-origin')).toBe(baseUrl);
+    expect(response.headers.get('access-control-expose-headers')).toContain(
+      'mcp-session-id'
+    );
+    await response.text();
+  });
+
+  it('rejects MCP POST requests without an application/json content type', async () => {
+    const { baseUrl } = await listen();
+    const response = await fetch(`${baseUrl}/mcp`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json, text/event-stream',
+        'content-type': 'text/plain'
+      },
+      body: JSON.stringify(initializeRequest(1))
+    });
+    const payload = (await response.json()) as {
+      error: { code: number; message: string };
+    };
+
+    expect(response.status).toBe(415);
+    expect(payload.error.code).toBe(-32600);
+    expect(payload.error.message).toBe(
+      'Unsupported media type: expected application/json'
+    );
   });
 
   it('returns deterministic errors for malformed and oversized request bodies', async () => {

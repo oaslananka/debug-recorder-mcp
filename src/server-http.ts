@@ -256,6 +256,57 @@ function writeJsonRpcError(
   });
 }
 
+function writeNoContent(response: ServerResponse): void {
+  response.statusCode = 204;
+  response.end();
+}
+
+function setCorsHeaders(
+  request: IncomingMessage,
+  response: ServerResponse,
+  config: HttpServerConfig
+): void {
+  const originHeader = request.headers.origin;
+
+  if (!originHeader) {
+    return;
+  }
+
+  if (!config.allowedOrigins.has(normalizeOrigin(originHeader))) {
+    return;
+  }
+
+  response.setHeader('access-control-allow-origin', originHeader);
+  response.setHeader('vary', 'Origin');
+  response.setHeader('access-control-allow-methods', 'POST, GET, OPTIONS');
+  response.setHeader(
+    'access-control-allow-headers',
+    'authorization, content-type, accept, mcp-protocol-version, mcp-session-id'
+  );
+  response.setHeader('access-control-expose-headers', 'mcp-session-id');
+}
+
+function assertJsonContentType(request: IncomingMessage): void {
+  const contentType = request.headers['content-type'] as
+    | string
+    | string[]
+    | undefined;
+  const normalized: string | undefined = Array.isArray(contentType)
+    ? contentType[0]
+    : contentType;
+  const mediaType = normalized?.split(';').at(0)?.trim().toLowerCase();
+
+  if (mediaType === 'application/json') {
+    return;
+  }
+
+  throw new HttpRequestError(
+    415,
+    -32600,
+    'Unsupported media type: expected application/json'
+  );
+}
+
 function secureEqual(left: string, right: string): boolean {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);
@@ -362,6 +413,8 @@ async function handleMcpRequest(
     return;
   }
 
+  assertJsonContentType(request);
+
   const parsedBody = await readJsonBody(request, config.maxBodyBytes);
   const mcpServer = createDebugRecorderServer(runtime);
   const transport = new StreamableHTTPServerTransport({
@@ -402,6 +455,12 @@ export function createHttpServer(
 
       try {
         validateRequestSecurity(request, config, isMcpRequest);
+        setCorsHeaders(request, response, config);
+
+        if (request.method === 'OPTIONS') {
+          writeNoContent(response);
+          return;
+        }
 
         if (url.pathname === '/health') {
           writeJson(response, 200, { ok: true });

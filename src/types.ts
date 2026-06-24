@@ -240,6 +240,134 @@ export const GetSessionContextSchema = z.object({
 
 export const GetStatsSchema = z.object({});
 
+export const FixSchema = FixRowSchema.omit({ worked: true }).extend({
+  worked: z.boolean()
+});
+
+const CommandSchema = CommandRowSchema;
+
+export const SessionSchema = SessionRowSchema.omit({ tags: true }).extend({
+  tags: TagsSchema,
+  fixes: z.array(FixSchema),
+  commands: z.array(CommandSchema)
+});
+
+export const ImportCountsSchema = z.object({
+  sessions: z.number().int().min(0),
+  fixes: z.number().int().min(0),
+  commands: z.number().int().min(0)
+});
+
+export const StatsOutputSchema = z.object({
+  total: z.number().int().min(0),
+  resolved: z.number().int().min(0),
+  open: z.number().int().min(0),
+  abandoned: z.number().int().min(0),
+  byLanguage: z.array(
+    z.object({ language: z.string(), count: z.number().int().min(0) })
+  ),
+  topErrorTypes: z.array(
+    z.object({ error_type: z.string(), count: z.number().int().min(0) })
+  ),
+  resolutionRate: z.number().min(0).max(100)
+});
+
+export const StartDebugSessionOutputSchema = z.object({
+  success: z.boolean(),
+  session_id: IdSchema,
+  message: z.string()
+});
+
+export const AddFixOutputSchema = z.object({
+  success: z.boolean(),
+  fix_id: IdSchema,
+  resolved: z.boolean()
+});
+
+export const RecordCommandOutputSchema = z.object({
+  success: z.boolean(),
+  command_id: IdSchema
+});
+
+export const CloseSessionOutputSchema = z.object({
+  success: z.boolean(),
+  session: SessionSchema
+});
+
+export const SearchResultOutputSchema = SessionSchema.extend({
+  _score: z.number().optional()
+});
+
+export const SearchSessionsOutputSchema = z.object({
+  count: z.number().int().min(0),
+  results: z.array(SearchResultOutputSchema)
+});
+
+export const FindSimilarErrorsOutputSchema = z.object({
+  found: z.number().int().min(0),
+  message: z.string(),
+  results: z.array(
+    z.object({
+      session: SessionSchema,
+      similarity: z.number().int().min(0).max(100)
+    })
+  )
+});
+
+export const UpdateSessionOutputSchema = z.object({
+  success: z.boolean(),
+  session: SessionSchema
+});
+
+export const DeleteSessionOutputSchema = z.object({
+  success: z.boolean(),
+  session_id: IdSchema.optional(),
+  message: z.string().optional()
+});
+
+export const ListSessionsOutputSchema = z.object({
+  count: z.number().int().min(0),
+  sessions: z.array(SessionSchema)
+});
+
+export const ExportSessionsOutputSchema = z
+  .object({
+    exported_at: z.string(),
+    schema_version: z.number().int().min(1),
+    sessions: z.array(SessionRowSchema).optional(),
+    fixes: z.array(FixRowSchema).optional(),
+    commands: z.array(CommandRowSchema).optional(),
+    stats: StatsOutputSchema.optional()
+  })
+  .passthrough();
+
+export const ImportSessionsOutputSchema = z.object({
+  success: z.boolean(),
+  schema_version: z.number().int().min(1),
+  imported: ImportCountsSchema,
+  skipped: ImportCountsSchema,
+  invalid: ImportCountsSchema,
+  errors: z.array(z.string())
+});
+
+export const GetSessionContextOutputSchema = z.object({
+  problem: z.object({
+    title: z.string(),
+    error_message: z.string().nullable(),
+    error_type: z.string().nullable(),
+    language: z.string().nullable(),
+    framework: z.string().nullable(),
+    environment: z.string().nullable(),
+    description: z.string().nullable()
+  }),
+  status: SessionStatusSchema,
+  duration_ms: z.number().min(0),
+  fixes_tried: z.number().int().min(0).optional(),
+  working_fix: FixSchema.nullable().optional(),
+  failed_fixes: z.array(z.string()).optional(),
+  commands: z.array(CommandSchema).optional()
+});
+
 export type SessionRow = z.infer<typeof SessionRowSchema>;
 export type FixRow = z.infer<typeof FixRowSchema>;
 export type CommandRow = z.infer<typeof CommandRowSchema>;

@@ -4,12 +4,25 @@ export type JsonContentResponse = {
     type: 'text';
     text: string;
   }>;
+  structuredContent: Record<string, unknown>;
 };
 
-/** Handles a validated MCP tool input and returns JSON text content. */
+/** Handles a validated MCP tool input and returns JSON text plus structured content. */
 export type ToolHandler<T> = (input: T) => JsonContentResponse;
 
-/** Wraps an arbitrary payload in the JSON text response shape expected by MCP. */
+function toStructuredContent(payload: unknown): Record<string, unknown> {
+  if (
+    typeof payload === 'object' &&
+    payload !== null &&
+    !Array.isArray(payload)
+  ) {
+    return payload as Record<string, unknown>;
+  }
+
+  return { value: payload };
+}
+
+/** Wraps an arbitrary payload in the JSON text and structured response shape expected by MCP. */
 export function jsonContent(payload: unknown): JsonContentResponse {
   return {
     content: [
@@ -17,6 +30,7 @@ export function jsonContent(payload: unknown): JsonContentResponse {
         type: 'text',
         text: JSON.stringify(payload, null, 2)
       }
-    ]
+    ],
+    structuredContent: toStructuredContent(payload)
   };
 }
