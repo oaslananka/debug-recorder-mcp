@@ -338,6 +338,84 @@ describe('Store', () => {
     expect(exported.commands).toHaveLength(1);
   });
 
+  it('excludes deleted sensitive session trees from backup exports', () => {
+    const secret = 'delete-me-token';
+    const session = store.createSession({
+      title: 'delete sensitive incident',
+      error_message: `Authorization: Bearer ${secret}`,
+      tags: ['sensitive']
+    });
+    store.addFix({
+      session_id: session.id,
+      description: `token=${secret}`,
+      worked: false
+    });
+    store.recordCommand({
+      session_id: session.id,
+      command: `curl -H "Authorization: Bearer ${secret}"`,
+      output: `api_key=${secret}`
+    });
+
+    expect(JSON.stringify(store.exportAll())).toContain(secret);
+    expect(store.deleteSession(session.id)).toBe(true);
+
+    const exported = store.exportAll();
+    const exportedText = JSON.stringify(exported);
+
+    expect(exported.sessions).toHaveLength(0);
+    expect(exported.fixes).toHaveLength(0);
+    expect(exported.commands).toHaveLength(0);
+    expect(exportedText).not.toContain(secret);
+  });
+
+  it('redacts sensitive fields during import when store redaction is enabled', () => {
+    const source = createTestDb();
+    const target = createTestDb();
+    const sourceStore = new Store(source);
+    const targetStore = new Store(target);
+    const secret = 'import-token-value';
+
+    try {
+      const session = sourceStore.createSession({
+        title: 'import sensitive incident',
+        error_message: `Authorization: Bearer ${secret}`,
+        environment: `api_key=${secret}`,
+        tags: []
+      });
+      sourceStore.addFix({
+        session_id: session.id,
+        description: `token=${secret}`,
+        notes: `Bearer ${secret}`,
+        worked: false
+      });
+      sourceStore.recordCommand({
+        session_id: session.id,
+        command: `curl -H "Authorization: Bearer ${secret}"`,
+        output: `api_key=${secret}`
+      });
+
+      const payload = sourceStore.exportAll();
+      expect(JSON.stringify(payload)).toContain(secret);
+
+      process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'true';
+      const result = targetStore.importAll(payload);
+      const imported = targetStore.getSession(session.id);
+      const importedText = JSON.stringify(imported);
+
+      expect(result.imported.sessions).toBe(1);
+      expect(result.imported.fixes).toBe(1);
+      expect(result.imported.commands).toBe(1);
+      expect(importedText).not.toContain(secret);
+      expect(imported?.error_message).toContain('Bearer [REDACTED]');
+      expect(imported?.environment).toContain('api_key=[REDACTED]');
+      expect(imported?.fixes[0]?.description).toContain('token=[REDACTED]');
+      expect(imported?.commands[0]?.output).toContain('api_key=[REDACTED]');
+    } finally {
+      source.close();
+      target.close();
+    }
+  });
+
   it('throws for invalid import payloads', () => {
     expect(() => store.importAll({ nope: true })).toThrow(
       /Invalid import payload/

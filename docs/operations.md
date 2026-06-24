@@ -55,8 +55,18 @@ Security workflow tools must stay pinned and updateable. `actionlint` is
 installed through a fixed Go module version, and `zizmor` runs through the
 official pinned `zizmor-action` commit with an exact `zizmor` version.
 
-## Backups
+## Backups, retention, and compaction
 
 Use `export_sessions` for JSON backups and `import_sessions` for restores.
 Imports validate schema version, parent-child relationships, and batch limits
 before writing records.
+
+For retention, redaction, backup, restore, migration rollback, and SQLite
+compaction guidance, see [Storage retention and maintenance](./storage-retention.md).
+
+Run safe local compaction after large delete/import cycles and while no MCP
+client is writing to the database:
+
+```bash
+node scripts/compact-sqlite.mjs --db ~/.debug-recorder-mcp/sessions.db
+```
