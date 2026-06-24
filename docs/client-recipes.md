@@ -77,10 +77,12 @@ curl -fsS http://127.0.0.1:3000/version
 MCP initialize smoke request:
 
 ```bash
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token
+
 curl -fsS http://127.0.0.1:3000/mcp \
+  --oauth2-bearer "$DEBUG_RECORDER_HTTP_TOKEN" \
   -H 'Accept: application/json, text/event-stream' \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer replace-with-a-long-random-token' \
   --data '{
     "jsonrpc": "2.0",
     "id": 1,
