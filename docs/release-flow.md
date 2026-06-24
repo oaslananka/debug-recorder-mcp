@@ -56,6 +56,8 @@ release workflow:
 7. attaches the tarball, SBOM, and checksums to the GitHub Release
 8. waits for the `npm-publish` environment before publishing to npm
 9. verifies the published npm version
+10. verifies MCP Registry readiness against the published npm version
+11. uploads `server.json` as the registry descriptor artifact
 
 The npm publish step uses provenance and is intended for npm trusted publishing
 through GitHub OIDC. A long-lived `NPM_TOKEN` is only a fallback when trusted
@@ -84,8 +86,32 @@ Before an MCP Registry update:
 - `node scripts/check-version-sync.mjs` must pass
 - `node scripts/validate-mcp-metadata.mjs` must pass
 
-Registry publishing is intentionally separate from npm publishing and should be
-gated after npm publish verification succeeds.
+Registry publishing is intentionally separate from npm publishing and remains a
+manual maintainer submission until the registry provides a stable authenticated
+submission mechanism for this project. The automated release workflow now runs a
+post-npm `MCP Registry Readiness` gate before maintainers submit registry
+metadata.
+
+Release checklist for npm plus MCP Registry:
+
+1. Release Please creates the GitHub Release and versioned metadata.
+2. Release assets are built, attested, checksummed, and attached.
+3. The `npm-publish` environment is approved.
+4. The tarball is published to npm with provenance.
+5. `npm view debug-recorder-mcp@<version> version` returns the release version.
+6. `npm run check:version` passes.
+7. `npm run check:mcp` passes.
+8. `npm run check:mcp-registry:published` passes.
+9. The `mcp-registry-descriptor` workflow artifact contains the exact `server.json`
+   used for manual registry submission.
+10. A maintainer submits or updates the registry entry for
+    `io.github.oaslananka/debug-recorder-mcp`.
+
+If npm publication succeeds but MCP Registry readiness fails, the release is in a
+partial success state: npm is live, but registry metadata must not be submitted
+until the failure is fixed. The workflow creates a follow-up issue labeled for
+release, MCP, packaging, and triage so the published-but-not-registry-ready state
+is visible.
 
 ## Architecture decisions
 
