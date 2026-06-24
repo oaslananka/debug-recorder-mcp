@@ -79,6 +79,9 @@ jobs:
             exit 1
           }
 
+      - name: Install-script approval policy
+        run: npm run check:install-scripts
+
       - name: Package dry run
         run: npm pack --dry-run
 

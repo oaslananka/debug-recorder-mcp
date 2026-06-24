@@ -245,6 +245,7 @@ Additional project docs:
 - [Configuration](./docs/configuration.md)
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)
+- [Install-script policy](./docs/install-script-policy.md)
 - [Operations](./docs/operations.md)
 - [Architecture Decision Records](./docs/adr/README.md)
 - [Testing](./docs/testing.md)

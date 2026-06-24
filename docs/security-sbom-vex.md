@@ -15,13 +15,13 @@ The release workflow must fail rather than publish when any of those assets cann
 
 ## Finding classification
 
-| Class | Examples | Required action |
-| --- | --- | --- |
-| Production/runtime | Direct runtime dependencies, transitive dependencies shipped in the npm package, HTTP transport dependencies | Fix immediately for `moderate`, `high`, and `critical` findings before release. |
-| Optional/native runtime | `better-sqlite3` native build chain or platform-specific optional packages | Fix immediately when exploitable in supported runtime use; otherwise document scope and mitigation. |
-| Development-only | Jest, TypeDoc, lint, coverage, test-only transform packages | Fix before merge when `npm audit --audit-level=moderate` fails, unless a documented temporary VEX decision exists. |
-| Scanner-only container/OS | Findings emitted by Trivy for base image or package-manager metadata | Fix `high` and `critical` findings before release, or document why the vulnerable component is unreachable/not present in the final artifact. |
-| False positive / not affected | Finding targets an unused adapter, disabled feature, unreachable platform path, or non-shipped file | Record a VEX decision and keep scanner/audit output linked to that decision. |
+| Class                         | Examples                                                                                                     | Required action                                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production/runtime            | Direct runtime dependencies, transitive dependencies shipped in the npm package, HTTP transport dependencies | Fix immediately for `moderate`, `high`, and `critical` findings before release.                                                               |
+| Optional/native runtime       | `better-sqlite3` native build chain or platform-specific optional packages                                   | Fix immediately when exploitable in supported runtime use; otherwise document scope and mitigation.                                           |
+| Development-only              | Jest, TypeDoc, lint, coverage, test-only transform packages                                                  | Fix before merge when `npm audit --audit-level=moderate` fails, unless a documented temporary VEX decision exists.                            |
+| Scanner-only container/OS     | Findings emitted by Trivy for base image or package-manager metadata                                         | Fix `high` and `critical` findings before release, or document why the vulnerable component is unreachable/not present in the final artifact. |
+| False positive / not affected | Finding targets an unused adapter, disabled feature, unreachable platform path, or non-shipped file          | Record a VEX decision and keep scanner/audit output linked to that decision.                                                                  |
 
 ## Fix vs temporary acceptance
 
@@ -71,7 +71,7 @@ Store VEX/advisory decisions in `docs/security/vex/YYYY-MM-DD-<package-or-adviso
 As of this policy, the expected baseline is:
 
 - `npm audit --audit-level=moderate` reports zero vulnerabilities.
-- `npm approve-scripts --allow-scripts-pending` reports no unreviewed install scripts.
+- `npm run check:install-scripts` reports no unreviewed install scripts and confirms the pinned `allowScripts` policy.
 - Release assets include SBOM, checksums, and provenance attestations.
 - Any future exception must be explicit, issue-linked, and time-bounded.
 
@@ -80,8 +80,9 @@ As of this policy, the expected baseline is:
 Before merging a dependency/security PR:
 
 1. Run `npm ci` from a clean checkout.
-2. Run `npm approve-scripts --allow-scripts-pending` and review any new install scripts.
-3. Run `npm audit --audit-level=moderate`.
-4. Generate a local SBOM with `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`.
-5. Run `npm run ci:local`.
-6. If anything remains unfixed, add a VEX decision record and link the tracking issue.
+2. Run `npm run check:install-scripts` and review any new install scripts.
+3. Update [`docs/install-script-policy.md`](./install-script-policy.md) when an approved script changes.
+4. Run `npm audit --audit-level=moderate`.
+5. Generate a local SBOM with `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`.
+6. Run `npm run ci:local`.
+7. If anything remains unfixed, add a VEX decision record and link the tracking issue.
