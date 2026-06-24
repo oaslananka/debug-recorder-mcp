@@ -143,3 +143,58 @@ jobs:
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
         run: test "$(npm view "debug-recorder-mcp@${VERSION}" version)" = "$VERSION"
+
+  mcp-registry-validation:
+    name: MCP Registry Validation
+    if: ${{ needs.release-please.outputs.release_created == 'true' && github.repository == 'oaslananka/debug-recorder-mcp' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs:
+      - release-please
+      - npm-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24.16.0'
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate MCP metadata
+        run: |
+          npm run check:version
+          npm run check:mcp
+
+      - name: Verify npm-published MCP Registry metadata
+        env:
+          VERSION: ${{ needs.release-please.outputs.version }}
+        run: npm run check:mcp:registry
+
+      - name: Registry failure guidance
+        if: ${{ failure() }}
+        run: |
+          {
+            echo "## MCP Registry validation failed"
+            echo ""
+            echo "npm publication may already be complete, but MCP Registry metadata is not ready."
+            echo "Do not submit or update the MCP Registry entry until this job is green."
+            echo "Run the following locally after investigating the failed step:"
+            echo ""
+            echo '```bash'
+            echo "npm run check:version"
+            echo "npm run check:mcp"
+            echo "VERSION=${{ needs.release-please.outputs.version }} npm run check:mcp:registry"
+            echo '```'
+            echo ""
+            echo "See docs/release-flow.md for the npm + MCP Registry checklist."
+          } >> "$GITHUB_STEP_SUMMARY"

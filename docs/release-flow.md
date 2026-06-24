@@ -56,6 +56,7 @@ release workflow:
 7. attaches the tarball, SBOM, and checksums to the GitHub Release
 8. waits for the `npm-publish` environment before publishing to npm
 9. verifies the published npm version
+10. runs MCP Registry readiness validation after npm publication succeeds
 
 The npm publish step uses provenance and is intended for npm trusted publishing
 through GitHub OIDC. A long-lived `NPM_TOKEN` is only a fallback when trusted
@@ -84,8 +85,27 @@ Before an MCP Registry update:
 - `node scripts/check-version-sync.mjs` must pass
 - `node scripts/validate-mcp-metadata.mjs` must pass
 
-Registry publishing is intentionally separate from npm publishing and should be
-gated after npm publish verification succeeds.
+Registry submission remains a manual maintainer action, but registry readiness is
+a gated GitHub Actions job after npm publish verification succeeds. The release
+workflow runs `npm run check:version`, `npm run check:mcp`, and
+`VERSION=<release> npm run check:mcp:registry` after npm publication.
+
+The registry validation job checks all of the following:
+
+- `package.json.version`, `mcp.json.version`, `server.json.version`, and
+  `server.json.packages[].version` match the release-please version
+- the npm package entry in `server.json` remains `debug-recorder-mcp`
+- the npm package version exists on the public npm registry
+- the package transport remains `stdio`
+
+If npm publication succeeds but registry validation fails, treat the release as
+registry-blocked:
+
+1. do not submit or update the MCP Registry entry
+2. inspect the failed `MCP Registry Validation` job summary
+3. fix version metadata or npm visibility in a follow-up PR
+4. rerun the release validation before manual registry submission
+5. link the failed release run in the follow-up PR or issue
 
 ## Architecture decisions
 

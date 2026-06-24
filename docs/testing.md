@@ -18,6 +18,7 @@ npm pack --dry-run
 npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
+npm run check:mcp:registry -- --skip-npm
 ```
 
 Run the e2e stdio flow after building:
@@ -64,6 +65,6 @@ The unit suite covers:
 
 CI enforces coverage thresholds, e2e flow coverage, deterministic fuzz
 regression tests, dead-code checks, dependency audit, package dry run, package
-size checks, version synchronization, MCP metadata validation, workflow
+size checks, version synchronization, MCP metadata and registry-readiness validation, workflow
 linting, workflow security scanning, secret scanning, Trivy, CodeQL, and
 scheduled OpenSSF Scorecard.
