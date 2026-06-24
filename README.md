@@ -4,6 +4,12 @@
 [![License](https://img.shields.io/npm/l/debug-recorder-mcp.svg)](./LICENSE)
 [![npm downloads](https://img.shields.io/npm/dm/debug-recorder-mcp.svg)](https://www.npmjs.com/package/debug-recorder-mcp)
 
+<p align="center">
+  <a href="https://www.buymeacoffee.com/oaslananka">
+    <img src="https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20coffee&emoji=%E2%98%95&slug=oaslananka&button_colour=FFDD00&font_colour=000000&font_family=Arial&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" />
+  </a>
+</p>
+
 `debug-recorder-mcp` answers a simple question fast: have I fixed this before?
 
 It records debug sessions, terminal commands, failed attempts, and successful fixes in a local SQLite database so your MCP client can query your own debugging history in natural language.
