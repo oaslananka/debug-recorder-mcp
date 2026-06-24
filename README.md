@@ -242,6 +242,7 @@ npm run prepublishOnly
 Additional project docs:
 
 - [Usage](./docs/usage.md)
+- [Client setup recipes](./docs/client-recipes.md)
 - [Configuration](./docs/configuration.md)
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)

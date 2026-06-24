@@ -2,6 +2,10 @@
 
 `debug-recorder-mcp` stores debug sessions in a local SQLite database and exposes them through MCP tools over stdio or Streamable HTTP.
 
+## Client setup recipes
+
+Use [Client Setup Recipes](./client-recipes.md) for copy-paste stdio configuration, Streamable HTTP examples, safe sample debug sessions, and troubleshooting guidance.
+
 ## Core workflow
 
 1. Start a session with `start_debug_session`
