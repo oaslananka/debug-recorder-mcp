@@ -8,7 +8,7 @@
 
 > **SessionListOptions** = `object`
 
-Defined in: [src/store.ts:29](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L29)
+Defined in: [src/store.ts:30](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L30)
 
 Filters and pagination controls for listing recorded debug sessions.
 
@@ -18,7 +18,7 @@ Filters and pagination controls for listing recorded debug sessions.
 
 > `optional` **framework?**: `string`
 
-Defined in: [src/store.ts:32](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L32)
+Defined in: [src/store.ts:33](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L33)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [src/store.ts:32](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > `optional` **language?**: `string`
 
-Defined in: [src/store.ts:31](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L31)
+Defined in: [src/store.ts:32](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L32)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [src/store.ts:31](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > **limit**: `number`
 
-Defined in: [src/store.ts:33](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L33)
+Defined in: [src/store.ts:34](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L34)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [src/store.ts:33](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > **offset**: `number`
 
-Defined in: [src/store.ts:34](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L34)
+Defined in: [src/store.ts:35](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L35)
 
 ***
 
@@ -50,4 +50,4 @@ Defined in: [src/store.ts:34](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > `optional` **status?**: [`ListSessions`](../../types/type-aliases/ListSessions.md)\[`"status"`\]
 
-Defined in: [src/store.ts:30](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/store.ts#L30)
+Defined in: [src/store.ts:31](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L31)

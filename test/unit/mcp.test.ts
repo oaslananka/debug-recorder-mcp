@@ -18,6 +18,8 @@ import {
 import { Store } from '../../src/store.js';
 import type { ExportPayload } from '../../src/types.js';
 
+const originalHttpToken = process.env.DEBUG_RECORDER_HTTP_TOKEN;
+
 function parseResponse<T>(response: { content: Array<{ text: string }> }): T {
   return JSON.parse(response.content[0]?.text ?? '{}') as T;
 }
@@ -37,6 +39,11 @@ describe('MCP handlers', () => {
 
   afterEach(() => {
     db.close();
+    if (originalHttpToken === undefined) {
+      delete process.env.DEBUG_RECORDER_HTTP_TOKEN;
+    } else {
+      process.env.DEBUG_RECORDER_HTTP_TOKEN = originalHttpToken;
+    }
   });
 
   it('creates a server instance', () => {
@@ -78,6 +85,7 @@ describe('MCP handlers', () => {
           'delete_session',
           'list_sessions',
           'get_stats',
+          'get_diagnostics',
           'export_sessions',
           'import_sessions',
           'get_session_context'
@@ -324,6 +332,22 @@ describe('MCP handlers', () => {
     expect(context.failed_fixes).toContain('restart service');
     expect(context.working_fix?.description).toBe('roll back release');
     expect(context.commands[0]?.command).toBe('journalctl -u nginx');
+  });
+
+  it('returns redacted operational diagnostics', () => {
+    process.env.DEBUG_RECORDER_HTTP_TOKEN = 'diagnostic-token-value';
+    const diagnostics = parseResponse<{
+      app: { name: string };
+      config: { http_auth_configured: boolean };
+      counters: { sessions_created: number };
+      stats: { total: number };
+    }>(handlers.handleGetDiagnostics({}));
+    const serialized = JSON.stringify(diagnostics);
+
+    expect(diagnostics.app.name).toBe('debug-recorder-mcp');
+    expect(diagnostics.config.http_auth_configured).toBe(true);
+    expect(diagnostics.stats.total).toBe(0);
+    expect(serialized).not.toContain('diagnostic-token-value');
   });
 
   it('returns stats including resolution rate', () => {

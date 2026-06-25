@@ -1,11 +1,22 @@
 import { CURRENT_SCHEMA_VERSION } from '../db.js';
+import { getDiagnostics } from '../diagnostics.js';
 import type { Store } from '../store.js';
-import type { ExportSessions, GetStats, ImportSessions } from '../types.js';
+import type {
+  ExportSessions,
+  GetDiagnostics,
+  GetStats,
+  ImportSessions
+} from '../types.js';
 import { jsonContent, type ToolHandler } from './common.js';
 
 export function createAdminToolHandlers(store: Store) {
   const handleGetStats: ToolHandler<GetStats> = () =>
     jsonContent(store.getStats());
+
+  const handleGetDiagnostics: ToolHandler<GetDiagnostics> = () =>
+    jsonContent(
+      getDiagnostics(store, { dbPath: process.env.DEBUG_RECORDER_DB })
+    );
 
   const handleExportSessions: ToolHandler<ExportSessions> = (input) => {
     const exported = store.exportAll();
@@ -45,6 +56,7 @@ export function createAdminToolHandlers(store: Store) {
 
   return {
     handleGetStats,
+    handleGetDiagnostics,
     handleExportSessions,
     handleImportSessions
   };

@@ -8,7 +8,7 @@
 
 > **ImportResult** = `object`
 
-Defined in: [src/types.ts:507](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L507)
+Defined in: [src/types.ts:541](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L541)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/types.ts:507](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **errors**: `string`[]
 
-Defined in: [src/types.ts:512](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L512)
+Defined in: [src/types.ts:546](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L546)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/types.ts:512](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **imported**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: [src/types.ts:509](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L509)
+Defined in: [src/types.ts:543](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L543)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/types.ts:509](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **invalid**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: [src/types.ts:511](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L511)
+Defined in: [src/types.ts:545](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L545)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/types.ts:511](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **schema\_version**: `number`
 
-Defined in: [src/types.ts:508](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L508)
+Defined in: [src/types.ts:542](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L542)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/types.ts:508](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **skipped**: [`ImportCounts`](ImportCounts.md)
 
-Defined in: [src/types.ts:510](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L510)
+Defined in: [src/types.ts:544](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L544)

@@ -83,6 +83,7 @@ DEBUG_RECORDER_DB=/path/to/custom.db npx debug-recorder-mcp
 - `get_session_context`: fetch an AI-friendly summary of a session
 - `list_sessions`: browse sessions with filters
 - `get_stats`: summarize your debug history
+- `get_diagnostics`: get a redacted operational diagnostics snapshot
 - `export_sessions`: export your local history for backup or migration
 - `import_sessions`: import a previously exported JSON payload
 
@@ -256,6 +257,7 @@ Additional project docs:
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)
 - [Operations](./docs/operations.md)
+- [Troubleshooting](./docs/troubleshooting.md)
 - [Architecture Decision Records](./docs/adr/README.md)
 - [Testing](./docs/testing.md)
 - [Search Algorithm](./docs/search-algorithm.md)

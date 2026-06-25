@@ -8,4 +8,4 @@
 
 > `const` **DeleteSearchPresetOutputSchema**: `ZodObject`\<\{ `deleted`: `ZodBoolean`; `name`: `ZodString`; `success`: `ZodBoolean`; \}, `"strip"`, `ZodTypeAny`, \{ `deleted`: `boolean`; `name`: `string`; `success`: `boolean`; \}, \{ `deleted`: `boolean`; `name`: `string`; `success`: `boolean`; \}\>
 
-Defined in: [src/types.ts:386](https://github.com/oaslananka/debug-recorder-mcp/blob/46c4a351259c4962c63c7d0b879764f0bddb48aa/src/types.ts#L386)
+Defined in: [src/types.ts:419](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L419)

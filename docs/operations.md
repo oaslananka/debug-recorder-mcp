@@ -55,6 +55,13 @@ Security workflow tools must stay pinned and updateable. `actionlint` is
 installed through a fixed Go module version, and `zizmor` runs through the
 official pinned `zizmor-action` commit with an exact `zizmor` version.
 
+## Diagnostics
+
+Use `get_diagnostics` for a safe runtime snapshot before sharing issue details.
+It reports package/runtime versions, schema version, aggregate stats, and
+lightweight counters without raw tokens, command output, stack traces, or local
+paths. See [Troubleshooting](./troubleshooting.md) for the full flow.
+
 ## Backups, retention, and compaction
 
 Use `export_sessions` for JSON backups and `import_sessions` for restores.
