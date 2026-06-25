@@ -55,8 +55,15 @@ error text may contain credentials. Redaction covers common bearer tokens, API
 keys, npm tokens, GitHub-style tokens, Slack-style tokens, `sk-` keys, and long
 base64-like values.
 
+Store-time redaction applies to new writes and imports; it does not
+retroactively scrub existing rows. See
+[Storage retention and maintenance](./storage-retention.md) for the safe
+redacted-copy workflow.
+
 ## Operational guidance
 
 - Use a dedicated `DEBUG_RECORDER_DB` path for scratch imports or project-isolated histories.
+- Back up with `export_sessions` before upgrades, compaction, or bulk imports.
+- Run `node scripts/compact-sqlite.mjs --db <path>` after large delete/import cycles while no MCP client is writing.
 - Lower `FUZZY_THRESHOLD` for stricter search results; raise it slightly for typo-heavy workflows.
 - Set `LOG_LEVEL=warn` in CI and e2e runs to reduce noise from migration logs.

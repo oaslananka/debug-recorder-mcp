@@ -40,7 +40,13 @@ Structured log metadata is redacted for common token shapes and key names.
 
 Persistence redaction is optional because exact local debugging text can be
 valuable. Set `DEBUG_RECORDER_REDACT_BEFORE_STORE=true` to redact common
-credential patterns before storing session, fix, and command text.
+credential patterns before storing session, fix, and command text. This protects
+new writes and imports only; use the documented redacted-copy workflow for
+existing databases.
+
+Database files and JSON exports should be treated as sensitive local artifacts.
+See [Storage retention and maintenance](./storage-retention.md) for retention,
+backup, compaction, and migration rollback guidance.
 
 Never commit tokens, package credentials, registry credentials, private keys, or
 local transcript/scratch files. Pull request validation includes Gitleaks.
