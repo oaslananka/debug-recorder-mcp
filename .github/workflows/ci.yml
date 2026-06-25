@@ -79,6 +79,9 @@ jobs:
             exit 1
           }
 
+      - name: Install-script approval policy
+        run: npm run check:install-scripts
+
       - name: Package dry run
         run: npm pack --dry-run
 
@@ -90,6 +93,9 @@ jobs:
 
       - name: MCP metadata
         run: node scripts/validate-mcp-metadata.mjs
+
+      - name: SBOM/VEX policy invariants
+        run: npm run check:security-policy
 
       - name: Upload quality artifacts
         if: ${{ !cancelled() }}

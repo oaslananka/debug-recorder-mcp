@@ -14,10 +14,12 @@ npm run test:fuzz
 npm run build
 npm run test:e2e
 npm audit --audit-level=moderate
+npm run check:install-scripts
 npm pack --dry-run
 npm run check:package-size
 node scripts/check-version-sync.mjs
 node scripts/validate-mcp-metadata.mjs
+npm run check:security-policy
 ```
 
 Run the e2e stdio flow after building:
@@ -63,7 +65,7 @@ The unit suite covers:
   normalization, HTTP allowlists, and redaction
 
 CI enforces coverage thresholds, e2e flow coverage, deterministic fuzz
-regression tests, dead-code checks, dependency audit, package dry run, package
-size checks, version synchronization, MCP metadata validation, workflow
+regression tests, dead-code checks, dependency audit, install-script approval checks, package dry run, package
+size checks, version synchronization, MCP metadata validation, SBOM/VEX policy invariant checks, workflow
 linting, workflow security scanning, secret scanning, Trivy, CodeQL, and
 scheduled OpenSSF Scorecard.

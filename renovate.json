@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "schedule:weekly", ":separateMajorReleases"],
+  "extends": [
+    "config:recommended",
+    "schedule:weekly",
+    ":separateMajorReleases"
+  ],
   "packageRules": [
     {
       "matchDepTypes": ["devDependencies"],
@@ -17,8 +21,8 @@
       "automerge": false
     },
     {
-      "matchPackageNames": ["better-sqlite3"],
-      "description": "Native dependency updates should always be reviewed manually.",
+      "matchPackageNames": ["better-sqlite3", "unrs-resolver"],
+      "description": "Native or postinstall dependency updates must be reviewed manually and validated with npm run check:install-scripts.",
       "automerge": false
     }
   ]

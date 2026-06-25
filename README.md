@@ -256,6 +256,8 @@ Additional project docs:
 - [Configuration](./docs/configuration.md)
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)
+- [Install-script policy](./docs/install-script-policy.md)
+- [SBOM/VEX policy](./docs/security-sbom-vex.md)
 - [Operations](./docs/operations.md)
 - [Troubleshooting](./docs/troubleshooting.md)
 - [Architecture Decision Records](./docs/adr/README.md)

@@ -22,6 +22,7 @@
 - [ ] CI is green
 - [ ] Public artifact, package, or docs verified
 - [ ] Freshness and deprecation checks completed when dependencies, workflows, runtimes, or release tooling changed
+- [ ] Native/postinstall script approvals reviewed when dependencies changed
 
 ## Evidence
 
