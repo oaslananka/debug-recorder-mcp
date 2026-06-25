@@ -1,6 +1,6 @@
 {
   "name": "debug-recorder-mcp",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "MCP server for recording debug sessions — query your debugging history with natural language",
   "type": "module",
   "main": "dist/mcp.js",
