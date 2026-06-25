@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usage guide | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="usage">Usage</h1>
+<p><code>debug-recorder-mcp</code> stores debug sessions in a local SQLite database and exposes them through MCP tools over stdio or Streamable HTTP.</p>
+<h2 id="client-setup-recipes">Client setup recipes</h2>
+<p>Use <a href="./client-recipes.md">Client Setup Recipes</a> for copy-paste stdio configuration, Streamable HTTP examples, safe sample debug sessions, and troubleshooting guidance.</p>
+<h2 id="core-workflow">Core workflow</h2>
+<p>1. Start a session with <code>start_debug_session</code></p>
+<p>2. Record commands with <code>record_command</code></p>
+<p>3. Log failed and successful attempts with <code>add_fix</code></p>
+<p>4. Search history with <code>search_sessions</code> or <code>find_similar_errors</code></p>
+<p>5. Finish with <code>close_session</code></p>
+<h2 id="workflow-resuming-a-session">Workflow: resuming a session</h2>
+<p>When you come back to an old issue, use this sequence:</p>
+<p>1. Call <code>search_sessions</code> or <code>find_similar_errors</code></p>
+<p>2. Pick the most relevant <code>session_id</code></p>
+<p>3. Call <code>get_session_context</code></p>
+<p><code>get_session_context</code> returns a compact AI-friendly summary that includes:</p>
+<ul>
+<li>the original problem statement</li>
+<li>environment, language, and framework</li>
+<li>failed fixes</li>
+<li>the working fix if one exists</li>
+<li>the last commands recorded for the session</li>
+</ul>
+<p>This is the fastest way to rehydrate context into an assistant conversation.</p>
+<h2 id="search-workflows">Search workflows</h2>
+<p><code>search_sessions</code> supports pagination and incident-oriented output:</p>
+<pre><code>
+{
+
+  &quot;query&quot;: &quot;postgres ECONNREFUSED&quot;,
+
+  &quot;language&quot;: &quot;typescript&quot;,
+
+  &quot;status&quot;: &quot;resolved&quot;,
+
+  &quot;limit&quot;: 10,
+
+  &quot;offset&quot;: 0,
+
+  &quot;include_related&quot;: true,
+
+  &quot;markdown&quot;: true
+
+}
+
+</code></pre>
+<p>The response includes:</p>
+<ul>
+<li><code>pagination</code>: <code>limit</code>, <code>offset</code>, <code>returned</code>, <code>has_more</code>, and <code>next_offset</code></li>
+<li><code>related_groups</code>: result-page clusters by tag, error type, language, or framework</li>
+<li><code>markdown</code>: optional Markdown export for incident notes or postmortems</li>
+</ul>
+<p>Saved presets help agents reuse known investigation patterns:</p>
+<pre><code>
+{
+
+  &quot;name&quot;: &quot;node-postgres-crashes&quot;,
+
+  &quot;query&quot;: &quot;postgres ECONNREFUSED&quot;,
+
+  &quot;language&quot;: &quot;typescript&quot;,
+
+  &quot;framework&quot;: &quot;node&quot;,
+
+  &quot;status&quot;: &quot;resolved&quot;,
+
+  &quot;limit&quot;: 10
+
+}
+
+</code></pre>
+<p>Use <code>save_search_preset</code> to create or update a preset, <code>list_search_presets</code> to inspect stored presets, and <code>remove_search_preset</code> to remove one by name.</p>
+<h2 id="updating-and-deleting-sessions">Updating and deleting sessions</h2>
+<ul>
+<li>Use <code>update_session</code> when the title, notes, or tags need cleanup after the incident becomes clearer.</li>
+<li>Use <code>delete_session</code> only for permanent removal. The tool requires <code>confirm: true</code>.</li>
+</ul>
+<h2 id="backup-and-migration">Backup and migration</h2>
+<h3 id="exporting">Exporting</h3>
+<p>Use <code>export_sessions</code> with <code>format: &quot;json&quot;</code> for a full backup payload. This includes:</p>
+<ul>
+<li><code>schema_version</code></li>
+<li>all <code>sessions</code></li>
+<li>all <code>fixes</code></li>
+<li>all <code>commands</code></li>
+</ul>
+<p>Use <code>format: &quot;summary&quot;</code> when you only need a lightweight inventory.</p>
+<h3 id="importing">Importing</h3>
+<p>Use <code>import_sessions</code> with the JSON payload returned by <code>export_sessions</code>.</p>
+<p>Default import behavior:</p>
+<ul>
+<li>existing IDs are skipped</li>
+<li>orphan child rows are reported as invalid</li>
+<li>unsupported <code>schema_version</code> values are rejected</li>
+</ul>
+<h2 id="scaling">Scaling</h2>
+<p>Search uses a hybrid model:</p>
+<ul>
+<li>SQLite FTS5 for recall across the full session history</li>
+<li>Fuse.js for reranking a much smaller candidate set</li>
+</ul>
+<p>This removes the old 500-session ceiling and keeps results useful as the history grows.</p>
+<p>FTS5 becomes especially valuable when:</p>
+<ul>
+<li>the local session history reaches hundreds of entries</li>
+<li>you search by fragments of stack traces or error messages</li>
+<li>you need filter combinations such as <code>status + framework + language</code></li>
+</ul>
+<h2 id="custom-database-paths">Custom database paths</h2>
+<p>To keep multiple isolated histories, point the process at a custom path:</p>
+<pre><code>
+DEBUG_RECORDER_DB=/path/to/custom.db npx debug-recorder-mcp
+
+</code></pre>
+<p>This is useful for:</p>
+<ul>
+<li>separating work and personal debugging history</li>
+<li>testing imports against a scratch database</li>
+<li>keeping project-specific memory stores</li>
+</ul>
+<h2 id="http-transport">HTTP transport</h2>
+<p>Start the HTTP server with:</p>
+<pre><code>
+npm run start:http
+
+</code></pre>
+<p>Useful routes:</p>
+<ul>
+<li><code>GET /health</code></li>
+<li><code>GET /version</code></li>
+<li><code>POST /mcp</code></li>
+<li><code>GET /mcp</code></li>
+<li><code>DELETE /mcp</code></li>
+</ul>
+<h2 id="runtime-knobs">Runtime knobs</h2>
+<ul>
+<li><code>LOG_LEVEL=warn</code> is useful for CI and automated smoke tests.</li>
+<li><code>FUZZY_THRESHOLD=0.4</code> makes search stricter; <code>0.6</code> allows more typo tolerance.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="./configuration.md">Configuration</a></li>
+<li><a href="./architecture.md">Architecture</a></li>
+<li><a href="./search-algorithm.md">Search Algorithm</a></li>
+<li><a href="../ROADMAP.md">Roadmap</a></li>
+</ul>
+<h2 id="development-verification">Development verification</h2>
+<p>Typical contributor loop:</p>
+<pre><code>
+npm ci
+
+npm run lint
+
+npm test
+
+npm run build
+
+npm run test:e2e
+
+npm run docs:api
+
+</code></pre>
+</article>
+  </main>
+</body>
+</html>

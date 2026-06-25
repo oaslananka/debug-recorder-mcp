@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configuration | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="configuration">Configuration</h1>
+<h2 id="environment-variables">Environment variables</h2>
+<p>| Variable                             | Default                                          | Purpose                                                                    |</p>
+<p>| ------------------------------------ | ------------------------------------------------ | -------------------------------------------------------------------------- |</p>
+<p>| <code>DEBUG_RECORDER_DB</code>                  | <code>~/.debug-recorder-mcp/sessions.db</code>              | Overrides the SQLite database location.                                    |</p>
+<p>| <code>HOST</code>                               | <code>127.0.0.1</code>                                      | HTTP bind host for <code>npm run start:http</code>.                                   |</p>
+<p>| <code>PORT</code>                               | <code>3000</code>                                           | HTTP port for <code>npm run start:http</code>.                                        |</p>
+<p>| <code>DEBUG_RECORDER_HTTP_TOKEN</code>          | unset                                            | Optional bearer token for loopback HTTP. Required for non-loopback HTTP.   |</p>
+<p>| <code>DEBUG_RECORDER_ALLOWED_HOSTS</code>       | <code>127.0.0.1:&lt;PORT&gt;,localhost:&lt;PORT&gt;,[::1]:&lt;PORT&gt;</code> | Comma-separated allowlist for the HTTP <code>Host</code> header.                      |</p>
+<p>| <code>DEBUG_RECORDER_ALLOWED_ORIGINS</code>     | loopback origins for <code>&lt;PORT&gt;</code>                    | Comma-separated allowlist for browser <code>Origin</code> headers when present.       |</p>
+<p>| <code>DEBUG_RECORDER_MAX_BODY_BYTES</code>      | <code>1048576</code>                                        | Maximum JSON body size accepted by the HTTP endpoint.                      |</p>
+<p>| <code>DEBUG_RECORDER_REMOTE_HTTP</code>         | <code>false</code>                                          | Must be <code>true</code> to bind HTTP to a non-loopback host.                        |</p>
+<p>| <code>DEBUG_RECORDER_REDACT_BEFORE_STORE</code> | <code>false</code>                                          | Redact common token patterns before saving session, command, and fix text. |</p>
+<p>| <code>LOG_LEVEL</code>                          | <code>info</code>                                           | Minimum structured log level: <code>debug</code>, <code>info</code>, <code>warn</code>, or <code>error</code>.         |</p>
+<p>| <code>FUZZY_THRESHOLD</code>                    | <code>0.5</code>                                            | Fuse.js threshold used by search reranking and fallback fuzzy search.      |</p>
+<h2 id="example">Example</h2>
+<pre><code>
+DEBUG_RECORDER_DB=/tmp/debug-memory.db LOG_LEVEL=warn FUZZY_THRESHOLD=0.4 npx debug-recorder-mcp
+
+</code></pre>
+<h2 id="http-security-model">HTTP security model</h2>
+<p>HTTP transport is local-first. The default bind address is <code>127.0.0.1</code>, and the</p>
+<p>server rejects requests whose <code>Host</code> header is not in <code>DEBUG_RECORDER_ALLOWED_HOSTS</code>.</p>
+<p>When an <code>Origin</code> header is present, it must match</p>
+<p><code>DEBUG_RECORDER_ALLOWED_ORIGINS</code>.</p>
+<p>The <code>/mcp</code> endpoint accepts only <code>POST</code>. <code>GET /health</code> and <code>GET /version</code> are</p>
+<p>provided for operational checks. Each MCP HTTP request gets its own stateless</p>
+<p><code>McpServer</code> and <code>StreamableHTTPServerTransport</code>, so transport lifecycle and</p>
+<p>session state are not shared across independent clients.</p>
+<p>To expose HTTP outside loopback, set all of the following:</p>
+<pre><code>
+HOST=0.0.0.0
+
+DEBUG_RECORDER_REMOTE_HTTP=true
+
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token
+
+DEBUG_RECORDER_ALLOWED_HOSTS=debug-recorder.example.com
+
+DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com
+
+npm run start:http
+
+</code></pre>
+<p>Remote mode rejects wildcard origins and will not start without token auth.</p>
+<h2 id="persistence-and-redaction">Persistence and redaction</h2>
+<p>By default, the recorder preserves local debug fidelity and stores the text you</p>
+<p>provide. Set <code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code> when command output or</p>
+<p>error text may contain credentials. Redaction covers common bearer tokens, API</p>
+<p>keys, npm tokens, GitHub-style tokens, Slack-style tokens, <code>sk-</code> keys, and long</p>
+<p>base64-like values.</p>
+<p>Store-time redaction applies to new writes and imports; it does not</p>
+<p>retroactively scrub existing rows. See</p>
+<p><a href="./storage-retention.md">Storage retention and maintenance</a> for the safe</p>
+<p>redacted-copy workflow.</p>
+<h2 id="operational-guidance">Operational guidance</h2>
+<ul>
+<li>Use a dedicated <code>DEBUG_RECORDER_DB</code> path for scratch imports or project-isolated histories.</li>
+<li>Back up with <code>export_sessions</code> before upgrades, compaction, or bulk imports.</li>
+<li>Run <code>node scripts/compact-sqlite.mjs --db &lt;path&gt;</code> after large delete/import cycles while no MCP client is writing.</li>
+<li>Lower <code>FUZZY_THRESHOLD</code> for stricter search results; raise it slightly for typo-heavy workflows.</li>
+<li>Set <code>LOG_LEVEL=warn</code> in CI and e2e runs to reduce noise from migration logs.</li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

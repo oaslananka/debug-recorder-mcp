@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="architecture">Architecture</h1>
+<p><code>debug-recorder-mcp</code> keeps runtime responsibilities intentionally narrow:</p>
+<ul>
+<li>MCP transports accept tool calls.</li>
+<li>Tool handlers translate those calls into store operations.</li>
+<li><code>Store</code> owns SQLite persistence and import/export rules.</li>
+<li><code>search.ts</code> combines SQLite FTS5 recall with Fuse.js reranking.</li>
+</ul>
+<pre><code>
+flowchart TD
+
+  Client[&quot;MCP client&quot;] --&gt; Transport[&quot;stdio or Streamable HTTP transport&quot;]
+
+  Transport --&gt; Server[&quot;src/mcp.ts wiring + tool registration&quot;]
+
+  Server --&gt; Tools[&quot;src/tools/* handlers&quot;]
+
+  Tools --&gt; Store[&quot;Store&quot;]
+
+  Store --&gt; DB[&quot;SQLite sessions.db&quot;]
+
+  DB --&gt; FTS[&quot;FTS5 index + triggers&quot;]
+
+  Tools --&gt; Search[&quot;search.ts&quot;]
+
+  Search --&gt; FTS
+
+  Search --&gt; Store
+
+</code></pre>
+<h2 id="module-map">Module map</h2>
+<ul>
+<li><code>src/mcp.ts</code>: runtime creation, shutdown handling, tool registration.</li>
+<li><code>src/tools/session-tools.ts</code>: session lifecycle and context handlers.</li>
+<li><code>src/tools/recording-tools.ts</code>: fix and command recording handlers.</li>
+<li><code>src/tools/search-tools.ts</code>: search and similar-error handlers.</li>
+<li><code>src/tools/admin-tools.ts</code>: stats, export, and import handlers.</li>
+<li><code>src/store.ts</code>: repository-style DB access layer.</li>
+<li><code>src/db.ts</code>: connection opening, pragmas, and schema migrations.</li>
+</ul>
+<h2 id="runtime-notes">Runtime notes</h2>
+<ul>
+<li>File-backed databases use <code>WAL</code>, <code>synchronous = NORMAL</code>, <code>foreign_keys = ON</code>, and a 64 MB negative cache size hint.</li>
+<li>Search stays local and in-process; no external services are required.</li>
+<li>Import/export stays JSON-compatible with the existing MCP tools.</li>
+</ul>
+<h2 id="architecture-decisions">Architecture decisions</h2>
+<ul>
+<li><a href="./adr/0001-local-sqlite-storage-and-versioned-migrations.md">ADR-0001: Local SQLite Storage and Versioned Migrations</a></li>
+<li><a href="./adr/0002-hybrid-fts5-and-fuse-search.md">ADR-0002: Hybrid FTS5 Recall with Fuse.js Reranking</a></li>
+<li><a href="./adr/0003-local-first-streamable-http-security.md">ADR-0003: Local-First Streamable HTTP Security Model</a></li>
+<li><a href="./adr/0005-mcp-registry-versioning-and-metadata.md">ADR-0005: MCP Registry Identity and Version Metadata</a></li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

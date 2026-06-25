@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Changelog | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="docs/index.html">Docs</a>
+      <a href="api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,</p>
+<p>and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<h2 id="1-1-0-https-github-com-oaslananka-debug-recorder-mcp-compare-debug-recorder-mcp-v1-0-3-debug-recorder-mcp-v1-1-0-2026-06-25"><a href="https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.3...debug-recorder-mcp-v1.1.0">1.1.0</a> (2026-06-25)</h2>
+<h3 id="features">Features</h3>
+<ul>
+<li>harden MCP schemas and HTTP transport (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/8c97d7e1bcadf5867587a7ded5bacb19f8d74745">8c97d7e</a>)</li>
+</ul>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li>unblock CI audit and approve install scripts (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/0bc399fd116777b41594e7f5f7d2b4b0d157ce88">0bc399f</a>)</li>
+<li>unblock npm audit and approve install scripts (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/f86a824d85a1e37134998c096c5b174be919b126">f86a824</a>)</li>
+</ul>
+<h2 id="1-0-3-https-github-com-oaslananka-debug-recorder-mcp-compare-debug-recorder-mcp-v1-0-2-debug-recorder-mcp-v1-0-3-2026-05-26"><a href="https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.2...debug-recorder-mcp-v1.0.3">1.0.3</a> (2026-05-26)</h2>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li><strong>release:</strong> publish downloaded npm tarball path (<a href="https://github.com/oaslananka/debug-recorder-mcp/issues/15">#15</a>) (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/9cfa68387d6f2a2a0ee053bd1b0b83f46d41f388">9cfa683</a>)</li>
+</ul>
+<h2 id="1-0-2-https-github-com-oaslananka-debug-recorder-mcp-compare-debug-recorder-mcp-v1-0-1-debug-recorder-mcp-v1-0-2-2026-05-26"><a href="https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.1...debug-recorder-mcp-v1.0.2">1.0.2</a> (2026-05-26)</h2>
+<h3 id="bug-fixes">Bug Fixes</h3>
+<ul>
+<li><strong>packaging:</strong> align package metadata and release flow (<a href="https://github.com/oaslananka/debug-recorder-mcp/issues/13">#13</a>) (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/bba60a5a961ffc52b5c671fbc83242899a999661">bba60a5</a>)</li>
+<li><strong>security:</strong> restore dependency and workflow gates (<a href="https://github.com/oaslananka/debug-recorder-mcp/issues/12">#12</a>) (<a href="https://github.com/oaslananka/debug-recorder-mcp/commit/436dcb9a64584c03a54058180f18c25ae0e6c347">436dcb9</a>), closes <a href="https://github.com/oaslananka/debug-recorder-mcp/issues/3">#3</a></li>
+</ul>
+<h2 id="unreleased">[Unreleased]</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li><code>delete_session</code> tool for permanent deletion with explicit confirmation.</li>
+<li><code>update_session</code> tool for editing titles, descriptions, and tags.</li>
+<li><code>export_sessions</code> and <code>import_sessions</code> tools for backup and migration.</li>
+<li><code>get_session_context</code> tool for AI-friendly session summaries.</li>
+<li>Versioned SQLite migrations via <code>PRAGMA user_version</code>.</li>
+<li>FTS5 full-text search with Fuse.js reranking.</li>
+<li><code>Store</code> class with dependency injection and import/export support.</li>
+<li>Graceful shutdown handling for stdio and HTTP entrypoints.</li>
+<li>Coverage thresholds and expanded unit coverage for DB, store, search, MCP, and logging.</li>
+<li><code>SECURITY.md</code>, <code>CONTRIBUTING.md</code>, and <code>CODE_OF_CONDUCT.md</code>.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li><code>src/db.ts</code> now exposes <code>openDb(path?)</code> and <code>createTestDb()</code> instead of a global singleton connection.</li>
+<li><code>src/store.ts</code> now uses a repository-style <code>Store</code> class.</li>
+<li><code>src/search.ts</code> now searches the full dataset instead of the previous 500-row in-memory cap.</li>
+<li><code>package.json</code> now includes publish metadata, <code>exports</code>, <code>prepublishOnly</code>, <code>format:check</code>, and <code>test:coverage</code>.</li>
+<li>Azure DevOps CI is consolidated into the root <code>azure-pipelines.yml</code> file.</li>
+<li>GitHub Actions CI remains manual fallback only.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Node 24 compatibility for <code>better-sqlite3</code>.</li>
+<li>Bearer token redaction in structured logs.</li>
+<li>Session status now has a DB-level <code>CHECK</code> constraint.</li>
+</ul>
+<h2 id="1-0-0-2026-04-06">[1.0.0] - 2026-04-06</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Initial implementation.</li>
+<li>SQLite storage with <code>better-sqlite3</code>.</li>
+<li>Fuzzy session search with <code>fuse.js</code>.</li>
+<li>MCP tools for starting sessions, recording fixes, recording commands, searching history, and reporting stats.</li>
+<li>Streamable HTTP transport.</li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

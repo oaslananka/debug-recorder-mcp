@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Troubleshooting | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>Use <code>get_diagnostics</code> first when an agent or operator needs a safe snapshot of</p>
+<p>runtime state. The diagnostics payload intentionally avoids raw database paths,</p>
+<p>HTTP tokens, allowed host values, command output, stack traces, and environment</p>
+<p>values. It reports booleans, versions, counters, and aggregate stats instead.</p>
+<h2 id="startup-issues">Startup issues</h2>
+<p>1. Confirm the Node version is supported by the package and native dependencies.</p>
+<p>2. Run the stdio server directly:</p>
+<pre><code>
+npx debug-recorder-mcp
+
+</code></pre>
+<p>3. If <code>better-sqlite3</code> native bindings fail, rebuild native dependencies for the</p>
+<p>   current Node version:</p>
+<pre><code>
+npm rebuild better-sqlite3
+
+</code></pre>
+<p>4. Run <code>get_diagnostics</code> after startup to confirm package version, schema</p>
+<p>   version, runtime platform, redaction mode, and aggregate history stats.</p>
+<h2 id="database-issues">Database issues</h2>
+<p>1. Confirm <code>DEBUG_RECORDER_DB</code> points to the intended SQLite file.</p>
+<p>2. Back up with <code>export_sessions</code> before manual inspection, compaction, or bulk</p>
+<p>   imports.</p>
+<p>3. Validate imports in a scratch database before replacing a real history.</p>
+<p>4. Use <code>node scripts/compact-sqlite.mjs --db &lt;path&gt; --dry-run</code> to estimate free</p>
+<p>   pages after large delete/import cycles.</p>
+<p>5. See <a href="./storage-retention.md">Storage retention and maintenance</a> for backup,</p>
+<p>   redaction, compaction, and rollback policy.</p>
+<h2 id="mcp-client-issues">MCP client issues</h2>
+<p>1. Check that the client launches the package with stdio, not HTTP, unless the</p>
+<p>   client explicitly supports Streamable HTTP.</p>
+<p>2. Confirm tool discovery includes <code>start_debug_session</code>, <code>search_sessions</code>,</p>
+<p>   <code>get_stats</code>, and <code>get_diagnostics</code>.</p>
+<p>3. If a tool call fails, retry with a minimal input and inspect the structured</p>
+<p>   JSON-RPC error.</p>
+<p>4. Use <code>get_diagnostics</code> to confirm counters and aggregate stats without exposing</p>
+<p>   sensitive local content.</p>
+<h2 id="http-auth-and-transport-issues">HTTP auth and transport issues</h2>
+<p>1. Start local HTTP with <code>npm run start:http</code> for development.</p>
+<p>2. Check <code>GET /health</code> and <code>GET /version</code> with an allowed <code>Host</code> header.</p>
+<p>3. For non-loopback HTTP, set all required controls:</p>
+<p>   - <code>DEBUG_RECORDER_REMOTE_HTTP=true</code></p>
+<p>   - <code>DEBUG_RECORDER_HTTP_TOKEN=&lt;long random token&gt;</code></p>
+<p>   - <code>DEBUG_RECORDER_ALLOWED_HOSTS=&lt;expected host&gt;</code></p>
+<p>   - <code>DEBUG_RECORDER_ALLOWED_ORIGINS=&lt;expected origin&gt;</code></p>
+<p>4. Rejections are counted by reason in diagnostics, including forbidden host,</p>
+<p>   forbidden origin, unauthorized, unsupported media type, parse error, body too</p>
+<p>   large, and method not allowed.</p>
+<h2 id="search-issues">Search issues</h2>
+<p>1. Start with a broad <code>search_sessions</code> query and then add filters for language,</p>
+<p>   framework, or status.</p>
+<p>2. Use pagination metadata: <code>has_more</code> and <code>next_offset</code> show whether more</p>
+<p>   results are available.</p>
+<p>3. Use <code>include_related</code> to see clusters by tag, error type, language, or</p>
+<p>   framework.</p>
+<p>4. Lower <code>FUZZY_THRESHOLD</code> for stricter matching or raise it for typo-heavy</p>
+<p>   workflows.</p>
+<p>5. Save known investigations with <code>save_search_preset</code> and reuse them with</p>
+<p>   <code>list_search_presets</code>.</p>
+<h2 id="redaction-expectations">Redaction expectations</h2>
+<p>Diagnostics applies the same token redaction used by structured logging and also</p>
+<p>removes representative local file paths. It is safe to include diagnostics output</p>
+<p>in issues when the surrounding issue text does not include raw secrets.</p>
+</article>
+  </main>
+</body>
+</html>

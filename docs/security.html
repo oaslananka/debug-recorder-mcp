@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security model | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="security">Security</h1>
+<h2 id="local-first-transports">Local-first transports</h2>
+<p>Stdio is the primary transport for local MCP clients. It avoids opening a network</p>
+<p>listener and is the recommended production/local integration path.</p>
+<p>Streamable HTTP is available for local tooling and controlled deployments. It</p>
+<p>binds to <code>127.0.0.1</code> by default, accepts only <code>POST /mcp</code> for MCP messages, and</p>
+<p>creates a fresh stateless MCP server and HTTP transport for every request.</p>
+<h2 id="http-controls">HTTP controls</h2>
+<p>The HTTP entrypoint enforces:</p>
+<ul>
+<li>loopback default bind</li>
+<li>explicit <code>DEBUG_RECORDER_REMOTE_HTTP=true</code> before non-loopback bind</li>
+<li>bearer token requirement for non-loopback bind</li>
+<li><code>Host</code> allowlist validation</li>
+<li><code>Origin</code> allowlist validation when an <code>Origin</code> header is present</li>
+<li>fixed JSON request body limit</li>
+<li>deterministic JSON-RPC errors for malformed or oversized request bodies</li>
+</ul>
+<p>Remote HTTP requires:</p>
+<pre><code>
+HOST=0.0.0.0
+
+DEBUG_RECORDER_REMOTE_HTTP=true
+
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token
+
+DEBUG_RECORDER_ALLOWED_HOSTS=debug-recorder.example.com
+
+DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com
+
+</code></pre>
+<p>Wildcard origins are rejected for remote mode.</p>
+<h2 id="secrets">Secrets</h2>
+<p>Logs are written to stderr so stdout remains safe for the stdio MCP protocol.</p>
+<p>Structured log metadata is redacted for common token shapes and key names.</p>
+<p>Persistence redaction is optional because exact local debugging text can be</p>
+<p>valuable. Set <code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code> to redact common</p>
+<p>credential patterns before storing session, fix, and command text. This protects</p>
+<p>new writes and imports only; use the documented redacted-copy workflow for</p>
+<p>existing databases.</p>
+<p>Database files and JSON exports should be treated as sensitive local artifacts.</p>
+<p>See <a href="./storage-retention.md">Storage retention and maintenance</a> for retention,</p>
+<p>backup, compaction, and migration rollback guidance.</p>
+<p>Never commit tokens, package credentials, registry credentials, private keys, or</p>
+<p>local transcript/scratch files. Pull request validation includes Gitleaks.</p>
+<h2 id="architecture-decisions">Architecture decisions</h2>
+<ul>
+<li><a href="./adr/0003-local-first-streamable-http-security.md">ADR-0003: Local-First Streamable HTTP Security Model</a></li>
+<li><a href="./adr/0004-release-provenance-and-publish-flow.md">ADR-0004: Release, Provenance, and Publish Flow</a></li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

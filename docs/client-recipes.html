@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Client setup recipes | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="client-setup-recipes">Client Setup Recipes</h1>
+<p>These recipes are copy-paste starting points for MCP hosts that support either stdio servers or Streamable HTTP servers. Host configuration file names and reload steps vary by product, so treat the JSON snippets as the server block to paste into the host-specific MCP settings area.</p>
+<h2 id="stdio-default-local-setup">Stdio: default local setup</h2>
+<p>Use this for local-first clients that launch MCP servers as child processes.</p>
+<pre><code>
+{
+
+  &quot;mcpServers&quot;: {
+
+    &quot;debug-recorder-mcp&quot;: {
+
+      &quot;command&quot;: &quot;npx&quot;,
+
+      &quot;args&quot;: [&quot;debug-recorder-mcp&quot;],
+
+      &quot;env&quot;: {
+
+        &quot;LOG_LEVEL&quot;: &quot;warn&quot;
+
+      }
+
+    }
+
+  }
+
+}
+
+</code></pre>
+<p>Recommended verification after adding the server:</p>
+<p>1. Reload the MCP host.</p>
+<p>2. Ask the host to list available tools.</p>
+<p>3. Confirm these tools are present: <code>start_debug_session</code>, <code>record_command</code>, <code>add_fix</code>, <code>search_sessions</code>, <code>find_similar_errors</code>, and <code>get_session_context</code>.</p>
+<h2 id="stdio-isolated-project-memory">Stdio: isolated project memory</h2>
+<p>Use a project-specific SQLite file when multiple repositories should not share debugging history.</p>
+<pre><code>
+{
+
+  &quot;mcpServers&quot;: {
+
+    &quot;debug-recorder-mcp-project&quot;: {
+
+      &quot;command&quot;: &quot;npx&quot;,
+
+      &quot;args&quot;: [&quot;debug-recorder-mcp&quot;],
+
+      &quot;env&quot;: {
+
+        &quot;DEBUG_RECORDER_DB&quot;: &quot;/absolute/path/to/project/.debug-recorder/sessions.db&quot;,
+
+        &quot;DEBUG_RECORDER_REDACT_BEFORE_STORE&quot;: &quot;true&quot;,
+
+        &quot;LOG_LEVEL&quot;: &quot;warn&quot;,
+
+        &quot;FUZZY_THRESHOLD&quot;: &quot;0.4&quot;
+
+      }
+
+    }
+
+  }
+
+}
+
+</code></pre>
+<p>Use an absolute path. Relative paths are resolved by the host process and can point somewhere unexpected.</p>
+<h2 id="streamable-http-loopback-setup">Streamable HTTP: loopback setup</h2>
+<p>Use this when the MCP host can connect to an HTTP endpoint instead of spawning the server directly.</p>
+<p>Start the server:</p>
+<pre><code>
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token \
+
+DEBUG_RECORDER_ALLOWED_HOSTS=127.0.0.1:3000,localhost:3000 \
+
+DEBUG_RECORDER_ALLOWED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
+
+npm run start:http
+
+</code></pre>
+<p>Health check:</p>
+<pre><code>
+curl -fsS http://127.0.0.1:3000/health
+
+</code></pre>
+<p>Version check:</p>
+<pre><code>
+curl -fsS http://127.0.0.1:3000/version
+
+</code></pre>
+<p>MCP initialize smoke request:</p>
+<pre><code>
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token
+
+
+
+curl -fsS http://127.0.0.1:3000/mcp \
+
+  --oauth2-bearer &quot;$DEBUG_RECORDER_HTTP_TOKEN&quot; \
+
+  -H 'Accept: application/json, text/event-stream' \
+
+  -H 'Content-Type: application/json' \
+
+  --data '{
+
+    &quot;jsonrpc&quot;: &quot;2.0&quot;,
+
+    &quot;id&quot;: 1,
+
+    &quot;method&quot;: &quot;initialize&quot;,
+
+    &quot;params&quot;: {
+
+      &quot;protocolVersion&quot;: &quot;2025-03-26&quot;,
+
+      &quot;capabilities&quot;: {},
+
+      &quot;clientInfo&quot;: {
+
+        &quot;name&quot;: &quot;debug-recorder-smoke&quot;,
+
+        &quot;version&quot;: &quot;1.0.0&quot;
+
+      }
+
+    }
+
+  }'
+
+</code></pre>
+<p>Security notes:</p>
+<ul>
+<li>Loopback remains the default and safest mode.</li>
+<li>Set <code>DEBUG_RECORDER_HTTP_TOKEN</code> when using HTTP, even on loopback, if another local process could reach the port.</li>
+<li><code>DEBUG_RECORDER_ALLOWED_HOSTS</code> protects against DNS rebinding by validating the HTTP <code>Host</code> header.</li>
+<li><code>DEBUG_RECORDER_ALLOWED_ORIGINS</code> is checked when an <code>Origin</code> header is present.</li>
+<li>Wildcard origins are rejected.</li>
+</ul>
+<h2 id="streamable-http-non-loopback-deployment">Streamable HTTP: non-loopback deployment</h2>
+<p>Remote HTTP mode must be explicit and token-protected.</p>
+<pre><code>
+HOST=0.0.0.0 \
+
+PORT=3000 \
+
+DEBUG_RECORDER_REMOTE_HTTP=true \
+
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token \
+
+DEBUG_RECORDER_ALLOWED_HOSTS=debug-recorder.example.com \
+
+DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com \
+
+DEBUG_RECORDER_REDACT_BEFORE_STORE=true \
+
+npm run start:http
+
+</code></pre>
+<p>Put a TLS-terminating reverse proxy in front of remote deployments. Do not expose the service with plain HTTP on an untrusted network.</p>
+<h2 id="safe-example-session">Safe example session</h2>
+<p>The following values avoid real secrets and can be used in any MCP host that lets you call tools manually.</p>
+<h3 id="start-a-debug-session">Start a debug session</h3>
+<p>Tool: <code>start_debug_session</code></p>
+<pre><code>
+{
+
+  &quot;title&quot;: &quot;Widget render crash after undefined API response&quot;,
+
+  &quot;error_message&quot;: &quot;TypeError: Cannot read properties of undefined (reading 'widget')&quot;,
+
+  &quot;language&quot;: &quot;typescript&quot;,
+
+  &quot;framework&quot;: &quot;react&quot;,
+
+  &quot;tags&quot;: [&quot;docs-example&quot;, &quot;frontend&quot;, &quot;widget&quot;]
+
+}
+
+</code></pre>
+<p>Expected result: a JSON response with <code>success: true</code> and a <code>session_id</code>.</p>
+<h3 id="record-a-command">Record a command</h3>
+<p>Tool: <code>record_command</code></p>
+<pre><code>
+{
+
+  &quot;session_id&quot;: &quot;replace-with-session-id&quot;,
+
+  &quot;command&quot;: &quot;npm test -- widget-render.test.ts&quot;,
+
+  &quot;output&quot;: &quot;1 failing test reproduced the undefined widget path&quot;,
+
+  &quot;exit_code&quot;: 1
+
+}
+
+</code></pre>
+<h3 id="add-a-failed-attempt">Add a failed attempt</h3>
+<p>Tool: <code>add_fix</code></p>
+<pre><code>
+{
+
+  &quot;session_id&quot;: &quot;replace-with-session-id&quot;,
+
+  &quot;description&quot;: &quot;Added a default empty object but it masked the API contract issue&quot;,
+
+  &quot;worked&quot;: false
+
+}
+
+</code></pre>
+<h3 id="add-the-working-fix">Add the working fix</h3>
+<p>Tool: <code>add_fix</code></p>
+<pre><code>
+{
+
+  &quot;session_id&quot;: &quot;replace-with-session-id&quot;,
+
+  &quot;description&quot;: &quot;Validated the API response shape before rendering and showed an empty-state fallback&quot;,
+
+  &quot;worked&quot;: true
+
+}
+
+</code></pre>
+<h3 id="close-the-session">Close the session</h3>
+<p>Tool: <code>close_session</code></p>
+<pre><code>
+{
+
+  &quot;session_id&quot;: &quot;replace-with-session-id&quot;,
+
+  &quot;status&quot;: &quot;resolved&quot;,
+
+  &quot;summary&quot;: &quot;Guard widget response shape before render and add empty-state fallback&quot;
+
+}
+
+</code></pre>
+<h2 id="safe-search-queries">Safe search queries</h2>
+<p>Tool: <code>search_sessions</code></p>
+<pre><code>
+{
+
+  &quot;query&quot;: &quot;undefined reading widget react&quot;,
+
+  &quot;limit&quot;: 5
+
+}
+
+</code></pre>
+<p>Tool: <code>find_similar_errors</code></p>
+<pre><code>
+{
+
+  &quot;error_message&quot;: &quot;TypeError: Cannot read properties of undefined (reading 'widget')&quot;,
+
+  &quot;limit&quot;: 5
+
+}
+
+</code></pre>
+<p>Tool: <code>get_session_context</code></p>
+<pre><code>
+{
+
+  &quot;session_id&quot;: &quot;replace-with-session-id&quot;
+
+}
+
+</code></pre>
+<p>Use <code>get_session_context</code> before asking an assistant to continue debugging an old issue; it returns a compact summary of the problem, attempts, commands, and working fix.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<ul>
+<li>If the host cannot start stdio mode, run <code>npx debug-recorder-mcp</code> directly in a terminal and check for startup errors.</li>
+<li>If HTTP returns <code>403 Forbidden host</code>, add the exact host and port to <code>DEBUG_RECORDER_ALLOWED_HOSTS</code>.</li>
+<li>If HTTP returns <code>403 Forbidden origin</code>, add the browser origin to <code>DEBUG_RECORDER_ALLOWED_ORIGINS</code>.</li>
+<li>If HTTP returns <code>401 Unauthorized</code>, verify the bearer token and the <code>Authorization</code> header.</li>
+<li>If search results are too broad, lower <code>FUZZY_THRESHOLD</code> to <code>0.4</code>.</li>
+<li>If command output may contain credentials, set <code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code> before recording sessions.</li>
+</ul>
+<p>See also:</p>
+<ul>
+<li><a href="./configuration.md">Configuration</a></li>
+<li><a href="./usage.md">Usage</a></li>
+<li><a href="../SECURITY.md">Security policy</a></li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

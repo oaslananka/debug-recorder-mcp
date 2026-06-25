@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Storage retention | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="storage-retention-and-maintenance">Storage retention and maintenance</h1>
+<p>Debug Recorder MCP is local-first. The SQLite database can contain command</p>
+<p>output, stack traces, environment snippets, fix notes, and other operational</p>
+<p>context. Treat the database and JSON exports as sensitive debugging records.</p>
+<h2 id="retention-expectations">Retention expectations</h2>
+<p>The server does not delete records automatically. Keep retention explicit and</p>
+<p>project-specific:</p>
+<ul>
+<li>Use a dedicated <code>DEBUG_RECORDER_DB</code> for each project, customer, or scratch</li>
+</ul>
+<p>  investigation when histories should not mix.</p>
+<ul>
+<li>Delete sessions with <code>delete_session</code> when the record is no longer needed or</li>
+</ul>
+<p>  contains data that should not remain in the local history.</p>
+<ul>
+<li>Keep short-lived scratch histories only as long as needed for the active</li>
+</ul>
+<p>  incident or reproduction cycle.</p>
+<ul>
+<li>Keep project histories only while they provide debugging value, then export a</li>
+</ul>
+<p>  redacted backup or delete the database.</p>
+<ul>
+<li>Store JSON backups in the same trust boundary as the original database,</li>
+</ul>
+<p>  preferably encrypted or in a restricted local backup location.</p>
+<h2 id="backup-and-restore">Backup and restore</h2>
+<p>Before upgrades, large imports, manual database inspection, or compaction:</p>
+<p>1. Stop active MCP clients that are writing to the database.</p>
+<p>2. Run <code>export_sessions</code> with <code>format: &quot;json&quot;</code> and save the result outside the</p>
+<p>   working tree.</p>
+<p>3. Optionally copy the SQLite file from <code>DEBUG_RECORDER_DB</code> or the default</p>
+<p>   <code>~/.debug-recorder-mcp/sessions.db</code> path.</p>
+<p>4. Validate restores in a scratch database first:</p>
+<pre><code>
+DEBUG_RECORDER_DB=/tmp/debug-recorder-restore-test.db npx debug-recorder-mcp
+
+</code></pre>
+<p>Use <code>import_sessions</code> only with payloads produced by <code>export_sessions</code>. Imports</p>
+<p>validate schema version, parent-child relationships, duplicate IDs, and batch</p>
+<p>limits before writing rows.</p>
+<h2 id="redaction-policy">Redaction policy</h2>
+<p><code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code> redacts common credential patterns</p>
+<p>before new text is written to SQLite. It applies to:</p>
+<ul>
+<li>newly created sessions</li>
+<li>session updates and close summaries</li>
+<li>fixes</li>
+<li>recorded commands and command output</li>
+<li>imported sessions, fixes, and commands</li>
+</ul>
+<p>It does <strong>not</strong> retroactively scrub rows that already exist in the database.</p>
+<p>When existing data may contain secrets:</p>
+<p>1. Enable <code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code>.</p>
+<p>2. Export the current database with <code>export_sessions</code>.</p>
+<p>3. Import the export into a scratch database while redaction is enabled.</p>
+<p>4. Review the scratch export for expected redaction.</p>
+<p>5. Replace or delete the original database only after the redacted copy is</p>
+<p>   verified.</p>
+<p>Deleting a session removes its child fixes and commands through SQLite foreign</p>
+<p>key cascade rules. Exports after deletion should not contain the deleted session</p>
+<p>or its child rows.</p>
+<h2 id="compaction-and-vacuum">Compaction and VACUUM</h2>
+<p>SQLite can keep free pages after large deletions or imports. Use the maintenance</p>
+<p>script when the database has changed significantly and no MCP process is writing</p>
+<p>to it:</p>
+<pre><code>
+node scripts/compact-sqlite.mjs --db ~/.debug-recorder-mcp/sessions.db
+
+</code></pre>
+<p>For a non-mutating estimate first:</p>
+<pre><code>
+node scripts/compact-sqlite.mjs --db ~/.debug-recorder-mcp/sessions.db --dry-run
+
+</code></pre>
+<p>The script runs:</p>
+<p>1. <code>PRAGMA optimize</code></p>
+<p>2. <code>PRAGMA wal_checkpoint(TRUNCATE)</code></p>
+<p>3. <code>VACUUM</code>, unless <code>--dry-run</code> is set</p>
+<p>Run compaction only after taking a backup. <code>VACUUM</code> rewrites the database file</p>
+<p>and should not run concurrently with active writers.</p>
+<h2 id="migration-rollback-guidance">Migration rollback guidance</h2>
+<p>Schema migrations are forward-only. There is no automatic downgrade path.</p>
+<p>Rollback means restoring data, not reversing SQL in place:</p>
+<p>1. Stop MCP clients.</p>
+<p>2. Restore a pre-upgrade SQLite copy, or create a fresh database and import the</p>
+<p>   pre-upgrade JSON export.</p>
+<p>3. Restart the older application version against the restored database.</p>
+<p>4. If a migration has already run, do not point an older binary at that migrated</p>
+<p>   database unless it explicitly supports the schema version.</p>
+<h2 id="operational-checklist">Operational checklist</h2>
+<ul>
+<li>Back up before upgrades, compaction, and bulk imports.</li>
+<li>Enable store-time redaction before importing untrusted or secret-bearing</li>
+</ul>
+<p>  exports.</p>
+<ul>
+<li>Delete sensitive sessions before creating long-lived backups.</li>
+<li>Run compaction after large delete/import cycles.</li>
+<li>Keep database files and exports out of Git.</li>
+</ul>
+</article>
+  </main>
+</body>
+</html>
