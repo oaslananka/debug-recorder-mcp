@@ -8,7 +8,7 @@
 
 > **SavedSearchPresetRow** = `object`
 
-Defined in: [src/types.ts:493](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L493)
+Defined in: [src/types.ts:493](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L493)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/types.ts:493](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **created\_at**: `number`
 
-Defined in: [src/types.ts:500](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L500)
+Defined in: [src/types.ts:500](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L500)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/types.ts:500](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **framework**: `string` \| `null`
 
-Defined in: [src/types.ts:497](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L497)
+Defined in: [src/types.ts:497](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L497)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/types.ts:497](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **language**: `string` \| `null`
 
-Defined in: [src/types.ts:496](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L496)
+Defined in: [src/types.ts:496](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L496)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/types.ts:496](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **limit\_value**: `number`
 
-Defined in: [src/types.ts:499](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L499)
+Defined in: [src/types.ts:499](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L499)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/types.ts:499](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **name**: `string`
 
-Defined in: [src/types.ts:494](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L494)
+Defined in: [src/types.ts:494](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L494)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/types.ts:494](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **query**: `string`
 
-Defined in: [src/types.ts:495](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L495)
+Defined in: [src/types.ts:495](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L495)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/types.ts:495](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **status**: [`SessionStatus`](SessionStatus.md) \| `null`
 
-Defined in: [src/types.ts:498](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L498)
+Defined in: [src/types.ts:498](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L498)
 
 ***
 
@@ -72,4 +72,4 @@ Defined in: [src/types.ts:498](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **updated\_at**: `number`
 
-Defined in: [src/types.ts:501](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L501)
+Defined in: [src/types.ts:501](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L501)

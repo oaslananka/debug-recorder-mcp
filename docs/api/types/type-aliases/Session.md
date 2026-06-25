@@ -8,7 +8,7 @@
 
 > **Session** = `Omit`\<[`SessionRow`](SessionRow.md), `"tags"`\> & `object`
 
-Defined in: [src/types.ts:525](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L525)
+Defined in: [src/types.ts:525](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L525)
 
 ## Type Declaration
 

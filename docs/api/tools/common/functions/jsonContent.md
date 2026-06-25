@@ -8,7 +8,7 @@
 
 > **jsonContent**(`payload`): [`JsonContentResponse`](../type-aliases/JsonContentResponse.md)
 
-Defined in: [src/tools/common.ts:26](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/tools/common.ts#L26)
+Defined in: [src/tools/common.ts:26](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/tools/common.ts#L26)
 
 Wraps an arbitrary payload in the JSON text and structured response shape expected by MCP.
 

@@ -6,7 +6,7 @@
 
 # Class: SessionNotFoundError
 
-Defined in: [src/store.ts:46](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L46)
+Defined in: [src/store.ts:46](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/store.ts#L46)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [src/store.ts:46](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > **new SessionNotFoundError**(`sessionId`): `SessionNotFoundError`
 
-Defined in: [src/store.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L49)
+Defined in: [src/store.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/store.ts#L49)
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [src/store.ts:49](https://github.com/oaslananka/debug-recorder-mcp/b
 
 > `readonly` **code**: `"SESSION_NOT_FOUND"` = `'SESSION_NOT_FOUND'`
 
-Defined in: [src/store.ts:47](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L47)
+Defined in: [src/store.ts:47](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/store.ts#L47)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: node\_modules/typescript/lib/lib.es5.d.ts:1076
 
 > `readonly` **sessionId**: `string`
 
-Defined in: [src/store.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/store.ts#L49)
+Defined in: [src/store.ts:49](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/store.ts#L49)
 
 ***
 

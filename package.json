@@ -42,6 +42,7 @@
     "test:e2e": "node scripts/run-jest.mjs --suite=e2e --testPathPatterns=e2e",
     "test:fuzz": "node scripts/run-jest.mjs --suite=fuzz --testPathPatterns=fuzz --runInBand",
     "docs:api": "typedoc --options typedoc.json",
+    "docs:site": "npm run docs:api && node scripts/build-docs-site.mjs",
     "audit": "npm audit --audit-level=moderate",
     "check:install-scripts": "node scripts/check-install-scripts.mjs",
     "check:dead-code": "knip --config knip.json --reporter compact",
@@ -75,7 +76,7 @@
     "type": "git",
     "url": "git+https://github.com/oaslananka/debug-recorder-mcp.git"
   },
-  "homepage": "https://github.com/oaslananka/debug-recorder-mcp#readme",
+  "homepage": "https://oaslananka.github.io/debug-recorder-mcp/",
   "bugs": {
     "url": "https://github.com/oaslananka/debug-recorder-mcp/issues"
   },
@@ -124,5 +125,9 @@
   "allowScripts": {
     "better-sqlite3@12.8.0": true,
     "unrs-resolver@1.12.2": true
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://www.buymeacoffee.com/oaslananka"
   }
 }

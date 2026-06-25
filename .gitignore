@@ -5,3 +5,4 @@ test-results/
 .TEMP/
 *.log
 .env
+site/

@@ -8,7 +8,7 @@
 
 > **createToolHandlers**(`runtime`): `object`
 
-Defined in: [src/mcp.ts:98](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/mcp.ts#L98)
+Defined in: [src/mcp.ts:98](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/mcp.ts#L98)
 
 ## Parameters
 

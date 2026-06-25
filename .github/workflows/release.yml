@@ -131,11 +131,17 @@ jobs:
       - name: Publish tarball with provenance
         shell: bash
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ needs.release-please.outputs.version }}
         run: |
           set -euo pipefail
           tarball="./release-assets/debug-recorder-mcp-${VERSION}.tgz"
           test -f "$tarball"
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "Publishing with NPM_TOKEN fallback and provenance."
+          else
+            echo "Publishing with npm trusted publishing and provenance."
+          fi
           npm publish "$tarball" --access public --provenance
 
       - name: Verify npm publication

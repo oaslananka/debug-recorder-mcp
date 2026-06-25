@@ -8,7 +8,7 @@
 
 > **ImportCounts** = `object`
 
-Defined in: [src/types.ts:535](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L535)
+Defined in: [src/types.ts:535](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L535)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/types.ts:535](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **commands**: `number`
 
-Defined in: [src/types.ts:538](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L538)
+Defined in: [src/types.ts:538](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L538)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/types.ts:538](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **fixes**: `number`
 
-Defined in: [src/types.ts:537](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L537)
+Defined in: [src/types.ts:537](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L537)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/types.ts:537](https://github.com/oaslananka/debug-recorder-mcp/
 
 > **sessions**: `number`
 
-Defined in: [src/types.ts:536](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L536)
+Defined in: [src/types.ts:536](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L536)

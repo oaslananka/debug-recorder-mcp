@@ -8,4 +8,4 @@
 
 > `const` **FixRowSchema**: `ZodObject`\<\{ `code_snippet`: `ZodNullable`\<`ZodString`\>; `created_at`: `ZodNumber`; `description`: `ZodString`; `id`: `ZodString`; `notes`: `ZodNullable`\<`ZodString`\>; `session_id`: `ZodString`; `worked`: `ZodNumber`; \}, `"strip"`, `ZodTypeAny`, \{ `code_snippet`: `string` \| `null`; `created_at`: `number`; `description`: `string`; `id`: `string`; `notes`: `string` \| `null`; `session_id`: `string`; `worked`: `number`; \}, \{ `code_snippet`: `string` \| `null`; `created_at`: `number`; `description`: `string`; `id`: `string`; `notes`: `string` \| `null`; `session_id`: `string`; `worked`: `number`; \}\>
 
-Defined in: [src/types.ts:41](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L41)
+Defined in: [src/types.ts:41](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L41)

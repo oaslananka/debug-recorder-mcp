@@ -60,26 +60,44 @@ release workflow:
 11. uploads `server.json` as the registry descriptor artifact
 
 The npm publish step uses provenance and is intended for npm trusted publishing
-through GitHub OIDC. A long-lived `NPM_TOKEN` is only a fallback when trusted
-publishing is not available.
+through GitHub OIDC. A repository secret named `NPM_TOKEN` is supported as a fallback when trusted
+publishing is not available, and as the required path for the first package
+creation when npm trusted publishing has not yet been attached to the package.
+
+### First npm publish with token
+
+npm trusted publishing can only be configured correctly when the package and its
+publisher relationship exist in npm. For the first public package creation, use
+`.github/workflows/npm-initial-publish.yml`:
+
+1. create an npm automation or granular access token that can publish
+   `debug-recorder-mcp`
+2. save it as repository secret `NPM_TOKEN`
+3. approve the `npm-publish` environment
+4. run **Initial npm Token Publish** with the version that already exists in
+   `package.json`
+5. verify `npm view debug-recorder-mcp@<version> version`
+6. configure npm trusted publishing for future Release workflow runs
 
 ### npm trusted publishing blocker
 
 `debug-recorder-mcp` must exist on npm with this GitHub repository configured as
 an allowed trusted publisher, or the release workflow's `npm-publish` job must
-run with a token that can create or update that package. If npm returns `E404`
-from `PUT https://registry.npmjs.org/debug-recorder-mcp` during
-`npm publish --provenance`, treat it as an npm package ownership/trusted
+run with `NPM_TOKEN` that can create or update that package. If npm returns
+`E404` from `PUT https://registry.npmjs.org/debug-recorder-mcp` during
+`npm publish --provenance`, treat it as an npm package ownership/token/trusted
 publisher configuration blocker, not a build failure.
 
 To recover:
 
-1. configure npm trusted publishing for package `debug-recorder-mcp` and GitHub
-   repository `oaslananka/debug-recorder-mcp`, or provide a scoped/owned package
-   name and update `package.json`, `mcp.json`, `server.json`, and docs
-2. rerun the `Release` workflow from `main`
-3. verify `npm view debug-recorder-mcp@<version> version`
-4. only then continue with MCP Registry submission
+1. publish the first package through **Initial npm Token Publish**, or configure
+   npm trusted publishing for package `debug-recorder-mcp` and GitHub repository
+   `oaslananka/debug-recorder-mcp`
+2. if a different scoped/owned package name is required, update `package.json`,
+   `mcp.json`, `server.json`, docs, and release verification scripts together
+3. rerun the `Release` workflow from `main`
+4. verify `npm view debug-recorder-mcp@<version> version`
+5. only then continue with MCP Registry submission
 
 The repository Actions setting must keep default `GITHUB_TOKEN` permissions at
 read-only while enabling "Allow GitHub Actions to create and approve pull

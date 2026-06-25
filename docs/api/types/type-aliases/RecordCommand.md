@@ -8,4 +8,4 @@
 
 > **RecordCommand** = `z.infer`\<*typeof* [`RecordCommandSchema`](../variables/RecordCommandSchema.md)\>
 
-Defined in: [src/types.ts:510](https://github.com/oaslananka/debug-recorder-mcp/blob/db069172722fcdb669db6000d02e911ac45c5911/src/types.ts#L510)
+Defined in: [src/types.ts:510](https://github.com/oaslananka/debug-recorder-mcp/blob/eaeaf2abae240f2833fa4c46001134355da6b484/src/types.ts#L510)
