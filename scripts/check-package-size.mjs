@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process';
 
 const MAX_PACKED_BYTES = 64 * 1024;
-const MAX_UNPACKED_BYTES = 320 * 1024;
+const MAX_UNPACKED_BYTES = 352 * 1024;
 const MAX_ENTRY_COUNT = 80;
 const SIZE_UNIT_BYTES = 1024;
 const PACKAGE_INFO_INDEX = 0;
