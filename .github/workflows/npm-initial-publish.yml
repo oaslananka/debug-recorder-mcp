@@ -67,7 +67,9 @@ jobs:
         run: npm run ci:local
 
       - name: Pack package
-        run: npm pack --pack-destination release-assets
+        run: |
+          mkdir -p release-assets
+          npm pack --pack-destination release-assets
 
       - name: Publish with token and provenance
         shell: bash
