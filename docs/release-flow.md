@@ -63,6 +63,24 @@ The npm publish step uses provenance and is intended for npm trusted publishing
 through GitHub OIDC. A long-lived `NPM_TOKEN` is only a fallback when trusted
 publishing is not available.
 
+### npm trusted publishing blocker
+
+`debug-recorder-mcp` must exist on npm with this GitHub repository configured as
+an allowed trusted publisher, or the release workflow's `npm-publish` job must
+run with a token that can create or update that package. If npm returns `E404`
+from `PUT https://registry.npmjs.org/debug-recorder-mcp` during
+`npm publish --provenance`, treat it as an npm package ownership/trusted
+publisher configuration blocker, not a build failure.
+
+To recover:
+
+1. configure npm trusted publishing for package `debug-recorder-mcp` and GitHub
+   repository `oaslananka/debug-recorder-mcp`, or provide a scoped/owned package
+   name and update `package.json`, `mcp.json`, `server.json`, and docs
+2. rerun the `Release` workflow from `main`
+3. verify `npm view debug-recorder-mcp@<version> version`
+4. only then continue with MCP Registry submission
+
 The repository Actions setting must keep default `GITHUB_TOKEN` permissions at
 read-only while enabling "Allow GitHub Actions to create and approve pull
 requests". Release Please still receives only the job-level permissions in
