@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.3...debug-recorder-mcp-v1.1.0) (2026-06-25)
+
+
+### Features
+
+* harden MCP schemas and HTTP transport ([8c97d7e](https://github.com/oaslananka/debug-recorder-mcp/commit/8c97d7e1bcadf5867587a7ded5bacb19f8d74745))
+
+
+### Bug Fixes
+
+* unblock CI audit and approve install scripts ([0bc399f](https://github.com/oaslananka/debug-recorder-mcp/commit/0bc399fd116777b41594e7f5f7d2b4b0d157ce88))
+* unblock npm audit and approve install scripts ([f86a824](https://github.com/oaslananka/debug-recorder-mcp/commit/f86a824d85a1e37134998c096c5b174be919b126))
+
 ## [1.0.3](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.2...debug-recorder-mcp-v1.0.3) (2026-05-26)
 
 
