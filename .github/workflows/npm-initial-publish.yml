@@ -79,7 +79,7 @@ jobs:
           DIST_TAG: ${{ inputs.dist-tag }}
         run: |
           set -euo pipefail
-          tarball="release-assets/debug-recorder-mcp-${INPUT_VERSION}.tgz"
+          tarball="./release-assets/debug-recorder-mcp-${INPUT_VERSION}.tgz"
           test -f "$tarball"
           npm publish "$tarball" --access public --tag "$DIST_TAG" --provenance
 
