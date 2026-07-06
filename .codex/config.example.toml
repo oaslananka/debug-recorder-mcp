@@ -1,0 +1,9 @@
+# Example Codex MCP configuration for debug-recorder-mcp.
+
+[[mcp_servers]]
+name = "debug-recorder-mcp"
+command = "npx"
+args = ["debug-recorder-mcp"]
+
+[mcp_servers.env]
+DEBUG_RECORDER_TRANSPORT = "stdio"
