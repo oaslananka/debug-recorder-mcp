@@ -1,0 +1,49 @@
+name: Privacy Fixture Scan
+
+on:
+  pull_request:
+    paths:
+      - fixtures/**
+      - examples/**
+      - samples/**
+      - .github/workflows/privacy-fixture-scan.yml
+  push:
+    branches: [main]
+    paths:
+      - fixtures/**
+      - examples/**
+      - samples/**
+      - .github/workflows/privacy-fixture-scan.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: privacy-fixture-scan-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Scan fixtures and docs
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          words=['api_key','password','token']
+          pats=[re.compile(r'BEGIN [A-Z ]*'+'PRIVATE'+' KEY',re.I), re.compile(r'authorization:\s*bearer\s+[a-z0-9._-]{12,}',re.I), re.compile(r'('+'|'.join(words)+r')\s*[:=]\s*[a-z0-9._-]{16,}',re.I)]
+          roots=[Path(p) for p in ['fixtures','examples','samples'] if Path(p).exists()]
+          hits=[]
+          for root in roots:
+              for path in root.rglob('*'):
+                  if path.is_file() and path.suffix.lower() not in {'.png','.jpg','.jpeg','.gif','.webp','.zip'}:
+                      text=path.read_text(errors='ignore')
+                      if any(p.search(text) for p in pats): hits.append(str(path))
+          if hits: raise SystemExit('privacy scan failed: '+', '.join(sorted(set(hits))))
+          print('privacy fixture scan ok')
+          PY
