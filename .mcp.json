@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "debug-recorder-mcp": {
+      "command": "npx",
+      "args": ["debug-recorder-mcp"],
+      "env": {
+        "DEBUG_RECORDER_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
