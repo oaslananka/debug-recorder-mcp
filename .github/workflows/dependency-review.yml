@@ -7,8 +7,7 @@ on:
 
 permissions:
   contents: read
-  # Needed by actions/dependency-review-action to inspect pull request dependency changes.
-  pull-requests: read
+  pull-requests: read # Needed by actions/dependency-review-action to inspect pull request dependency changes.
 
 concurrency:
   group: dependency-review-${{ github.event.pull_request.number || github.ref }}
