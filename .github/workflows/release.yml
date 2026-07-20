@@ -150,7 +150,16 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ needs.release-please.outputs.version }}
-        run: test "$(npm view "debug-recorder-mcp@${VERSION}" version)" = "$VERSION"
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 30); do
+            if test "$(npm view "debug-recorder-mcp@${VERSION}" version 2>/dev/null)" = "$VERSION"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::npm registry did not return version ${VERSION} within timeout."
+          exit 1
 
   mcp-registry-readiness:
     name: MCP Registry Readiness

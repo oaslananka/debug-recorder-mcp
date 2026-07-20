@@ -87,4 +87,13 @@ jobs:
         shell: bash
         env:
           INPUT_VERSION: ${{ inputs.version }}
-        run: test "$(npm view "debug-recorder-mcp@${INPUT_VERSION}" version)" = "$INPUT_VERSION"
+        run: |
+          set -euo pipefail
+          for _ in $(seq 1 30); do
+            if test "$(npm view "debug-recorder-mcp@${INPUT_VERSION}" version 2>/dev/null)" = "$INPUT_VERSION"; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::npm registry did not return version ${INPUT_VERSION} within timeout."
+          exit 1
