@@ -4,7 +4,12 @@ import { join } from 'node:path';
 import type Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { createTestDb } from '../../src/db.js';
-import { SessionNotFoundError, Store } from '../../src/store.js';
+import {
+  ImportIncompatibleError,
+  InvalidImportPayloadError,
+  SessionNotFoundError,
+  Store
+} from '../../src/store.js';
 
 describe('Store', () => {
   let db: Database.Database;
@@ -344,7 +349,7 @@ describe('Store', () => {
     expect(stats.resolutionRate).toBe(50);
   });
 
-  it('exports all rows in raw form', () => {
+  it('exports all user-managed rows with an independent backup format version', () => {
     const session = store.createSession({ title: 'export me', tags: [] });
     store.addFix({ session_id: session.id, description: 'fix', worked: false });
     store.recordCommand({
@@ -353,13 +358,27 @@ describe('Store', () => {
       output: 'ok',
       exit_code: 0
     });
+    store.saveSearchPreset({
+      name: 'export-preset',
+      query: 'TypeError',
+      language: 'typescript',
+      limit: 10
+    });
 
     const exported = store.exportAll();
 
-    expect(exported.schema_version).toBeGreaterThan(0);
+    expect(exported).toMatchObject({
+      format_version: 2,
+      schema_version: expect.any(Number)
+    });
     expect(exported.sessions).toHaveLength(1);
     expect(exported.fixes).toHaveLength(1);
     expect(exported.commands).toHaveLength(1);
+    expect(exported.saved_search_presets).toHaveLength(1);
+    expect(exported.saved_search_presets[0]).toMatchObject({
+      name: 'export-preset',
+      query: 'TypeError'
+    });
   });
 
   it('excludes deleted sensitive session trees from backup exports', () => {
@@ -420,6 +439,11 @@ describe('Store', () => {
         command: `curl -H "Authorization: Bearer ${secret}"`,
         output: `api_key=${secret}`
       });
+      sourceStore.saveSearchPreset({
+        name: 'sensitive-preset',
+        query: `token=${secret}`,
+        limit: 10
+      });
 
       const payload = sourceStore.exportAll();
       expect(JSON.stringify(payload)).toContain(secret);
@@ -431,7 +455,14 @@ describe('Store', () => {
       expect(result.imported.sessions).toBe(1);
       expect(result.imported.fixes).toBe(1);
       expect(result.imported.commands).toBe(1);
+      expect(result.imported.presets).toBe(1);
       expect(importedText).not.toContain(secret);
+      expect(JSON.stringify(targetStore.listSearchPresets())).not.toContain(
+        secret
+      );
+      expect(targetStore.listSearchPresets()[0]?.query).toContain(
+        'token=[REDACTED]'
+      );
       expect(imported?.error_message).toContain('Bearer [REDACTED]');
       expect(imported?.environment).toContain('api_key=[REDACTED]');
       expect(imported?.fixes[0]?.description).toContain('token=[REDACTED]');
@@ -471,6 +502,13 @@ describe('Store', () => {
         output: 'clean',
         exit_code: 0
       });
+      sourceStore.saveSearchPreset({
+        name: 'round-trip',
+        query: 'Cannot read properties',
+        language: 'typescript',
+        status: 'resolved',
+        limit: 8
+      });
 
       const result = targetStore.importAll(sourceStore.exportAll());
       const importedSession = targetStore.getSession(session.id);
@@ -478,7 +516,16 @@ describe('Store', () => {
       expect(result.imported.sessions).toBe(1);
       expect(result.imported.fixes).toBe(1);
       expect(result.imported.commands).toBe(1);
+      expect(result.imported.presets).toBe(1);
+      expect(result.format_version).toBe(2);
       expect(importedSession?.title).toBe('import me');
+      expect(targetStore.listSearchPresets()).toEqual([
+        expect.objectContaining({
+          name: 'round-trip',
+          query: 'Cannot read properties',
+          limit: 8
+        })
+      ]);
       expect(importedSession?.fixes).toHaveLength(1);
       expect(importedSession?.commands).toHaveLength(1);
     } finally {
@@ -544,15 +591,134 @@ describe('Store', () => {
     }
   });
 
-  it('rejects unsupported schema versions during import', () => {
+  it('keeps backup compatibility independent from the SQLite schema version', () => {
+    const source = createTestDb();
+    const sourceStore = new Store(source);
+
+    try {
+      const session = sourceStore.createSession({
+        title: 'schema-independent backup',
+        tags: []
+      });
+      const payload = sourceStore.exportAll();
+      const result = store.importAll({
+        ...payload,
+        schema_version: payload.schema_version + 99
+      });
+
+      expect(result.format_version).toBe(2);
+      expect(result.schema_version).toBe(payload.schema_version + 99);
+      expect(result.imported.sessions).toBe(1);
+      expect(store.getSession(session.id)?.title).toBe(
+        'schema-independent backup'
+      );
+    } finally {
+      source.close();
+    }
+  });
+
+  it('imports the legacy v1.1 backup shape without presets', () => {
+    const source = createTestDb();
+    const sourceStore = new Store(source);
+
+    try {
+      const session = sourceStore.createSession({
+        title: 'legacy backup',
+        tags: ['legacy']
+      });
+      const current = sourceStore.exportAll() as unknown as Record<
+        string,
+        unknown
+      >;
+      const { format_version, saved_search_presets, ...legacy } = current;
+      expect(format_version).toBe(2);
+      expect(saved_search_presets).toEqual([]);
+
+      const result = store.importAll(legacy);
+
+      expect(result.format_version).toBe(1);
+      expect(result.imported.sessions).toBe(1);
+      expect(result.imported.presets).toBe(0);
+      expect(store.getSession(session.id)?.title).toBe('legacy backup');
+    } finally {
+      source.close();
+    }
+  });
+
+  it('rejects unsupported future backup formats with an actionable error', () => {
     const payload = store.exportAll();
 
     expect(() =>
       store.importAll({
         ...payload,
-        schema_version: payload.schema_version + 99
+        format_version: 3
       })
-    ).toThrow(/Unsupported schema_version/);
+    ).toThrow(ImportIncompatibleError);
+
+    try {
+      store.importAll({ ...payload, format_version: 3 });
+      throw new Error('expected incompatible import to fail');
+    } catch (error) {
+      expect(error).toMatchObject({
+        code: 'IMPORT_INCOMPATIBLE',
+        retryable: false
+      });
+      expect((error as Error).message).toContain('backup format');
+    }
+  });
+
+  it('rejects incomplete current-format backups', () => {
+    const current = store.exportAll() as unknown as Record<string, unknown>;
+    const { saved_search_presets, ...missingPresets } = current;
+    expect(saved_search_presets).toEqual([]);
+
+    expect(() => store.importAll(missingPresets)).toThrow(
+      InvalidImportPayloadError
+    );
+  });
+
+  it('applies deterministic preset conflict behavior', () => {
+    const source = createTestDb();
+    const target = createTestDb();
+    const sourceStore = new Store(source);
+    const targetStore = new Store(target);
+
+    try {
+      sourceStore.saveSearchPreset({
+        name: 'conflict',
+        query: 'incoming query',
+        language: 'typescript',
+        limit: 12
+      });
+      targetStore.saveSearchPreset({
+        name: 'conflict',
+        query: 'existing query',
+        language: 'javascript',
+        limit: 5
+      });
+      const payload = sourceStore.exportAll();
+
+      const skipped = targetStore.importAll(payload);
+      expect(skipped.skipped.presets).toBe(1);
+      expect(targetStore.listSearchPresets()[0]).toMatchObject({
+        query: 'existing query',
+        language: 'javascript',
+        limit: 5
+      });
+
+      const overwritten = targetStore.importAll(payload, {
+        skipExisting: false
+      });
+      expect(overwritten.imported.presets).toBe(1);
+      expect(targetStore.listSearchPresets()[0]).toMatchObject({
+        query: 'incoming query',
+        language: 'typescript',
+        limit: 12
+      });
+    } finally {
+      source.close();
+      target.close();
+    }
   });
 
   it('marks duplicate rows invalid when skipExisting is disabled', () => {

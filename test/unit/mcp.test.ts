@@ -175,10 +175,12 @@ describe('MCP handlers', () => {
             name: 'import_sessions',
             arguments: {
               payload: {
-                schema_version: 999,
+                format_version: 999,
+                schema_version: 3,
                 sessions: [],
                 fixes: [],
-                commands: []
+                commands: [],
+                saved_search_presets: []
               },
               skip_existing: true
             }
@@ -354,6 +356,11 @@ describe('MCP handlers', () => {
       output: 'clean',
       exit_code: 0
     });
+    store.saveSearchPreset({
+      name: 'mcp-round-trip',
+      query: 'export contract',
+      limit: 7
+    });
 
     const exportResponse = handlers.handleExportSessions({ format: 'json' });
     const exported = parseResponse<
@@ -361,7 +368,13 @@ describe('MCP handlers', () => {
     >(exportResponse);
 
     expect(exportResponse.structuredContent).toEqual(exported);
-    expect(exportResponse.structuredContent).toMatchObject({ format: 'json' });
+    expect(exportResponse.structuredContent).toMatchObject({
+      format: 'json',
+      format_version: 2,
+      saved_search_presets: [
+        expect.objectContaining({ name: 'mcp-round-trip' })
+      ]
+    });
     expect(
       ExportSessionsOutputSchema.safeParse(exportResponse.structuredContent)
         .success
@@ -381,7 +394,13 @@ describe('MCP handlers', () => {
     try {
       const imported = parseResponse<{
         success: boolean;
-        imported: { sessions: number; fixes: number; commands: number };
+        format_version: number;
+        imported: {
+          sessions: number;
+          fixes: number;
+          commands: number;
+          presets: number;
+        };
       }>(
         targetHandlers.handleImportSessions({
           payload: exported,
@@ -393,24 +412,27 @@ describe('MCP handlers', () => {
       expect(imported.imported.sessions).toBe(1);
       expect(imported.imported.fixes).toBe(1);
       expect(imported.imported.commands).toBe(1);
+      expect(imported.imported.presets).toBe(1);
+      expect(imported.format_version).toBe(2);
       expect(targetStore.getSession(session.id)?.commands).toHaveLength(1);
+      expect(targetStore.listSearchPresets()[0]?.name).toBe('mcp-round-trip');
     } finally {
       targetDb.close();
     }
   });
 
-  it('rejects unsupported schema versions during import', () => {
+  it('rejects unsupported backup format versions during import', () => {
     const payload = store.exportAll();
 
     expect(() =>
       handlers.handleImportSessions({
         payload: {
           ...payload,
-          schema_version: payload.schema_version + 1
+          format_version: 999
         },
         skip_existing: true
       })
-    ).toThrow(/Unsupported schema_version/);
+    ).toThrow(/backup format/i);
   });
 
   it('builds AI-friendly session context', () => {
@@ -513,6 +535,7 @@ describe('MCP handlers', () => {
     });
     const summary = parseResponse<{
       format: 'summary';
+      format_version: number;
       schema_version: number;
       stats: { total: number };
       sessions: Array<{ id: string; title: string }>;
@@ -522,6 +545,7 @@ describe('MCP handlers', () => {
     expect(listed.sessions[0]?.id).toBe(session.id);
     expect(summaryResponse.structuredContent).toEqual(summary);
     expect(summary.format).toBe('summary');
+    expect(summary.format_version).toBe(2);
     expect(
       ExportSessionsOutputSchema.safeParse(summaryResponse.structuredContent)
         .success

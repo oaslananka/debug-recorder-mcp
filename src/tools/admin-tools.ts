@@ -1,11 +1,12 @@
 import { CURRENT_SCHEMA_VERSION } from '../db.js';
 import { getDiagnostics } from '../diagnostics.js';
 import type { Store } from '../store.js';
-import type {
-  ExportSessions,
-  GetDiagnostics,
-  GetStats,
-  ImportSessions
+import {
+  BACKUP_FORMAT_VERSION,
+  type ExportSessions,
+  type GetDiagnostics,
+  type GetStats,
+  type ImportSessions
 } from '../types.js';
 import { jsonContent, type ToolHandler } from './common.js';
 
@@ -25,6 +26,7 @@ export function createAdminToolHandlers(store: Store) {
       return jsonContent({
         format: 'summary',
         exported_at: new Date().toISOString(),
+        format_version: BACKUP_FORMAT_VERSION,
         schema_version: CURRENT_SCHEMA_VERSION,
         stats: store.getStats(),
         sessions: exported.sessions.map((session) => ({

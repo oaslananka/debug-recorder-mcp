@@ -12,7 +12,8 @@ export const INPUT_LIMITS = {
   tagsJson: 4_000,
   importSessions: 1_000,
   importFixes: 5_000,
-  importCommands: 10_000
+  importCommands: 10_000,
+  importPresets: 1_000
 } as const;
 
 const IdSchema = z.string().min(1).max(INPUT_LIMITS.id);
@@ -264,12 +265,19 @@ export const ExportSessionsSchema = z.object({
   format: z.enum(['json', 'summary']).default('json').describe('Export format')
 });
 
+export const BACKUP_FORMAT_VERSION = 2 as const;
+
 export const ExportPayloadSchema = z.object({
   exported_at: z.string().optional(),
+  format_version: z.number().int().min(1).optional(),
   schema_version: z.number().int().min(1),
   sessions: z.array(SessionRowSchema).max(INPUT_LIMITS.importSessions),
   fixes: z.array(FixRowSchema).max(INPUT_LIMITS.importFixes),
-  commands: z.array(CommandRowSchema).max(INPUT_LIMITS.importCommands)
+  commands: z.array(CommandRowSchema).max(INPUT_LIMITS.importCommands),
+  saved_search_presets: z
+    .array(SavedSearchPresetRowSchema)
+    .max(INPUT_LIMITS.importPresets)
+    .optional()
 });
 
 export const ImportSessionsSchema = z.object({
@@ -309,7 +317,8 @@ export const SessionSchema = SessionRowSchema.omit({ tags: true }).extend({
 export const ImportCountsSchema = z.object({
   sessions: z.number().int().min(0),
   fixes: z.number().int().min(0),
-  commands: z.number().int().min(0)
+  commands: z.number().int().min(0),
+  presets: z.number().int().min(0)
 });
 
 export const StatsOutputSchema = z.object({
@@ -461,15 +470,18 @@ export type ExportSummarySession = {
 export type JsonExportSessionsOutput = {
   format: 'json';
   exported_at: string;
+  format_version: typeof BACKUP_FORMAT_VERSION;
   schema_version: number;
   sessions: SessionRow[];
   fixes: FixRow[];
   commands: CommandRow[];
+  saved_search_presets: SavedSearchPresetRow[];
 };
 
 export type SummaryExportSessionsOutput = {
   format: 'summary';
   exported_at: string;
+  format_version: typeof BACKUP_FORMAT_VERSION;
   schema_version: number;
   stats: z.infer<typeof StatsOutputSchema>;
   sessions: ExportSummarySession[];
@@ -478,10 +490,12 @@ export type SummaryExportSessionsOutput = {
 export type ExportSessionsOutput = {
   format: 'json' | 'summary';
   exported_at: string;
+  format_version: typeof BACKUP_FORMAT_VERSION;
   schema_version: number;
   sessions: SessionRow[] | ExportSummarySession[];
   fixes?: FixRow[];
   commands?: CommandRow[];
+  saved_search_presets?: SavedSearchPresetRow[];
   stats?: z.infer<typeof StatsOutputSchema>;
 };
 
@@ -501,10 +515,12 @@ export const JsonExportSessionsOutputSchema: z.ZodType<JsonExportSessionsOutput>
   z.object({
     format: z.literal('json'),
     exported_at: z.string(),
+    format_version: z.literal(BACKUP_FORMAT_VERSION),
     schema_version: z.number().int().min(1),
     sessions: z.array(SessionRowSchema),
     fixes: z.array(FixRowSchema),
-    commands: z.array(CommandRowSchema)
+    commands: z.array(CommandRowSchema),
+    saved_search_presets: z.array(SavedSearchPresetRowSchema)
   });
 
 /** Lightweight inventory response returned by `export_sessions`. */
@@ -512,6 +528,7 @@ export const SummaryExportSessionsOutputSchema: z.ZodType<SummaryExportSessionsO
   z.object({
     format: z.literal('summary'),
     exported_at: z.string(),
+    format_version: z.literal(BACKUP_FORMAT_VERSION),
     schema_version: z.number().int().min(1),
     stats: StatsOutputSchema,
     sessions: z.array(ExportSummarySessionSchema)
@@ -522,6 +539,7 @@ export const ExportSessionsOutputSchema: z.ZodType<ExportSessionsOutput> =
   z.object({
     format: z.enum(['json', 'summary']),
     exported_at: z.string(),
+    format_version: z.literal(BACKUP_FORMAT_VERSION),
     schema_version: z.number().int().min(1),
     sessions: z.union([
       z.array(SessionRowSchema),
@@ -529,11 +547,13 @@ export const ExportSessionsOutputSchema: z.ZodType<ExportSessionsOutput> =
     ]),
     fixes: z.array(FixRowSchema).optional(),
     commands: z.array(CommandRowSchema).optional(),
+    saved_search_presets: z.array(SavedSearchPresetRowSchema).optional(),
     stats: StatsOutputSchema.optional()
   });
 
 export const ImportSessionsOutputSchema = z.object({
   success: z.boolean(),
+  format_version: z.number().int().min(1),
   schema_version: z.number().int().min(1),
   imported: ImportCountsSchema,
   skipped: ImportCountsSchema,
@@ -608,9 +628,11 @@ export type ImportCounts = {
   sessions: number;
   fixes: number;
   commands: number;
+  presets: number;
 };
 
 export type ImportResult = {
+  format_version: number;
   schema_version: number;
   imported: ImportCounts;
   skipped: ImportCounts;

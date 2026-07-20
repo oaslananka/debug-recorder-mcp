@@ -5,6 +5,7 @@ import { CURRENT_SCHEMA_VERSION, openDb } from './db.js';
 import { recordDiagnosticEvent } from './diagnostics.js';
 import { redactSecrets } from './logging.js';
 import {
+  BACKUP_FORMAT_VERSION,
   type AddFix,
   type Command,
   type CommandRow,
@@ -82,7 +83,7 @@ export class ImportIncompatibleError extends ToolExecutionError {
   constructor(actualVersion: number, expectedVersion: number) {
     super(
       'IMPORT_INCOMPATIBLE',
-      `Unsupported schema_version: ${actualVersion}. Expected ${expectedVersion}. Export with a compatible debug-recorder-mcp version and retry.`,
+      `Unsupported backup format_version: ${actualVersion}. Maximum supported format_version is ${expectedVersion}. Export with a compatible debug-recorder-mcp version and retry.`,
       false
     );
     this.name = 'ImportIncompatibleError';
@@ -184,7 +185,8 @@ function createImportCounts(): ImportCounts {
   return {
     sessions: 0,
     fixes: 0,
-    commands: 0
+    commands: 0,
+    presets: 0
   };
 }
 
@@ -623,6 +625,7 @@ export class Store {
     recordDiagnosticEvent('export');
 
     return {
+      format_version: BACKUP_FORMAT_VERSION,
       schema_version: CURRENT_SCHEMA_VERSION,
       sessions: this.db
         .prepare('SELECT * FROM sessions ORDER BY created_at ASC')
@@ -632,7 +635,10 @@ export class Store {
         .all() as FixRow[],
       commands: this.db
         .prepare('SELECT * FROM commands ORDER BY ran_at ASC')
-        .all() as CommandRow[]
+        .all() as CommandRow[],
+      saved_search_presets: this.db
+        .prepare('SELECT * FROM saved_search_presets ORDER BY name ASC')
+        .all() as SavedSearchPresetRow[]
     };
   }
 
@@ -648,18 +654,32 @@ export class Store {
       throw new InvalidImportPayloadError(reason);
     }
 
-    const data = parsed.data;
-    recordDiagnosticEvent('import');
+    const parsedData = parsed.data;
+    const formatVersion = parsedData.format_version ?? 1;
 
-    if (data.schema_version !== CURRENT_SCHEMA_VERSION) {
-      throw new ImportIncompatibleError(
-        data.schema_version,
-        CURRENT_SCHEMA_VERSION
+    if (formatVersion > BACKUP_FORMAT_VERSION) {
+      throw new ImportIncompatibleError(formatVersion, BACKUP_FORMAT_VERSION);
+    }
+
+    if (
+      formatVersion === BACKUP_FORMAT_VERSION &&
+      parsedData.saved_search_presets === undefined
+    ) {
+      throw new InvalidImportPayloadError(
+        'saved_search_presets is required for the current backup format'
       );
     }
 
+    const data = {
+      ...parsedData,
+      format_version: formatVersion,
+      saved_search_presets: parsedData.saved_search_presets ?? []
+    };
+    recordDiagnosticEvent('import');
+
     const skipExisting = options.skipExisting ?? true;
     const result: ImportResult = {
+      format_version: formatVersion,
       schema_version: data.schema_version,
       imported: createImportCounts(),
       skipped: createImportCounts(),
@@ -681,6 +701,15 @@ export class Store {
       (this.db.prepare('SELECT id FROM commands').all() as IdRow[]).map(
         (row) => row.id
       )
+    );
+    const presetNames = new Set(
+      (
+        this.db
+          .prepare('SELECT name FROM saved_search_presets')
+          .all() as Array<{
+          name: string;
+        }>
+      ).map((row) => row.name)
     );
 
     const insertSession = this.db.prepare(
@@ -707,100 +736,156 @@ export class Store {
       `
     );
 
+    const upsertPreset = this.db.prepare(
+      `
+        INSERT INTO saved_search_presets (
+          name, query, language, framework, status, limit_value,
+          created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(name) DO UPDATE SET
+          query = excluded.query,
+          language = excluded.language,
+          framework = excluded.framework,
+          status = excluded.status,
+          limit_value = excluded.limit_value,
+          created_at = excluded.created_at,
+          updated_at = excluded.updated_at
+      `
+    );
+
+    const importSessions = (sessions: typeof data.sessions) => {
+      for (const session of sessions) {
+        if (sessionIds.has(session.id) && skipExisting) {
+          result.skipped.sessions += 1;
+          continue;
+        }
+
+        try {
+          insertSession.run(
+            session.id,
+            this.redactTextForStore(session.title),
+            this.redactNullableTextForStore(session.description),
+            this.redactNullableTextForStore(session.error_message),
+            this.redactNullableTextForStore(session.error_type),
+            this.redactNullableTextForStore(session.stack_trace),
+            this.redactNullableTextForStore(session.environment),
+            session.language,
+            session.framework,
+            session.tags,
+            session.status,
+            session.created_at,
+            session.updated_at
+          );
+          sessionIds.add(session.id);
+          result.imported.sessions += 1;
+        } catch (error) {
+          result.invalid.sessions += 1;
+          result.errors.push(formatImportError('session', session.id, error));
+        }
+      }
+    };
+
+    const importFixes = (fixes: typeof data.fixes) => {
+      for (const fix of fixes) {
+        if (fixIds.has(fix.id) && skipExisting) {
+          result.skipped.fixes += 1;
+          continue;
+        }
+
+        if (!sessionIds.has(fix.session_id)) {
+          result.invalid.fixes += 1;
+          result.errors.push(
+            `fix ${fix.id}: missing parent session ${fix.session_id}`
+          );
+          continue;
+        }
+
+        try {
+          insertFix.run(
+            fix.id,
+            fix.session_id,
+            this.redactTextForStore(fix.description),
+            this.redactNullableTextForStore(fix.code_snippet),
+            fix.worked,
+            this.redactNullableTextForStore(fix.notes),
+            fix.created_at
+          );
+          fixIds.add(fix.id);
+          result.imported.fixes += 1;
+        } catch (error) {
+          result.invalid.fixes += 1;
+          result.errors.push(formatImportError('fix', fix.id, error));
+        }
+      }
+    };
+
+    const importCommands = (commands: typeof data.commands) => {
+      for (const command of commands) {
+        if (commandIds.has(command.id) && skipExisting) {
+          result.skipped.commands += 1;
+          continue;
+        }
+
+        if (!sessionIds.has(command.session_id)) {
+          result.invalid.commands += 1;
+          result.errors.push(
+            `command ${command.id}: missing parent session ${command.session_id}`
+          );
+          continue;
+        }
+
+        try {
+          insertCommand.run(
+            command.id,
+            command.session_id,
+            this.redactTextForStore(command.command),
+            this.redactNullableTextForStore(command.output),
+            command.exit_code,
+            command.ran_at
+          );
+          commandIds.add(command.id);
+          result.imported.commands += 1;
+        } catch (error) {
+          result.invalid.commands += 1;
+          result.errors.push(formatImportError('command', command.id, error));
+        }
+      }
+    };
+
+    const importPresets = (presets: typeof data.saved_search_presets) => {
+      for (const preset of presets) {
+        if (presetNames.has(preset.name) && skipExisting) {
+          result.skipped.presets += 1;
+          continue;
+        }
+
+        try {
+          upsertPreset.run(
+            preset.name,
+            this.redactTextForStore(preset.query),
+            preset.language,
+            preset.framework,
+            preset.status,
+            preset.limit_value,
+            preset.created_at,
+            preset.updated_at
+          );
+          presetNames.add(preset.name);
+          result.imported.presets += 1;
+        } catch (error) {
+          result.invalid.presets += 1;
+          result.errors.push(formatImportError('preset', preset.name, error));
+        }
+      }
+    };
+
     const importTransaction = this.db.transaction(
-      (validatedData: ExportPayload) => {
-        for (const session of validatedData.sessions) {
-          if (sessionIds.has(session.id) && skipExisting) {
-            result.skipped.sessions += 1;
-            continue;
-          }
-
-          try {
-            insertSession.run(
-              session.id,
-              this.redactTextForStore(session.title),
-              this.redactNullableTextForStore(session.description),
-              this.redactNullableTextForStore(session.error_message),
-              this.redactNullableTextForStore(session.error_type),
-              this.redactNullableTextForStore(session.stack_trace),
-              this.redactNullableTextForStore(session.environment),
-              session.language,
-              session.framework,
-              session.tags,
-              session.status,
-              session.created_at,
-              session.updated_at
-            );
-            sessionIds.add(session.id);
-            result.imported.sessions += 1;
-          } catch (error) {
-            result.invalid.sessions += 1;
-            result.errors.push(formatImportError('session', session.id, error));
-          }
-        }
-
-        for (const fix of validatedData.fixes) {
-          if (fixIds.has(fix.id) && skipExisting) {
-            result.skipped.fixes += 1;
-            continue;
-          }
-
-          if (!sessionIds.has(fix.session_id)) {
-            result.invalid.fixes += 1;
-            result.errors.push(
-              `fix ${fix.id}: missing parent session ${fix.session_id}`
-            );
-            continue;
-          }
-
-          try {
-            insertFix.run(
-              fix.id,
-              fix.session_id,
-              this.redactTextForStore(fix.description),
-              this.redactNullableTextForStore(fix.code_snippet),
-              fix.worked,
-              this.redactNullableTextForStore(fix.notes),
-              fix.created_at
-            );
-            fixIds.add(fix.id);
-            result.imported.fixes += 1;
-          } catch (error) {
-            result.invalid.fixes += 1;
-            result.errors.push(formatImportError('fix', fix.id, error));
-          }
-        }
-
-        for (const command of validatedData.commands) {
-          if (commandIds.has(command.id) && skipExisting) {
-            result.skipped.commands += 1;
-            continue;
-          }
-
-          if (!sessionIds.has(command.session_id)) {
-            result.invalid.commands += 1;
-            result.errors.push(
-              `command ${command.id}: missing parent session ${command.session_id}`
-            );
-            continue;
-          }
-
-          try {
-            insertCommand.run(
-              command.id,
-              command.session_id,
-              this.redactTextForStore(command.command),
-              this.redactNullableTextForStore(command.output),
-              command.exit_code,
-              command.ran_at
-            );
-            commandIds.add(command.id);
-            result.imported.commands += 1;
-          } catch (error) {
-            result.invalid.commands += 1;
-            result.errors.push(formatImportError('command', command.id, error));
-          }
-        }
+      (validatedData: typeof data) => {
+        importSessions(validatedData.sessions);
+        importFixes(validatedData.fixes);
+        importCommands(validatedData.commands);
+        importPresets(validatedData.saved_search_presets);
       }
     );
 
