@@ -25,9 +25,6 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ['22.22.3', '24.16.0']
-    env:
-      # renovate: datasource=github-releases depName=codecov/codecov-cli
-      CODECOV_CLI_VERSION: v11.3.1
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -105,37 +102,6 @@ jobs:
         if: ${{ matrix.node-version == '24.16.0' }}
         run: npm run check:codecov -- --remote
 
-      - name: Upload coverage to Codecov
-        if: >-
-          ${{ !cancelled() && matrix.node-version == '24.16.0' &&
-          (github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository) }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage/cobertura-coverage.xml
-          disable_search: true
-          flags: unit
-          name: node-24-coverage
-          fail_ci_if_error: true
-          handle_no_reports_found: true
-          version: ${{ env.CODECOV_CLI_VERSION }}
-
-      - name: Upload test results to Codecov
-        if: >-
-          ${{ !cancelled() &&
-          (github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository) }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: test-results/node-${{ matrix.node-version }}
-          flags: node-${{ matrix.node-version }}
-          name: node-${{ matrix.node-version }}-tests
-          fail_ci_if_error: true
-          handle_no_reports_found: true
-          version: ${{ env.CODECOV_CLI_VERSION }}
-
       - name: Upload quality artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -145,6 +111,55 @@ jobs:
             coverage
             test-results
           if-no-files-found: ignore
+
+  codecov:
+    name: Codecov / Node ${{ matrix.node-version }}
+    if: >-
+      ${{ always() &&
+      (github.event_name != 'pull_request' ||
+      (github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository)) }}
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: codecov
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['22.22.3', '24.16.0']
+    env:
+      # renovate: datasource=github-releases depName=codecov/codecov-cli
+      CODECOV_CLI_VERSION: v11.3.1
+    steps:
+      - name: Download quality reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: quality-node-${{ matrix.node-version }}
+          path: reports
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.node-version == '24.16.0' }}
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: reports/coverage/cobertura-coverage.xml
+          disable_search: true
+          flags: unit
+          name: node-24-coverage
+          fail_ci_if_error: true
+          handle_no_reports_found: true
+          version: ${{ env.CODECOV_CLI_VERSION }}
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: reports/test-results/node-${{ matrix.node-version }}
+          flags: node-${{ matrix.node-version }}
+          name: node-${{ matrix.node-version }}-tests
+          fail_ci_if_error: true
+          handle_no_reports_found: true
+          version: ${{ env.CODECOV_CLI_VERSION }}
 
   docker:
     name: Docker Build, Smoke, and Scan

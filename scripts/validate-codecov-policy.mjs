@@ -39,9 +39,7 @@ async function validateRemote(config) {
   });
   const body = await response.text();
   if (!response.ok || !body.includes('Valid!')) {
-    throw new Error(
-      `Codecov remote validation failed (${response.status}): ${body.trim()}`
-    );
+    throw new Error(`Codecov remote validation failed (${response.status}).`);
   }
 }
 
@@ -69,9 +67,11 @@ try {
     'CODECOV_CLI_VERSION: v11.3.1',
     'codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0',
     'codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1',
-    'coverage/cobertura-coverage.xml',
-    'directory: test-results/node-${{ matrix.node-version }}',
+    'reports/coverage/cobertura-coverage.xml',
+    'directory: reports/test-results/node-${{ matrix.node-version }}',
     'flags: node-${{ matrix.node-version }}',
+    'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1',
+    'environment: codecov',
     'fail_ci_if_error: true',
     'handle_no_reports_found: true',
     'npm run check:codecov -- --remote'
@@ -83,7 +83,7 @@ try {
     WORKFLOW_PATH,
     workflow,
     'github.event.pull_request.head.repo.full_name == github.repository',
-    2
+    1
   );
 
   if (config.includes('bundle_analysis:')) {
@@ -99,10 +99,10 @@ try {
     throw new Error('package.json must expose the check:codecov policy script');
   }
 
-  const codecovManager = (renovate.customManagers ?? []).find((manager) =>
+  const hasCodecovManager = (renovate.customManagers ?? []).some((manager) =>
     manager.description?.includes('Codecov CLI')
   );
-  if (!codecovManager) {
+  if (!hasCodecovManager) {
     throw new Error('renovate.json must manage the pinned Codecov CLI version');
   }
 

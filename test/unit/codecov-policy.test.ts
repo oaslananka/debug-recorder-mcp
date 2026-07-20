@@ -71,6 +71,23 @@ describe('Codecov policy validator', () => {
     );
   });
 
+  it('rejects Codecov token access without a dedicated environment', () => {
+    const root = createFixture();
+    const workflowPath = join(root, '.github/workflows/ci.yml');
+    writeFileSync(
+      workflowPath,
+      readFileSync(workflowPath, 'utf8').replace(
+        '    environment: codecov\n',
+        ''
+      )
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('environment: codecov');
+  });
+
   it('rejects bundle analysis for the non-bundled package', () => {
     const root = createFixture();
     const configPath = join(root, 'codecov.yml');
