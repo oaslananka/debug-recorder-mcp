@@ -267,6 +267,7 @@ npm run check:package-size
 npm run check:version
 npm run check:mcp
 npm run check:security-policy
+npm run check:sbom
 npm run docs:site
 ```
 
