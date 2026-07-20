@@ -1,4 +1,8 @@
-import type { Store } from '../store.js';
+import {
+  ConfirmationRequiredError,
+  SessionNotFoundError,
+  type Store
+} from '../store.js';
 import type {
   CreateSession,
   DeleteSession,
@@ -23,7 +27,7 @@ export function createSessionToolHandlers(store: Store) {
     const session = store.getSession(input.session_id);
 
     if (!session) {
-      throw new Error(`Session not found: ${input.session_id}`);
+      throw new SessionNotFoundError(input.session_id);
     }
 
     return jsonContent(session);
@@ -37,7 +41,7 @@ export function createSessionToolHandlers(store: Store) {
     });
 
     if (!session) {
-      throw new Error(`Session not found: ${input.session_id}`);
+      throw new SessionNotFoundError(input.session_id);
     }
 
     return jsonContent({ success: true, session });
@@ -45,14 +49,14 @@ export function createSessionToolHandlers(store: Store) {
 
   const handleDeleteSession: ToolHandler<DeleteSession> = (input) => {
     if (!input.confirm) {
-      return jsonContent({
-        success: false,
-        message: 'Set confirm: true to permanently delete the session'
-      });
+      throw new ConfirmationRequiredError('permanently delete the session');
     }
 
     const deleted = store.deleteSession(input.session_id);
-    return jsonContent({ success: deleted, session_id: input.session_id });
+    if (!deleted) {
+      throw new SessionNotFoundError(input.session_id);
+    }
+    return jsonContent({ success: true, session_id: input.session_id });
   };
 
   const handleListSessions: ToolHandler<ListSessions> = (input) => {
@@ -64,7 +68,7 @@ export function createSessionToolHandlers(store: Store) {
     const session = store.getSession(input.session_id);
 
     if (!session) {
-      throw new Error(`Session not found: ${input.session_id}`);
+      throw new SessionNotFoundError(input.session_id);
     }
 
     return jsonContent({

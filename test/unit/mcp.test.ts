@@ -15,7 +15,11 @@ import {
   safeHandler,
   type DebugRecorderRuntime
 } from '../../src/mcp.js';
-import { Store } from '../../src/store.js';
+import {
+  ConfirmationRequiredError,
+  SessionNotFoundError,
+  Store
+} from '../../src/store.js';
 import {
   ExportSessionsOutputSchema,
   JsonExportSessionsOutputSchema,
@@ -105,6 +109,11 @@ describe('MCP handlers', () => {
         expect(tool.annotations?.openWorldHint).toBe(false);
       }
 
+      expect(
+        listed.tools.find((tool) => tool.name === 'remove_search_preset')
+          ?.annotations?.destructiveHint
+      ).toBe(true);
+
       const result = await client.callTool({
         name: 'start_debug_session',
         arguments: {
@@ -118,6 +127,88 @@ describe('MCP handlers', () => {
         message: 'Debug session started: schema contract'
       });
       expect(result.content[0]).toMatchObject({ type: 'text' });
+    } finally {
+      await client.close();
+      await server.close();
+    }
+  });
+
+  it('returns stable structured domain errors without disconnecting the client', async () => {
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    const server = createDebugRecorderServer(runtime);
+    const client = new Client(
+      { name: 'tool-error-contract-test', version: '1.0.0' },
+      { capabilities: {} }
+    );
+
+    try {
+      await Promise.all([
+        server.connect(serverTransport),
+        client.connect(clientTransport)
+      ]);
+
+      const cases = [
+        {
+          request: {
+            name: 'get_session',
+            arguments: { session_id: 'missing-session' }
+          },
+          code: 'SESSION_NOT_FOUND'
+        },
+        {
+          request: {
+            name: 'remove_search_preset',
+            arguments: { name: 'missing-preset' }
+          },
+          code: 'PRESET_NOT_FOUND'
+        },
+        {
+          request: {
+            name: 'delete_session',
+            arguments: { session_id: 'missing-session', confirm: false }
+          },
+          code: 'CONFIRMATION_REQUIRED'
+        },
+        {
+          request: {
+            name: 'import_sessions',
+            arguments: {
+              payload: {
+                schema_version: 999,
+                sessions: [],
+                fixes: [],
+                commands: []
+              },
+              skip_existing: true
+            }
+          },
+          code: 'IMPORT_INCOMPATIBLE'
+        }
+      ] as const;
+
+      for (const testCase of cases) {
+        const result = await client.callTool(testCase.request);
+        expect(result.isError).toBe(true);
+        expect(result.structuredContent).toMatchObject({
+          error: {
+            code: testCase.code,
+            message: expect.any(String),
+            retryable: expect.any(Boolean)
+          }
+        });
+        expect(result.content[0]).toMatchObject({ type: 'text' });
+        expect(
+          (result.content[0] as { type: 'text'; text: string }).text
+        ).toContain(testCase.code);
+      }
+
+      const recovery = await client.callTool({
+        name: 'start_debug_session',
+        arguments: { title: 'recovered after domain error', tags: [] }
+      });
+      expect(recovery.isError).not.toBe(true);
+      expect(recovery.structuredContent).toMatchObject({ success: true });
     } finally {
       await client.close();
       await server.close();
@@ -165,7 +256,27 @@ describe('MCP handlers', () => {
     expect(() => closeRuntime(brokenRuntime)).toThrow(/boom/);
   });
 
-  it('safeHandler logs and rethrows tool errors', () => {
+  it('safeHandler returns actionable domain failures as tool errors', () => {
+    const wrapped = safeHandler('get_session', () => {
+      throw new SessionNotFoundError('missing-session');
+    });
+
+    const result = wrapped({});
+
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent).toEqual({
+      error: {
+        code: 'SESSION_NOT_FOUND',
+        message:
+          'Session not found: missing-session. Check the session_id and retry.',
+        retryable: true
+      }
+    });
+    expect(result.content[0]?.text).toContain('SESSION_NOT_FOUND');
+    expect(result.content[0]?.text).toContain('missing-session');
+  });
+
+  it('safeHandler logs and rethrows unexpected server errors', () => {
     const wrapped = safeHandler('failing_tool', () => {
       throw new Error('kaboom');
     });
@@ -214,15 +325,15 @@ describe('MCP handlers', () => {
 
   it('requires confirm=true before deleting a session', () => {
     const session = store.createSession({ title: 'delete me', tags: [] });
-    const guarded = parseResponse<{ success: boolean; message: string }>(
+
+    expect(() =>
       handlers.handleDeleteSession({ session_id: session.id, confirm: false })
-    );
+    ).toThrow(ConfirmationRequiredError);
+
     const deleted = parseResponse<{ success: boolean; session_id: string }>(
       handlers.handleDeleteSession({ session_id: session.id, confirm: true })
     );
 
-    expect(guarded.success).toBe(false);
-    expect(guarded.message).toContain('confirm: true');
     expect(deleted.success).toBe(true);
     expect(store.getSession(session.id)).toBeNull();
   });

@@ -27,6 +27,79 @@ import {
   type UpdateSession
 } from './types.js';
 
+export type ToolErrorCode =
+  | 'SESSION_NOT_FOUND'
+  | 'PRESET_NOT_FOUND'
+  | 'CONFIRMATION_REQUIRED'
+  | 'IMPORT_INCOMPATIBLE'
+  | 'IMPORT_INVALID';
+
+export class ToolExecutionError extends Error {
+  constructor(
+    readonly code: ToolErrorCode,
+    message: string,
+    readonly retryable: boolean
+  ) {
+    super(message);
+    this.name = 'ToolExecutionError';
+  }
+}
+
+export class SessionNotFoundError extends ToolExecutionError {
+  constructor(readonly sessionId: string) {
+    super(
+      'SESSION_NOT_FOUND',
+      `Session not found: ${sessionId}. Check the session_id and retry.`,
+      true
+    );
+    this.name = 'SessionNotFoundError';
+  }
+}
+
+export class SearchPresetNotFoundError extends ToolExecutionError {
+  constructor(readonly presetName: string) {
+    super(
+      'PRESET_NOT_FOUND',
+      `Search preset not found: ${presetName}. List presets and retry with an existing name.`,
+      true
+    );
+    this.name = 'SearchPresetNotFoundError';
+  }
+}
+
+export class ConfirmationRequiredError extends ToolExecutionError {
+  constructor(action: string) {
+    super(
+      'CONFIRMATION_REQUIRED',
+      `Confirmation required: set confirm: true to ${action}.`,
+      true
+    );
+    this.name = 'ConfirmationRequiredError';
+  }
+}
+
+export class ImportIncompatibleError extends ToolExecutionError {
+  constructor(actualVersion: number, expectedVersion: number) {
+    super(
+      'IMPORT_INCOMPATIBLE',
+      `Unsupported schema_version: ${actualVersion}. Expected ${expectedVersion}. Export with a compatible debug-recorder-mcp version and retry.`,
+      false
+    );
+    this.name = 'ImportIncompatibleError';
+  }
+}
+
+export class InvalidImportPayloadError extends ToolExecutionError {
+  constructor(reason: string) {
+    super(
+      'IMPORT_INVALID',
+      `Invalid import payload: ${reason}. Use JSON produced by export_sessions and retry.`,
+      true
+    );
+    this.name = 'InvalidImportPayloadError';
+  }
+}
+
 /** Filters and pagination controls for listing recorded debug sessions. */
 export type SessionListOptions = {
   status?: ListSessions['status'];
@@ -43,15 +116,6 @@ type AggregateRow = {
   count: number;
 };
 type IdRow = { id: string };
-
-export class SessionNotFoundError extends Error {
-  readonly code = 'SESSION_NOT_FOUND';
-
-  constructor(readonly sessionId: string) {
-    super(`Session not found: ${sessionId}`);
-    this.name = 'SessionNotFoundError';
-  }
-}
 
 function formatSqliteDomainError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -581,15 +645,16 @@ export class Store {
     if (!parsed.success) {
       const reason =
         parsed.error.issues[0]?.message ?? 'Unknown validation error';
-      throw new Error(`Invalid import payload: ${reason}`);
+      throw new InvalidImportPayloadError(reason);
     }
 
     const data = parsed.data;
     recordDiagnosticEvent('import');
 
     if (data.schema_version !== CURRENT_SCHEMA_VERSION) {
-      throw new Error(
-        `Unsupported schema_version: ${data.schema_version}. Expected ${CURRENT_SCHEMA_VERSION}.`
+      throw new ImportIncompatibleError(
+        data.schema_version,
+        CURRENT_SCHEMA_VERSION
       );
     }
 

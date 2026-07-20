@@ -189,3 +189,35 @@ npm run build
 npm run test:e2e
 npm run docs:api
 ```
+
+## Tool execution error contract
+
+Recoverable domain failures are returned as normal MCP tool results with
+`isError: true`; the client connection remains usable for a corrected retry.
+Both the text content and `structuredContent` carry the same stable error object:
+
+```json
+{
+  "error": {
+    "code": "SESSION_NOT_FOUND",
+    "message": "Session not found: missing-session. Check the session_id and retry.",
+    "retryable": true
+  }
+}
+```
+
+| Code                    | Meaning                                                            | Typical recovery                                                 |
+| ----------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `SESSION_NOT_FOUND`     | The requested session ID does not exist.                           | List/search sessions, correct `session_id`, and retry.           |
+| `PRESET_NOT_FOUND`      | The named saved-search preset does not exist.                      | List presets, correct the name, and retry.                       |
+| `CONFIRMATION_REQUIRED` | A destructive operation was called without explicit confirmation.  | Repeat the call with `confirm: true` after reviewing the target. |
+| `IMPORT_INCOMPATIBLE`   | The export schema version is not supported by this server version. | Export with a compatible version before retrying.                |
+| `IMPORT_INVALID`        | The import payload is malformed or incomplete.                     | Use JSON produced by `export_sessions` and retry.                |
+
+Unexpected database, protocol, transport, or server defects are not converted to
+domain errors; they remain exceptions so operators can distinguish a server
+failure from correctable tool input.
+
+`remove_search_preset` and `delete_session` are advertised as destructive tools.
+Clients should surface an appropriate confirmation affordance before invoking
+them.

@@ -5,6 +5,7 @@ export type JsonContentResponse = {
     text: string;
   }>;
   structuredContent: Record<string, unknown>;
+  isError?: boolean;
 };
 
 /** Handles a validated MCP tool input and returns JSON text plus structured content. */
@@ -32,5 +33,18 @@ export function jsonContent(payload: unknown): JsonContentResponse {
       }
     ],
     structuredContent: toStructuredContent(payload)
+  };
+}
+
+/** Returns a stable MCP tool execution error without escalating to a protocol error. */
+export function jsonError(
+  code: string,
+  message: string,
+  retryable: boolean
+): JsonContentResponse {
+  const payload = { error: { code, message, retryable } };
+  return {
+    ...jsonContent(payload),
+    isError: true
   };
 }

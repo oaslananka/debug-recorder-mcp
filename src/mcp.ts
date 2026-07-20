@@ -5,8 +5,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { getDbPath, openDb } from './db.js';
 import { log } from './logging.js';
-import { Store } from './store.js';
-import { type ToolHandler } from './tools/common.js';
+import { Store, ToolExecutionError } from './store.js';
+import { jsonError, type ToolHandler } from './tools/common.js';
 import { createSplitToolHandlers } from './tools/index.js';
 import {
   DeleteSearchPresetOutputSchema,
@@ -66,6 +66,15 @@ export function safeHandler<T>(
     try {
       return handler(input);
     } catch (error) {
+      if (error instanceof ToolExecutionError) {
+        log('warn', 'Tool execution rejected', {
+          tool: toolName,
+          code: error.code,
+          error: error.message
+        });
+        return jsonError(error.code, error.message, error.retryable);
+      }
+
       log('error', 'Tool handler error', {
         tool: toolName,
         error: error instanceof Error ? error.message : String(error)
@@ -213,7 +222,7 @@ export function createDebugRecorderServer(
       handler: 'handleDeleteSearchPreset',
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         openWorldHint: false
       }
     },
