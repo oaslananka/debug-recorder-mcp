@@ -1,7 +1,7 @@
 {
   "name": "debug-recorder-mcp",
   "version": "1.1.0",
-  "description": "MCP server for recording debug sessions — query your debugging history with natural language",
+  "description": "MCP server for recording debug sessions \u2014 query your debugging history with natural language",
   "type": "module",
   "main": "dist/mcp.js",
   "exports": {
@@ -56,7 +56,11 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:install-scripts && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
     "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json",
-    "check:renovate": "node scripts/validate-renovate-policy.mjs && npx --yes --package renovate@43.272.4 -- renovate-config-validator --strict"
+    "check:renovate": "node scripts/validate-renovate-policy.mjs && npx --yes --package renovate@43.272.4 -- renovate-config-validator --strict",
+    "hooks:install": "pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push",
+    "hooks:run": "pre-commit run --all-files",
+    "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check --exclude test/semgrep .",
+    "security:semgrep:test": "node scripts/validate-semgrep-rules.mjs"
   },
   "engines": {
     "node": "^22.0.0 || ^24.0.0",
