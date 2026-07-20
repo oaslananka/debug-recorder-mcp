@@ -25,6 +25,7 @@ jobs:
           github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    environment: semgrep-appsec
     container:
       image: semgrep/semgrep:1.170.0@sha256:f42392ee2c00f0de06702135e0e20415f481935900790fbe37aa778591be3999
     steps:
@@ -68,5 +69,4 @@ jobs:
           --error
           --metrics=off
           --disable-version-check
-          --exclude test/semgrep
           .

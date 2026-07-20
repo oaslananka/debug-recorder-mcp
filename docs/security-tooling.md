@@ -79,7 +79,7 @@ Validate the repository rules against positive and negative fixtures:
 npm run security:semgrep:test
 ```
 
-Scan the tracked repository while excluding the intentionally vulnerable fixtures:
+Scan the tracked repository with the committed high-signal rules:
 
 ```bash
 npm run security:semgrep
@@ -106,7 +106,7 @@ Require a token instead of allowing a local skip:
 npm run security:snyk:required
 ```
 
-CI scans production and development npm dependencies and fails on high or critical findings.
+CI invokes the same repository runner through the npm registry, avoiding the separate Snyk binary CDN. It scans production and development npm dependencies and fails on high or critical findings.
 
 ## SonarQube Cloud
 
@@ -131,6 +131,8 @@ npm run check:renovate
 The scheduled workflow targets only `oaslananka/debug-recorder-mcp`, uses the `renovate-managed/` branch prefix, and authenticates with `GH_AUTH_TOKEN`. A personal access token is required so Renovate-created pull requests trigger normal protected-branch workflows.
 
 Release Please uses the same PAT boundary when creating or updating release pull requests. The default GitHub Actions token must not be used for bot-authored pull requests because those events do not start the repository's normal pull-request workflows.
+
+Secret-consuming jobs use dedicated GitHub Environments: `release-automation`, `dependency-automation`, `semgrep-appsec`, and `snyk`. These boundaries make secret access explicit without changing the repository-level secret names.
 
 The Dependency Dashboard is the approval surface for major and high-risk updates. Digest-only updates may automerge only after required checks pass.
 

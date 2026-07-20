@@ -27,6 +27,9 @@ try {
   const release = read('.github/workflows/release.yml');
   const ci = read('.github/workflows/ci.yml');
   const security = read('.github/workflows/security.yml');
+  const renovate = read('.github/workflows/renovate.yml');
+  const semgrep = read('.github/workflows/semgrep.yml');
+  const snyk = read('.github/workflows/snyk.yml');
 
   for (const required of [
     'Production/runtime',
@@ -82,6 +85,33 @@ try {
     security,
     'Trivy filesystem scan failed. Review docs/security-sbom-vex.md before fixing or recording a VEX decision.'
   );
+
+  assertContains(
+    '.github/workflows/release.yml',
+    release,
+    'environment: release-automation'
+  );
+  assertContains(
+    '.github/workflows/renovate.yml',
+    renovate,
+    'environment: dependency-automation'
+  );
+  assertContains(
+    '.github/workflows/semgrep.yml',
+    semgrep,
+    'environment: semgrep-appsec'
+  );
+  assertContains('.github/workflows/snyk.yml', snyk, 'environment: snyk');
+  assertContains(
+    '.github/workflows/snyk.yml',
+    snyk,
+    'node scripts/run-snyk.mjs --required'
+  );
+  if (snyk.includes('snyk/actions/setup')) {
+    throw new Error(
+      '.github/workflows/snyk.yml must not depend on the Snyk binary CDN setup action'
+    );
+  }
 
   console.log('Security SBOM/VEX policy invariants verified.');
 } catch (error) {

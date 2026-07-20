@@ -25,6 +25,7 @@ jobs:
           github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    environment: snyk
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -37,29 +38,7 @@ jobs:
           node-version: '24.16.0'
           cache: npm
 
-      - name: Setup Snyk CLI
-        id: snyk
-        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
-        with:
-          snyk-version: 1.1306.1
-
-      - name: Verify pinned Snyk version
-        shell: bash
-        run: test "${{ steps.snyk.outputs.version }}" = '1.1306.1'
-
       - name: Scan npm dependencies
-        shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SYNK_PAT_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -z "${SNYK_TOKEN:-}" ]; then
-            echo "::error::SYNK_PAT_TOKEN must contain a valid Snyk API token."
-            exit 1
-          fi
-          snyk test \
-            --file=package.json \
-            --package-manager=npm \
-            --dev \
-            --severity-threshold=high \
-            --strict-out-of-sync=true
+        run: node scripts/run-snyk.mjs --required
