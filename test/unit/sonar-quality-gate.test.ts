@@ -37,4 +37,29 @@ describe('SonarQube Cloud quality-gate checker', () => {
     expect(result.stderr).toContain('new_security_rating');
     expect(result.stderr).toContain('actual=3');
   });
+
+  it('does not emit remote response content into logs', () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        script,
+        '--input',
+        join(
+          process.cwd(),
+          'test',
+          'fixtures',
+          'sonar-quality-gate-malicious.json'
+        )
+      ],
+      { encoding: 'utf8' }
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('quality gate: UNKNOWN');
+    expect(result.stderr).not.toContain('forged-log-entry');
+    expect(result.stderr).not.toContain('forged-metric');
+    expect(result.stderr).not.toContain('forged-comparator');
+    expect(result.stderr).not.toContain('forged-actual');
+    expect(result.stderr).not.toContain('forged-threshold');
+  });
 });

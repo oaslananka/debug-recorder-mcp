@@ -4,13 +4,13 @@ This repository uses layered automation so developers receive fast local feedbac
 
 ## Tool versions
 
-| Tool | Pinned version | Purpose |
-| --- | --- | --- |
-| Renovate | `43.272.4` | Dependency and pinned-reference updates |
-| pre-commit | `4.6.0` | Local Git hook orchestration |
-| Semgrep | `1.170.0` | Repository-owned SAST rules and Semgrep AppSec CI |
-| Snyk CLI | `1.1306.1` | npm dependency vulnerability analysis |
-| SonarQube Cloud | Managed service | Automatic code-quality and security quality gate |
+| Tool            | Pinned version  | Purpose                                           |
+| --------------- | --------------- | ------------------------------------------------- |
+| Renovate        | `43.272.4`      | Dependency and pinned-reference updates           |
+| pre-commit      | `4.6.0`         | Local Git hook orchestration                      |
+| Semgrep         | `1.170.0`       | Repository-owned SAST rules and Semgrep AppSec CI |
+| Snyk CLI        | `1.1306.1`      | npm dependency vulnerability analysis             |
+| SonarQube Cloud | Managed service | Automatic code-quality and security quality gate  |
 
 Renovate manages these pinned versions and their workflow/action references. Major, Node, MCP runtime, native dependency, and other high-risk updates require explicit maintainer approval.
 
@@ -51,7 +51,7 @@ The fast commit path runs:
 - Prettier and ESLint on staged TypeScript source/tests;
 - repository-specific Renovate policy assertions.
 
-Semgrep test fixtures under `test/semgrep/` intentionally contain insecure examples and are excluded from normal source linting and production scans.
+Semgrep rule fixtures are generated in a temporary directory by `scripts/validate-semgrep-rules.mjs`; intentionally insecure examples are never tracked as analyzable repository source.
 
 ### pre-push
 

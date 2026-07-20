@@ -59,7 +59,7 @@
     "check:renovate": "node scripts/validate-renovate-policy.mjs && npx --yes --package renovate@43.272.4 -- renovate-config-validator --strict",
     "hooks:install": "pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push",
     "hooks:run": "pre-commit run --all-files",
-    "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check --exclude test/semgrep .",
+    "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check .",
     "security:semgrep:test": "node scripts/validate-semgrep-rules.mjs",
     "security:snyk": "node scripts/run-snyk.mjs",
     "security:snyk:required": "node scripts/run-snyk.mjs --required",

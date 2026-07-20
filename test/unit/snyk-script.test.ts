@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from '@jest/globals';
 
@@ -53,5 +54,10 @@ describe('Snyk local runner', () => {
       'Snyk 1.1306.1 scan configuration is ready'
     );
     expect(`${result.stdout}${result.stderr}`).not.toContain(token);
+  });
+
+  it('does not pass the complete parent environment to Snyk', () => {
+    const source = readFileSync(script, 'utf8');
+    expect(source).not.toContain('...process.env');
   });
 });

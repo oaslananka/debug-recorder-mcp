@@ -34,7 +34,6 @@ repos:
           - --quiet
           - --skip-unknown-extensions
         files: ^(?:src|scripts|test)/.*\.(?:[cm]?[jt]s)$
-        exclude: ^test/semgrep/
 
   - repo: local
     hooks:
@@ -58,7 +57,6 @@ repos:
         language: system
         require_serial: true
         files: ^(?:src|scripts|test)/.*\.(?:ts|mjs)$
-        exclude: ^test/semgrep/
 
       - id: full-local-ci
         name: full local CI before push
