@@ -1,0 +1,72 @@
+name: Semgrep
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '41 4 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: semgrep-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  appsec:
+    name: Semgrep AppSec
+    if: >-
+      ${{ github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: semgrep-appsec
+    container:
+      image: semgrep/semgrep:1.170.0@sha256:f42392ee2c00f0de06702135e0e20415f481935900790fbe37aa778591be3999
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run Semgrep AppSec scan
+        shell: bash
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SEMGREP_APP_TOKEN:-}" ]; then
+            echo "::error::SEMGREP_APP_TOKEN is required for trusted repository scans."
+            exit 1
+          fi
+          semgrep ci
+
+  fork-safe:
+    name: Semgrep repository rules (fork-safe)
+    if: >-
+      ${{ github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name != github.repository }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.170.0@sha256:f42392ee2c00f0de06702135e0e20415f481935900790fbe37aa778591be3999
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run committed repository rules
+        run: >-
+          semgrep scan
+          --config .semgrep.yml
+          --error
+          --metrics=off
+          --disable-version-check
+          .

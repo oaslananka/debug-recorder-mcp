@@ -1,0 +1,14 @@
+{
+  "projectStatus": {
+    "status": "ERROR\nforged-log-entry",
+    "conditions": [
+      {
+        "status": "ERROR",
+        "metricKey": "new_security_rating\nforged-metric",
+        "comparator": "GT\nforged-comparator",
+        "actualValue": "3\nforged-actual",
+        "errorThreshold": "1\nforged-threshold"
+      }
+    ]
+  }
+}

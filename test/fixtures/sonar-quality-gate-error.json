@@ -1,0 +1,14 @@
+{
+  "projectStatus": {
+    "status": "ERROR",
+    "conditions": [
+      {
+        "status": "ERROR",
+        "metricKey": "new_security_rating",
+        "comparator": "GT",
+        "actualValue": "3",
+        "errorThreshold": "1"
+      }
+    ]
+  }
+}

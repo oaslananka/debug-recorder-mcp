@@ -51,6 +51,25 @@ backup, compaction, and migration rollback guidance.
 Never commit tokens, package credentials, registry credentials, private keys, or
 local transcript/scratch files. Pull request validation includes Gitleaks.
 
+## Dependency and code scanning
+
+The repository combines Renovate, pre-commit, Semgrep, Snyk, SonarQube Cloud,
+CodeQL, dependency review, Gitleaks, Trivy, Socket, and npm audit. These tools
+cover different threat classes and do not replace one another.
+
+- Renovate is operated by a repository-owned scheduled workflow and uses the
+  `renovate-managed/` branch prefix.
+- Semgrep uses committed high-signal rules locally and authenticated AppSec
+  analysis for trusted GitHub events. Fork pull requests receive no secrets.
+- Snyk scans npm production and development dependencies with the existing
+  `SYNK_PAT_TOKEN` repository secret mapped to `SNYK_TOKEN` at runtime.
+- SonarQube Cloud automatic analysis remains the single Sonar analysis method;
+  its quality gate is not weakened to accommodate historical findings.
+
+Installation, hook stages, pinned versions, manual commands, secret boundaries,
+and troubleshooting are documented in
+[Dependency and security tooling](./security-tooling.md).
+
 ## Architecture decisions
 
 - [ADR-0003: Local-First Streamable HTTP Security Model](./adr/0003-local-first-streamable-http-security.md)
