@@ -49,12 +49,14 @@ repos:
         name: prettier staged source
         entry: npx --no-install prettier --check
         language: system
+        require_serial: true
         files: ^(?:src|test)/.*\.ts$
 
       - id: eslint-staged
         name: eslint staged source
         entry: npx --no-install eslint
         language: system
+        require_serial: true
         files: ^(?:src|scripts|test)/.*\.(?:ts|mjs)$
         exclude: ^test/semgrep/
 
