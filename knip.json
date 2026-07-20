@@ -9,10 +9,23 @@
     "scripts/*.mjs",
     "test/**/*.test.ts"
   ],
-  "project": ["src/**/*.ts", "scripts/**/*.mjs", "test/**/*.ts"],
-  "ignore": ["coverage/**", "dist/**", "docs/api/**", "test-results/**"],
+  "project": [
+    "src/**/*.ts",
+    "scripts/**/*.mjs",
+    "test/**/*.ts"
+  ],
+  "ignore": [
+    "coverage/**",
+    "dist/**",
+    "docs/api/**",
+    "test-results/**"
+  ],
   "ignoreExportsUsedInFile": {
     "function": true,
     "type": true
-  }
+  },
+  "ignoreBinaries": [
+    "pre-commit",
+    "semgrep"
+  ]
 }
