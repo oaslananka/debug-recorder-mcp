@@ -147,6 +147,18 @@ preset queries are redacted before persistence. Export does not perform a second
 redaction pass, so backup files must be protected with the same care as the
 SQLite database.
 
+## Search pagination guarantees
+
+FTS5 search pages are read directly from SQLite with deterministic ordering by
+BM25 rank, then `created_at` and session ID as tie-breakers. `has_more` and
+`next_offset` are calculated from the complete filtered FTS match count, so
+pages remain truthful beyond 1,000 results.
+
+If FTS5 is unavailable, the Fuse fallback evaluates the newest 500 filtered
+sessions. In that degraded mode `pagination.truncated` is `true` and
+`pagination.window_limit` is `500`; callers must not interpret the end of that
+window as proof that the full history has been exhausted.
+
 ## Scaling
 
 Search uses a hybrid model:

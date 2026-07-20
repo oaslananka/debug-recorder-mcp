@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
 
-const MAX_PACKED_BYTES = 64 * 1024;
-// Backup format v2 plus stable completion timestamps measure 368.3 KiB.
-// Keep a narrow 3.7 KiB regression margin for future artifact growth.
-const MAX_UNPACKED_BYTES = 372 * 1024;
+// SQL-backed search paging measures 64.2 KiB packed; keep a 1.8 KiB margin.
+const MAX_PACKED_BYTES = 66 * 1024;
+// SQL-backed search paging measures 374.4 KiB unpacked; keep a 3.6 KiB margin.
+const MAX_UNPACKED_BYTES = 378 * 1024;
 const MAX_ENTRY_COUNT = 80;
 const SIZE_UNIT_BYTES = 1024;
 const PACKAGE_INFO_INDEX = 0;

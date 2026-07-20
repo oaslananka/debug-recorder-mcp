@@ -11,6 +11,8 @@ export type SearchPagination = {
   returned: number;
   has_more: boolean;
   next_offset: number | null;
+  truncated: boolean;
+  window_limit: number | null;
 };
 
 export type RelatedSessionGroup = {
@@ -35,6 +37,7 @@ type FtsCandidateRow = {
 
 const DEFAULT_FUZZY_THRESHOLD = 0.5;
 const MAX_SEARCH_WINDOW = 1_000;
+const FALLBACK_SEARCH_WINDOW = 500;
 
 function getFuzzyThreshold(): number {
   const configured = Number.parseFloat(
@@ -95,18 +98,28 @@ function rerankCandidates(
   }));
 }
 
-function fuseOnlySearch(params: Search, store: Store): SearchResult[] {
+type FallbackSearchWindow = {
+  results: SearchResult[];
+  truncated: boolean;
+};
+
+function fuseOnlySearchWindow(
+  params: Search,
+  store: Store
+): FallbackSearchWindow {
   const threshold = getFuzzyThreshold();
-  const sessions = store.listSessions({
+  const sessionWindow = store.listSessions({
     status: params.status,
     language: params.language,
     framework: params.framework,
-    limit: 500,
+    limit: FALLBACK_SEARCH_WINDOW + 1,
     offset: 0
   });
+  const truncated = sessionWindow.length > FALLBACK_SEARCH_WINDOW;
+  const sessions = sessionWindow.slice(0, FALLBACK_SEARCH_WINDOW);
 
   if (sessions.length === 0) {
-    return [];
+    return { results: [], truncated };
   }
 
   const fuse = new Fuse(sessions, {
@@ -121,10 +134,111 @@ function fuseOnlySearch(params: Search, store: Store): SearchResult[] {
     includeScore: true
   });
 
-  return fuse.search(params.query, { limit: params.limit }).map((result) => ({
-    ...result.item,
-    _score: result.score
-  }));
+  return {
+    results: fuse
+      .search(params.query, { limit: FALLBACK_SEARCH_WINDOW })
+      .map((result) => ({
+        ...result.item,
+        _score: result.score
+      })),
+    truncated
+  };
+}
+
+function fuseOnlySearch(params: Search, store: Store): SearchResult[] {
+  return fuseOnlySearchWindow(params, store).results.slice(0, params.limit);
+}
+
+function appendFtsFilters(
+  sql: string,
+  params: Array<string | number>,
+  filters?: Pick<Search, 'language' | 'framework' | 'status'>
+): string {
+  let filteredSql = sql;
+
+  if (filters?.language) {
+    filteredSql += ' AND base.language = ?';
+    params.push(filters.language);
+  }
+
+  if (filters?.framework) {
+    filteredSql += ' AND base.framework = ?';
+    params.push(filters.framework);
+  }
+
+  if (filters?.status) {
+    filteredSql += ' AND base.status = ?';
+    params.push(filters.status);
+  }
+
+  return filteredSql;
+}
+
+type FtsPageResult = {
+  results: SearchResult[];
+  total: number;
+};
+
+function queryFtsPage(
+  params: Search,
+  store: Store,
+  db: Database.Database
+): FtsPageResult | null {
+  const matchQuery = buildMatchQuery(params.query);
+
+  if (!matchQuery) {
+    return null;
+  }
+
+  const filters = {
+    language: params.language,
+    framework: params.framework,
+    status: params.status
+  };
+  const countParams: Array<string | number> = [matchQuery];
+  const countSql = appendFtsFilters(
+    `
+      SELECT COUNT(*) as count
+      FROM sessions_fts
+      JOIN sessions base ON base.rowid = sessions_fts.rowid
+      WHERE sessions_fts MATCH ?
+    `,
+    countParams,
+    filters
+  );
+  const total = (db.prepare(countSql).get(...countParams) as { count: number })
+    .count;
+
+  if (total === 0 || (params.offset ?? 0) >= total) {
+    return { results: [], total };
+  }
+
+  const pageParams: Array<string | number> = [matchQuery];
+  let pageSql = appendFtsFilters(
+    `
+      SELECT base.id as session_id, bm25(sessions_fts) as rank
+      FROM sessions_fts
+      JOIN sessions base ON base.rowid = sessions_fts.rowid
+      WHERE sessions_fts MATCH ?
+    `,
+    pageParams,
+    filters
+  );
+  pageSql +=
+    ' ORDER BY rank ASC, base.created_at DESC, base.id ASC LIMIT ? OFFSET ?';
+  pageParams.push(params.limit, params.offset ?? 0);
+  const rows = db.prepare(pageSql).all(...pageParams) as FtsCandidateRow[];
+  const byId = new Map(
+    store
+      .getSessionsByIds(rows.map((row) => row.session_id))
+      .map((session) => [session.id, session])
+  );
+  const results = rows.flatMap((row) => {
+    const session = byId.get(row.session_id);
+    return session ? [{ ...session, _score: row.rank }] : [];
+  });
+
+  return { results, total };
 }
 
 function queryFtsCandidates(
@@ -147,22 +261,8 @@ function queryFtsCandidates(
   `;
   const params: Array<string | number> = [matchQuery];
 
-  if (filters?.language) {
-    sql += ' AND base.language = ?';
-    params.push(filters.language);
-  }
-
-  if (filters?.framework) {
-    sql += ' AND base.framework = ?';
-    params.push(filters.framework);
-  }
-
-  if (filters?.status) {
-    sql += ' AND base.status = ?';
-    params.push(filters.status);
-  }
-
-  sql += ' ORDER BY rank LIMIT ?';
+  sql = appendFtsFilters(sql, params, filters);
+  sql += ' ORDER BY rank ASC, base.created_at DESC, base.id ASC LIMIT ?';
   params.push(limit);
 
   return db.prepare(sql).all(...params) as FtsCandidateRow[];
@@ -400,16 +500,40 @@ export function searchSessionsPage(
 ): SearchPage {
   const offset = params.offset ?? 0;
   const limit = params.limit;
-  const windowLimit = Math.min(offset + limit + 1, MAX_SEARCH_WINDOW);
-  const window = searchSessions({ ...params, limit: windowLimit }, store, db);
-  const results = window.slice(offset, offset + limit);
-  const hasMore = window.length > offset + limit;
+  let results: SearchResult[];
+  let hasMore: boolean;
+  let truncated = false;
+  let windowLimit: number | null = null;
+
+  try {
+    const ftsPage = queryFtsPage(params, store, db);
+
+    if (ftsPage && ftsPage.total > 0) {
+      results = ftsPage.results;
+      hasMore = offset + results.length < ftsPage.total;
+    } else {
+      const fallback = fuseOnlySearchWindow(params, store);
+      results = fallback.results.slice(offset, offset + limit);
+      hasMore = fallback.results.length > offset + limit;
+      truncated = fallback.truncated;
+      windowLimit = FALLBACK_SEARCH_WINDOW;
+    }
+  } catch {
+    const fallback = fuseOnlySearchWindow(params, store);
+    results = fallback.results.slice(offset, offset + limit);
+    hasMore = fallback.results.length > offset + limit;
+    truncated = fallback.truncated;
+    windowLimit = FALLBACK_SEARCH_WINDOW;
+  }
+
   const pagination: SearchPagination = {
     limit,
     offset,
     returned: results.length,
     has_more: hasMore,
-    next_offset: hasMore ? offset + results.length : null
+    next_offset: hasMore ? offset + results.length : null,
+    truncated,
+    window_limit: windowLimit
   };
   const relatedGroups = params.include_related
     ? buildRelatedSessionGroups(results)
