@@ -61,7 +61,8 @@ try {
     'npm sbom --sbom-format=cyclonedx',
     'sha256sum',
     'actions/attest-build-provenance',
-    'npm publish "$tarball" --access public --provenance'
+    'npm publish "$tarball" --access public --provenance',
+    'token: ${{ secrets.GH_AUTH_TOKEN }}'
   ]) {
     assertContains('.github/workflows/release.yml', release, required);
   }

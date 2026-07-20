@@ -130,6 +130,8 @@ npm run check:renovate
 
 The scheduled workflow targets only `oaslananka/debug-recorder-mcp`, uses the `renovate-managed/` branch prefix, and authenticates with `GH_AUTH_TOKEN`. A personal access token is required so Renovate-created pull requests trigger normal protected-branch workflows.
 
+Release Please uses the same PAT boundary when creating or updating release pull requests. The default GitHub Actions token must not be used for bot-authored pull requests because those events do not start the repository's normal pull-request workflows.
+
 The Dependency Dashboard is the approval surface for major and high-risk updates. Digest-only updates may automerge only after required checks pass.
 
 ## Skipping hooks
