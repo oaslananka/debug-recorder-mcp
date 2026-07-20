@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 import { recordDiagnosticEvent } from '../diagnostics.js';
 import { findSimilarErrors, searchSessionsPage } from '../search.js';
-import type { Store } from '../store.js';
+import { SearchPresetNotFoundError, type Store } from '../store.js';
 import type {
   DeleteSearchPreset,
   FindSimilarErrors,
@@ -43,12 +43,13 @@ export function createSearchToolHandlers(store: Store, db: Database.Database) {
     return jsonContent({ count: presets.length, presets });
   };
 
-  const handleDeleteSearchPreset: ToolHandler<DeleteSearchPreset> = (input) =>
-    jsonContent({
-      success: true,
-      name: input.name,
-      deleted: store.removeSearchPreset(input.name)
-    });
+  const handleDeleteSearchPreset: ToolHandler<DeleteSearchPreset> = (input) => {
+    const deleted = store.removeSearchPreset(input.name);
+    if (!deleted) {
+      throw new SearchPresetNotFoundError(input.name);
+    }
+    return jsonContent({ success: true, name: input.name, deleted: true });
+  };
 
   return {
     handleSearchSessions,

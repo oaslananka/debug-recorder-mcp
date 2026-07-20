@@ -129,6 +129,18 @@ describe('full stdio session flow', () => {
     expect(closed.success).toBe(true);
     expect(closed.session.status).toBe('resolved');
 
+    const missing = await client.callTool({
+      name: 'get_session',
+      arguments: { session_id: 'missing-session' }
+    });
+    expect(missing.isError).toBe(true);
+    expect(missing.structuredContent).toMatchObject({
+      error: {
+        code: 'SESSION_NOT_FOUND',
+        retryable: true
+      }
+    });
+
     const fetched = parseToolResult<{
       id: string;
       commands: Array<{ command: string }>;

@@ -1,5 +1,5 @@
 import type { AddFix, CloseSession, RecordCommand } from '../types.js';
-import type { Store } from '../store.js';
+import { SessionNotFoundError, type Store } from '../store.js';
 import { jsonContent, type ToolHandler } from './common.js';
 
 export function createRecordingToolHandlers(store: Store) {
@@ -21,7 +21,7 @@ export function createRecordingToolHandlers(store: Store) {
     const session = store.closeSession(input);
 
     if (!session) {
-      throw new Error(`Session not found: ${input.session_id}`);
+      throw new SessionNotFoundError(input.session_id);
     }
 
     return jsonContent({ success: true, session });
