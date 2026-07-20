@@ -159,7 +159,9 @@ describe('search', () => {
       offset: 1,
       returned: 2,
       has_more: true,
-      next_offset: 3
+      next_offset: 3,
+      truncated: false,
+      window_limit: 500
     });
     expect(page.related_groups).toEqual(
       expect.arrayContaining([
@@ -173,6 +175,143 @@ describe('search', () => {
     );
     expect(page.markdown).toContain('# Debug Search Export');
     expect(page.markdown).toContain('## Postmortem prompts');
+  });
+
+  it('paginates truthfully beyond the former 1000-result window', () => {
+    const insert = db.prepare(`
+      INSERT INTO sessions (
+        id, title, description, error_message, error_type, stack_trace,
+        environment, language, framework, tags, status, created_at, updated_at,
+        closed_at
+      ) VALUES (?, ?, ?, ?, ?, NULL, NULL, ?, ?, '[]', 'open', ?, ?, NULL)
+    `);
+    const seed = db.transaction(() => {
+      for (let index = 0; index < 1_005; index += 1) {
+        insert.run(
+          `boundary-${index.toString().padStart(4, '0')}`,
+          `Boundary pagination failure ${index}`,
+          `shared boundary pagination marker ${index}`,
+          'boundary pagination failure',
+          'BoundaryError',
+          index % 2 === 0 ? 'typescript' : 'python',
+          'node',
+          index,
+          index
+        );
+      }
+    });
+    seed();
+
+    const nearBoundary = searchSessionsPage(
+      { query: 'boundary pagination', limit: 10, offset: 990 },
+      store,
+      db
+    );
+    const afterBoundary = searchSessionsPage(
+      { query: 'boundary pagination', limit: 10, offset: 1_000 },
+      store,
+      db
+    );
+
+    expect(nearBoundary.results).toHaveLength(10);
+    expect(nearBoundary.pagination).toMatchObject({
+      has_more: true,
+      next_offset: 1_000,
+      truncated: false,
+      window_limit: null
+    });
+    expect(afterBoundary.results).toHaveLength(5);
+    expect(afterBoundary.pagination).toMatchObject({
+      has_more: false,
+      next_offset: null,
+      truncated: false,
+      window_limit: null
+    });
+    const exactOffsets = [999, 1_000, 1_001].map((offset) =>
+      searchSessionsPage(
+        { query: 'boundary pagination', limit: 1, offset },
+        store,
+        db
+      )
+    );
+    expect(exactOffsets.every((page) => page.results.length === 1)).toBe(true);
+    expect(new Set(exactOffsets.map((page) => page.results[0]?.id)).size).toBe(
+      3
+    );
+    expect(exactOffsets.every((page) => page.pagination.has_more)).toBe(true);
+    expect(
+      new Set([
+        ...nearBoundary.results.map((result) => result.id),
+        ...afterBoundary.results.map((result) => result.id)
+      ]).size
+    ).toBe(15);
+  });
+
+  it('keeps filtered FTS pagination stable across pages', () => {
+    for (let index = 0; index < 101; index += 1) {
+      store.createSession({
+        title: `Filtered pagination failure ${index}`,
+        description: 'filtered pagination marker',
+        language: index % 2 === 0 ? 'typescript' : 'python',
+        framework: 'node',
+        tags: []
+      });
+    }
+
+    const first = searchSessionsPage(
+      {
+        query: 'filtered pagination',
+        language: 'typescript',
+        limit: 25,
+        offset: 0
+      },
+      store,
+      db
+    );
+    const second = searchSessionsPage(
+      {
+        query: 'filtered pagination',
+        language: 'typescript',
+        limit: 25,
+        offset: 25
+      },
+      store,
+      db
+    );
+
+    expect(first.pagination.has_more).toBe(true);
+    expect(second.pagination.has_more).toBe(true);
+    expect(
+      first.results.every((result) => result.language === 'typescript')
+    ).toBe(true);
+    expect(
+      second.results.every((result) => result.language === 'typescript')
+    ).toBe(true);
+    expect(first.results.map((result) => result.id)).not.toEqual(
+      second.results.map((result) => result.id)
+    );
+  });
+
+  it('reports the bounded fallback window instead of claiming full exhaustion', () => {
+    for (let index = 0; index < 505; index += 1) {
+      store.createSession({
+        title: `Fallback marker ${index}`,
+        description: 'fallback pagination marker',
+        tags: []
+      });
+    }
+    db.exec('DROP TABLE sessions_fts');
+
+    const page = searchSessionsPage(
+      { query: 'fallback marker', limit: 10, offset: 490 },
+      store,
+      db
+    );
+
+    expect(page.pagination).toMatchObject({
+      truncated: true,
+      window_limit: 500
+    });
   });
 
   it('finds similar errors and returns a similarity score', () => {

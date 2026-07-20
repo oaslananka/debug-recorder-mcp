@@ -406,7 +406,9 @@ const SearchPaginationSchema = z.object({
   offset: z.number().int().min(0),
   returned: z.number().int().min(0),
   has_more: z.boolean(),
-  next_offset: z.number().int().min(0).nullable()
+  next_offset: z.number().int().min(0).nullable(),
+  truncated: z.boolean(),
+  window_limit: z.number().int().min(1).nullable()
 });
 
 const RelatedSessionGroupSchema = z.object({
