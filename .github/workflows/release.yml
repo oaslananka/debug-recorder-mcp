@@ -17,6 +17,7 @@ jobs:
     name: Release Please
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    environment: release-automation
     permissions:
       contents: write # create release commits and GitHub Releases
       pull-requests: write # create and update release PRs
@@ -35,6 +36,7 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          token: ${{ secrets.GH_AUTH_TOKEN }}
 
   build-assets:
     name: Build Release Assets

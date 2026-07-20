@@ -3,101 +3,228 @@
   "description": "Repository-local Renovate policy for debug-recorder-mcp.",
   "extends": [
     "config:recommended",
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests",
+    ":configMigration",
+    ":pinDevDependencies",
+    "abandonments:recommended",
     ":dependencyDashboard",
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)",
     ":separateMultipleMajorReleases",
-    "group:recommended",
-    "helpers:pinGitHubActionDigestsToSemver"
+    "group:recommended"
   ],
   "timezone": "Europe/Istanbul",
-  "labels": ["dependencies"],
-  "dependencyDashboardLabels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboardLabels": [
+    "dependencies"
+  ],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "dependencyDashboardOSVVulnerabilitySummary": "unresolved",
-  "assignees": ["oaslananka"],
+  "assignees": [
+    "oaslananka"
+  ],
   "prHourlyLimit": 2,
   "prConcurrentLimit": 8,
   "branchConcurrentLimit": 8,
   "commitHourlyLimit": 4,
   "rangeStrategy": "bump",
   "rebaseWhen": "conflicted",
-  "ignorePaths": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/coverage/**"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**"
+  ],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 6am on monday"],
+    "schedule": [
+      "before 6am on monday"
+    ],
     "automerge": false,
-    "addLabels": ["lockfile"]
+    "addLabels": [
+      "lockfile"
+    ]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"],
+    "labels": [
+      "security"
+    ],
     "prCreation": "immediate",
     "vulnerabilityFixStrategy": "highest"
   },
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
+      "description": "Group dependency automation and security scanner updates.",
+      "matchPackageNames": [
+        "renovatebot/github-action",
+        "renovatebot/pre-commit-hooks",
+        "pre-commit/pre-commit-hooks",
+        "semgrep/semgrep",
+        "snyk/actions",
+        "snyk"
+      ],
+      "groupName": "Dependency and security automation",
+      "groupSlug": "dependency-security-automation",
+      "addLabels": [
+        "security",
+        "ci",
+        "requires-review"
+      ],
+      "automerge": false
+    },
+    {
       "description": "Require explicit approval for major version changes.",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true,
-      "addLabels": ["major", "requires-review"],
+      "addLabels": [
+        "major",
+        "requires-review"
+      ],
       "prPriority": -5,
       "automerge": false
     },
     {
       "description": "Apply npm release-age guard to reduce supply-chain churn.",
-      "matchDatasources": ["npm"],
+      "matchDatasources": [
+        "npm"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
-      "addLabels": ["javascript"]
+      "addLabels": [
+        "javascript"
+      ]
     },
     {
       "description": "Pin and group non-major GitHub Actions updates.",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "minimumReleaseAge": "3 days",
       "prCreation": "not-pending",
       "internalChecksFilter": "strict",
       "pinDigests": true,
       "groupName": "GitHub Actions",
       "groupSlug": "github-actions",
-      "addLabels": ["ci", "github-actions"]
+      "addLabels": [
+        "ci",
+        "github-actions"
+      ]
     },
     {
       "description": "Group TypeScript quality toolchain updates.",
-      "matchPackageNames": ["typescript", "ts-node", "tsx", "eslint", "eslint-*", "@eslint/**", "@typescript-eslint/**", "typescript-eslint", "prettier", "@types/**"],
+      "matchPackageNames": [
+        "typescript",
+        "ts-node",
+        "tsx",
+        "eslint",
+        "eslint-*",
+        "@eslint/**",
+        "@typescript-eslint/**",
+        "typescript-eslint",
+        "prettier",
+        "@types/**"
+      ],
       "groupName": "TypeScript quality toolchain",
       "groupSlug": "typescript-quality-toolchain",
-      "addLabels": ["javascript"]
+      "addLabels": [
+        "javascript"
+      ]
     },
     {
       "description": "Automerge digest-only updates after checks pass.",
-      "matchUpdateTypes": ["digest"],
+      "matchUpdateTypes": [
+        "digest"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false,
-      "addLabels": ["automerge"]
+      "addLabels": [
+        "automerge"
+      ]
     },
     {
       "description": "Debug recorder runtime, search, schema, and storage dependencies require manual review.",
-      "matchPackageNames": ["@modelcontextprotocol/sdk", "better-sqlite3", "fuse.js", "zod", "unrs-resolver"],
+      "matchPackageNames": [
+        "@modelcontextprotocol/sdk",
+        "better-sqlite3",
+        "fuse.js",
+        "zod",
+        "unrs-resolver"
+      ],
       "dependencyDashboardApproval": true,
       "automerge": false,
-      "addLabels": ["requires-review", "runtime"]
+      "addLabels": [
+        "requires-review",
+        "runtime"
+      ]
     },
     {
       "description": "Native or postinstall dependency updates require manual validation.",
-      "matchPackageNames": ["better-sqlite3", "unrs-resolver"],
+      "matchPackageNames": [
+        "better-sqlite3",
+        "unrs-resolver"
+      ],
       "dependencyDashboardApproval": true,
       "automerge": false,
-      "addLabels": ["native", "requires-review"]
+      "addLabels": [
+        "native",
+        "requires-review"
+      ]
     },
     {
       "description": "Keep Node runtime jumps explicit.",
-      "matchPackageNames": ["node", "@types/node"],
+      "matchPackageNames": [
+        "node",
+        "@types/node"
+      ],
       "dependencyDashboardApproval": true,
-      "addLabels": ["runtime", "requires-review"]
+      "addLabels": [
+        "runtime",
+        "requires-review"
+      ]
+    }
+  ],
+  "statusCheckWhen": {
+    "artifactError": "always",
+    "configValidation": "always",
+    "minimumReleaseAge": "always",
+    "mergeConfidence": "never"
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update the pinned Renovate runtime used by the self-hosted workflow.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/renovate\\.yml$/"
+      ],
+      "matchStrings": [
+        "renovate-version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "ghcr.io/renovatebot/renovate",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned Snyk CLI used by local scripts and CI.",
+      "managerFilePatterns": [
+        "/^scripts/run-snyk\\.mjs$/",
+        "/^\\.github/workflows/snyk\\.yml$/"
+      ],
+      "matchStrings": [
+        "SNYK_CLI_VERSION\\s*=\\s*'(?<currentValue>\\d+\\.\\d+\\.\\d+)'",
+        "snyk-version:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "snyk",
+      "datasourceTemplate": "npm"
     }
   ]
 }

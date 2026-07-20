@@ -20,6 +20,25 @@ node scripts/validate-mcp-metadata.mjs
 
 Supported local development targets are Node 22 LTS and Node 24 LTS.
 
+## Local Git Hooks and Security Tools
+
+Install the pinned pre-commit and Semgrep environments, then enable both commit
+and push hooks:
+
+```bash
+pipx install 'pre-commit==4.6.0'
+pipx install 'semgrep==1.170.0'
+npm run hooks:install
+```
+
+The commit stage runs fast hygiene, formatting, lint, Renovate policy, and
+repository Semgrep checks. The push stage runs `npm run ci:local` and an
+optional local Snyk scan; authenticated GitHub Actions scans remain
+authoritative.
+
+See [Dependency and security tooling](./docs/security-tooling.md) for hook
+stages, tokens, manual commands, fork behavior, and troubleshooting.
+
 ## Adding a New Tool
 
 1. Add the Zod schema and TypeScript types in `src/types.ts`.
@@ -37,9 +56,16 @@ To change the schema:
 
 ## Quality Gates
 
-Run these before opening a PR:
+Run the complete repository gate before opening a PR:
 
 ```bash
+npm run ci:local
+```
+
+The underlying checks include:
+
+```bash
+npm run check:renovate
 npm run lint
 npm run format:check
 npm run check:dead-code
