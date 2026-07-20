@@ -1,7 +1,10 @@
 # Troubleshooting
 
 Use `get_diagnostics` first when an agent or operator needs a safe snapshot of
-runtime state. The diagnostics payload intentionally avoids raw database paths,
+runtime state. Boolean settings are resolved once at runtime startup, and
+diagnostics reports those effective values rather than reinterpreting
+environment variables. The diagnostics payload intentionally avoids raw database
+paths,
 HTTP tokens, allowed host values, command output, stack traces, and environment
 values. It reports booleans, versions, counters, and aggregate stats instead.
 
