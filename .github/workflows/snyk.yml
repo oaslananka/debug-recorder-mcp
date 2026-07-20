@@ -38,6 +38,9 @@ jobs:
           node-version: '24.16.0'
           cache: npm
 
+      - name: Install dependency graph without lifecycle scripts
+        run: npm ci --ignore-scripts
+
       - name: Scan npm dependencies
         env:
           SNYK_TOKEN: ${{ secrets.SYNK_PAT_TOKEN }}

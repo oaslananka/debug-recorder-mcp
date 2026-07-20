@@ -102,6 +102,7 @@ try {
     'environment: semgrep-appsec'
   );
   assertContains('.github/workflows/snyk.yml', snyk, 'environment: snyk');
+  assertContains('.github/workflows/snyk.yml', snyk, 'npm ci --ignore-scripts');
   assertContains(
     '.github/workflows/snyk.yml',
     snyk,
