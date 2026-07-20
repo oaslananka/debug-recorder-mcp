@@ -1,7 +1,7 @@
 {
   "name": "debug-recorder-mcp",
   "version": "1.1.0",
-  "description": "MCP server for recording debug sessions \u2014 query your debugging history with natural language",
+  "description": "MCP server for recording debug sessions — query your debugging history with natural language",
   "type": "module",
   "main": "dist/mcp.js",
   "exports": {
@@ -118,14 +118,20 @@
   "overrides": {
     "babel-plugin-istanbul": "8.0.0",
     "express-rate-limit": "8.5.1",
-    "fast-uri": "3.1.2",
+    "fast-uri": "3.1.4",
     "glob": "13.0.6",
     "hono": "4.12.27",
     "ip-address": "10.2.0",
     "test-exclude": "8.0.0",
     "@babel/core": "7.29.7",
-    "js-yaml": "4.2.0",
-    "markdown-it": "14.2.0"
+    "js-yaml": "4.3.0",
+    "markdown-it": "14.3.0",
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.16"
+    },
+    "minimatch@10.2.5": {
+      "brace-expansion": "5.0.7"
+    }
   },
   "publishConfig": {
     "access": "public"

@@ -30,6 +30,8 @@ try {
   const renovate = read('.github/workflows/renovate.yml');
   const semgrep = read('.github/workflows/semgrep.yml');
   const snyk = read('.github/workflows/snyk.yml');
+  const manifest = JSON.parse(read('package.json'));
+  const lockfile = JSON.parse(read('package-lock.json'));
 
   for (const required of [
     'Production/runtime',
@@ -112,6 +114,57 @@ try {
     throw new Error(
       '.github/workflows/snyk.yml must not depend on the Snyk binary CDN setup action'
     );
+  }
+
+  const requiredOverrides = {
+    'fast-uri': '3.1.4',
+    'js-yaml': '4.3.0',
+    'markdown-it': '14.3.0'
+  };
+  for (const [dependency, expectedVersion] of Object.entries(
+    requiredOverrides
+  )) {
+    if (manifest.overrides?.[dependency] !== expectedVersion) {
+      throw new Error(
+        `package.json override ${dependency} must remain pinned to ${expectedVersion}`
+      );
+    }
+  }
+
+  const requiredNestedOverrides = {
+    'minimatch@3.1.5': '1.1.16',
+    'minimatch@10.2.5': '5.0.7'
+  };
+  for (const [parent, expectedVersion] of Object.entries(
+    requiredNestedOverrides
+  )) {
+    if (manifest.overrides?.[parent]?.['brace-expansion'] !== expectedVersion) {
+      throw new Error(
+        `package.json override ${parent} > brace-expansion must remain pinned to ${expectedVersion}`
+      );
+    }
+  }
+
+  const forbiddenLockedVersions = new Map([
+    ['brace-expansion', new Set(['1.1.15', '5.0.6'])],
+    ['fast-uri', new Set(['3.1.2'])],
+    ['js-yaml', new Set(['4.2.0'])],
+    ['linkify-it', new Set(['5.0.1'])]
+  ]);
+  for (const [packagePath, packageMetadata] of Object.entries(
+    lockfile.packages ?? {}
+  )) {
+    for (const [dependency, forbiddenVersions] of forbiddenLockedVersions) {
+      if (
+        (packagePath === `node_modules/${dependency}` ||
+          packagePath.endsWith(`/node_modules/${dependency}`)) &&
+        forbiddenVersions.has(packageMetadata.version)
+      ) {
+        throw new Error(
+          `package-lock.json contains vulnerable ${dependency}@${packageMetadata.version}`
+        );
+      }
+    }
   }
 
   console.log('Security SBOM/VEX policy invariants verified.');

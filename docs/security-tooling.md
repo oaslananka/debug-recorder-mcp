@@ -106,7 +106,7 @@ Require a token instead of allowing a local skip:
 npm run security:snyk:required
 ```
 
-CI invokes the same repository runner through the npm registry, avoiding the separate Snyk binary CDN. It scans production and development npm dependencies and fails on high or critical findings.
+CI invokes the same repository runner through the npm registry, avoiding the separate Snyk binary CDN. It scans production and development npm dependencies and fails on high or critical findings. Emergency transitively fixed versions are pinned in `overrides`; `npm run check:security-policy` rejects known-vulnerable lockfile regressions.
 
 ## SonarQube Cloud
 
