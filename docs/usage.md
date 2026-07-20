@@ -78,18 +78,41 @@ Use `save_search_preset` to create or update a preset, `list_search_presets` to 
 
 ### Exporting
 
-Use `export_sessions` with `format: "json"` for a full backup payload. This includes:
+Every successful export includes these common fields:
 
-- `schema_version`
-- all `sessions`
+| Field | Meaning |
+| --- | --- |
+| `format` | Literal discriminator: `"json"` or `"summary"`. |
+| `exported_at` | ISO-8601 timestamp for when the response was created. |
+| `schema_version` | Current storage schema version. |
+| `sessions` | Session rows whose shape depends on `format`. |
+
+Use `export_sessions` with `format: "json"` for a full backup. The response
+contains:
+
+- `format: "json"`
+- complete storage rows in `sessions`
 - all `fixes`
 - all `commands`
 
-Use `format: "summary"` when you only need a lightweight inventory.
+Full JSON session rows preserve numeric `created_at` and `updated_at` timestamps
+and all nullable debug fields.
+
+Use `format: "summary"` for a lightweight inventory. The response contains:
+
+- `format: "summary"`
+- aggregate `stats`
+- abbreviated session rows with `id`, `title`, `status`, `language`,
+  `error_type`, and ISO-8601 `created_at`
+
+Summary exports intentionally omit fixes, commands, stack traces, descriptions,
+and other backup-only fields. They cannot be restored with `import_sessions`.
 
 ### Importing
 
-Use `import_sessions` with the JSON payload returned by `export_sessions`.
+Pass the complete object returned by `export_sessions` with `format: "json"`
+as `import_sessions.payload`. Input validation accepts the documented backup
+fields and safely ignores the output-only `format` discriminator before import.
 
 Default import behavior:
 
