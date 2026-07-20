@@ -23,6 +23,8 @@ project-specific:
   and commands. Legacy v1.1.x backups remain importable as format `1`.
 - Treat `format_version` as the compatibility boundary. `schema_version` is
   informational and may change independently as SQLite migrations are added.
+- Current exports persist nullable `closed_at` values. Older backups are restored
+  with `updated_at` as the completion timestamp for resolved or abandoned rows.
 
 ## Backup and restore
 

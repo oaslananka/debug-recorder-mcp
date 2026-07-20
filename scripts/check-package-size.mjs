@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
 
 const MAX_PACKED_BYTES = 64 * 1024;
-// Backup format v2 adds preset rows and a versioned public import/export contract.
-// The measured artifact is 363.5 KiB; keep a narrow 4.5 KiB regression margin.
-const MAX_UNPACKED_BYTES = 368 * 1024;
+// Backup format v2 plus stable completion timestamps measure 368.3 KiB.
+// Keep a narrow 3.7 KiB regression margin for future artifact growth.
+const MAX_UNPACKED_BYTES = 372 * 1024;
 const MAX_ENTRY_COUNT = 80;
 const SIZE_UNIT_BYTES = 1024;
 const PACKAGE_INFO_INDEX = 0;

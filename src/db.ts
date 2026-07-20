@@ -168,6 +168,17 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX idx_saved_search_presets_updated_at
         ON saved_search_presets(updated_at);
     `
+  },
+  {
+    description: 'Add stable session completion timestamps',
+    sql: `
+      ALTER TABLE sessions ADD COLUMN closed_at INTEGER;
+
+      UPDATE sessions
+      SET closed_at = updated_at
+      WHERE status IN ('resolved', 'abandoned')
+        AND closed_at IS NULL;
+    `
   }
 ];
 

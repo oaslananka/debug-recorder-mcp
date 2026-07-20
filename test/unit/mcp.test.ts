@@ -4,7 +4,14 @@ import { join } from 'node:path';
 import type Database from 'better-sqlite3';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest
+} from '@jest/globals';
 import { createTestDb } from '../../src/db.js';
 import {
   closeRuntime,
@@ -435,7 +442,26 @@ describe('MCP handlers', () => {
     ).toThrow(/backup format/i);
   });
 
-  it('builds AI-friendly session context', () => {
+  it('measures open session duration against the current time', () => {
+    const now = jest.spyOn(Date, 'now');
+    now.mockReturnValue(1_000);
+    const session = store.createSession({ title: 'open duration', tags: [] });
+
+    now.mockReturnValue(3_500);
+    const context = parseResponse<{ duration_ms: number }>(
+      handlers.handleGetSessionContext({
+        session_id: session.id,
+        include_commands: false,
+        include_fixes: false
+      })
+    );
+
+    expect(context.duration_ms).toBe(2_500);
+  });
+
+  it('builds AI-friendly session context with stable closed duration', () => {
+    const now = jest.spyOn(Date, 'now');
+    now.mockReturnValue(1_000);
     const session = store.createSession({
       title: 'nginx 502',
       description: 'Bad gateway during deploy',
@@ -449,6 +475,7 @@ describe('MCP handlers', () => {
       description: 'restart service',
       worked: false
     });
+    now.mockReturnValue(5_000);
     store.addFix({
       session_id: session.id,
       description: 'roll back release',
@@ -463,6 +490,7 @@ describe('MCP handlers', () => {
     const context = parseResponse<{
       problem: { title: string; framework: string | null };
       status: string;
+      duration_ms: number;
       fixes_tried: number;
       failed_fixes: string[];
       working_fix: { description: string } | null;
@@ -478,6 +506,16 @@ describe('MCP handlers', () => {
     expect(context.problem.title).toBe('nginx 502');
     expect(context.problem.framework).toBe('nginx');
     expect(context.status).toBe('resolved');
+    expect(context.duration_ms).toBe(4_000);
+    now.mockReturnValue(50_000);
+    const laterContext = parseResponse<{ duration_ms: number }>(
+      handlers.handleGetSessionContext({
+        session_id: session.id,
+        include_commands: false,
+        include_fixes: false
+      })
+    );
+    expect(laterContext.duration_ms).toBe(4_000);
     expect(context.fixes_tried).toBe(2);
     expect(context.failed_fixes).toContain('restart service');
     expect(context.working_fix?.description).toBe('roll back release');

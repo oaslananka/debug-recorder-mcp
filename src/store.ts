@@ -493,11 +493,17 @@ export class Store {
       .prepare(
         `
           UPDATE sessions
-          SET updated_at = ?, status = CASE WHEN ? = 1 THEN 'resolved' ELSE status END
+          SET
+            updated_at = ?,
+            status = CASE WHEN ? = 1 THEN 'resolved' ELSE status END,
+            closed_at = CASE
+              WHEN ? = 1 THEN COALESCE(closed_at, ?)
+              ELSE closed_at
+            END
           WHERE id = ?
         `
       )
-      .run(now, data.worked ? 1 : 0, data.session_id);
+      .run(now, data.worked ? 1 : 0, data.worked ? 1 : 0, now, data.session_id);
 
     return { id };
   }
@@ -552,11 +558,15 @@ export class Store {
       .prepare(
         `
           UPDATE sessions
-          SET status = ?, description = COALESCE(?, description), updated_at = ?
+          SET
+            status = ?,
+            description = COALESCE(?, description),
+            updated_at = ?,
+            closed_at = COALESCE(closed_at, ?)
           WHERE id = ?
         `
       )
-      .run(data.status, description, now, data.session_id);
+      .run(data.status, description, now, now, data.session_id);
 
     return this.getSession(data.session_id);
   }
@@ -673,6 +683,13 @@ export class Store {
     const data = {
       ...parsedData,
       format_version: formatVersion,
+      sessions: parsedData.sessions.map((session) => ({
+        ...session,
+        closed_at:
+          session.status === 'open'
+            ? null
+            : (session.closed_at ?? session.updated_at)
+      })),
       saved_search_presets: parsedData.saved_search_presets ?? []
     };
     recordDiagnosticEvent('import');
@@ -716,9 +733,10 @@ export class Store {
       `
         INSERT INTO sessions (
           id, title, description, error_message, error_type, stack_trace,
-          environment, language, framework, tags, status, created_at, updated_at
+          environment, language, framework, tags, status, created_at, updated_at,
+          closed_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `
     );
 
@@ -775,7 +793,8 @@ export class Store {
             session.tags,
             session.status,
             session.created_at,
-            session.updated_at
+            session.updated_at,
+            session.closed_at
           );
           sessionIds.add(session.id);
           result.imported.sessions += 1;

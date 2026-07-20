@@ -82,7 +82,10 @@ export function createSessionToolHandlers(store: Store) {
         description: session.description
       },
       status: session.status,
-      duration_ms: Date.now() - session.created_at,
+      duration_ms: Math.max(
+        0,
+        (session.closed_at ?? Date.now()) - session.created_at
+      ),
       fixes_tried: input.include_fixes ? session.fixes.length : undefined,
       working_fix: input.include_fixes
         ? (session.fixes.find((fix) => fix.worked) ?? null)
