@@ -7,7 +7,8 @@ This project treats dependency and scanner findings as release-quality signals. 
 Every GitHub Release build must keep producing the following assets:
 
 - npm package tarball from `npm pack`.
-- CycloneDX SBOM from `npm sbom --sbom-format=cyclonedx`.
+- CycloneDX SBOM from `npm sbom --sbom-format=cyclonedx
+- `npm run check:sbom` validates the installed dependency graph and CycloneDX JSON before release publication`.
 - `SHA256SUMS` for release artifacts.
 - GitHub artifact provenance attestations for the package tarball.
 
@@ -61,7 +62,8 @@ Store VEX/advisory decisions in `docs/security/vex/YYYY-MM-DD-<package-or-adviso
 
 - Commands run:
   - `npm audit --audit-level=moderate`
-  - `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`
+  - `npm sbom --sbom-format=cyclonedx
+- `npm run check:sbom` validates the installed dependency graph and CycloneDX JSON before release publication >/tmp/debug-recorder-mcp.cdx.json`
   - `npm run ci:local`
 - Notes: <why this is safe for this package>
 ```
@@ -84,7 +86,10 @@ Before merging a dependency/security PR:
 2. Run `npm run check:install-scripts` and review any new install scripts.
 3. Update [`docs/install-script-policy.md`](./install-script-policy.md) when an approved script changes.
 4. Run `npm audit --audit-level=moderate`.
-5. Generate a local SBOM with `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`.
+5. Generate a local SBOM with `npm sbom --sbom-format=cyclonedx
+
+- `npm run check:sbom` validates the installed dependency graph and CycloneDX JSON before release publication >/tmp/debug-recorder-mcp.cdx.json`.
+
 6. Run `npm run check:security-policy`.
 7. Run `npm run ci:local`.
 8. If anything remains unfixed, add a VEX decision record and link the tracking issue.

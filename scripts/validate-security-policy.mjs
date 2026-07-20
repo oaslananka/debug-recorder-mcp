@@ -110,6 +110,7 @@ try {
     snyk,
     'node scripts/run-snyk.mjs --required'
   );
+  assertContains('package.json', read('package.json'), '"check:sbom"');
   if (snyk.includes('snyk/actions/setup')) {
     throw new Error(
       '.github/workflows/snyk.yml must not depend on the Snyk binary CDN setup action'
@@ -131,16 +132,16 @@ try {
     }
   }
 
-  const requiredNestedOverrides = {
-    'minimatch@3.1.5': '1.1.16',
-    'minimatch@10.2.5': '5.0.7'
+  const requiredVersionScopedOverrides = {
+    'brace-expansion@1.1.15': '1.1.16',
+    'brace-expansion@5.0.6': '5.0.7'
   };
-  for (const [parent, expectedVersion] of Object.entries(
-    requiredNestedOverrides
+  for (const [dependency, expectedVersion] of Object.entries(
+    requiredVersionScopedOverrides
   )) {
-    if (manifest.overrides?.[parent]?.['brace-expansion'] !== expectedVersion) {
+    if (manifest.overrides?.[dependency] !== expectedVersion) {
       throw new Error(
-        `package.json override ${parent} > brace-expansion must remain pinned to ${expectedVersion}`
+        `package.json override ${dependency} must remain pinned to ${expectedVersion}`
       );
     }
   }
