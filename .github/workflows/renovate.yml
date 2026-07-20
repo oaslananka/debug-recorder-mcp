@@ -1,0 +1,36 @@
+name: Renovate
+
+on:
+  schedule:
+    - cron: '17 3 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renovate-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    name: Renovate dependencies
+    if: ${{ github.repository == 'oaslananka/debug-recorder-mcp' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: dependency-automation
+    steps:
+      - name: Checkout configuration
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run self-hosted Renovate
+        uses: renovatebot/github-action@3064367f740a1a91cca218698a63902689cce200 # v46.1.20
+        with:
+          configurationFile: .github/renovate-global.json
+          renovate-version: 43.272.4
+          token: ${{ secrets.GH_AUTH_TOKEN }}
+          env-regex: '^(?:RENOVATE_\w+|LOG_LEVEL)$'
+        env:
+          LOG_LEVEL: info

@@ -1,0 +1,34 @@
+rules:
+  - id: debug-recorder.no-dynamic-code-execution
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Dynamic code execution is forbidden; use explicit parsing or dispatch.
+    metadata:
+      category: security
+      confidence: HIGH
+      cwe: CWE-95
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: debug-recorder.no-shell-true
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: "Avoid shell=true; invoke an executable with an argument array instead."
+    metadata:
+      category: security
+      confidence: HIGH
+      cwe: CWE-78
+    patterns:
+      - pattern-inside: '$CALL(..., { ..., shell: true, ... })'
+      - pattern: '$CALL(..., { ..., shell: true, ... })'
+
+  - id: debug-recorder.no-log-entire-environment
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Never log the complete process environment because it may contain secrets.
+    metadata:
+      category: security
+      confidence: HIGH
+      cwe: CWE-532
+    pattern: console.$METHOD(process.env)

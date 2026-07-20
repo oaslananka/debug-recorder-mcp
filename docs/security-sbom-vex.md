@@ -8,6 +8,7 @@ Every GitHub Release build must keep producing the following assets:
 
 - npm package tarball from `npm pack`.
 - CycloneDX SBOM from `npm sbom --sbom-format=cyclonedx`.
+- Local dependency-graph validation from `npm run check:sbom`.
 - `SHA256SUMS` for release artifacts.
 - GitHub artifact provenance attestations for the package tarball.
 
@@ -62,6 +63,7 @@ Store VEX/advisory decisions in `docs/security/vex/YYYY-MM-DD-<package-or-adviso
 - Commands run:
   - `npm audit --audit-level=moderate`
   - `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`
+  - `npm run check:sbom`
   - `npm run ci:local`
 - Notes: <why this is safe for this package>
 ```
@@ -85,6 +87,7 @@ Before merging a dependency/security PR:
 3. Update [`docs/install-script-policy.md`](./install-script-policy.md) when an approved script changes.
 4. Run `npm audit --audit-level=moderate`.
 5. Generate a local SBOM with `npm sbom --sbom-format=cyclonedx >/tmp/debug-recorder-mcp.cdx.json`.
-6. Run `npm run check:security-policy`.
-7. Run `npm run ci:local`.
-8. If anything remains unfixed, add a VEX decision record and link the tracking issue.
+6. Run `npm run check:sbom`.
+7. Run `npm run check:security-policy`.
+8. Run `npm run ci:local`.
+9. If anything remains unfixed, add a VEX decision record and link the tracking issue.

@@ -1,6 +1,6 @@
 {
   "name": "debug-recorder-mcp",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "MCP server for recording debug sessions — query your debugging history with natural language",
   "type": "module",
   "main": "dist/mcp.js",
@@ -52,10 +52,19 @@
     "check:mcp-registry": "node scripts/verify-mcp-registry-release.mjs",
     "check:mcp-registry:published": "node scripts/verify-mcp-registry-release.mjs --require-npm",
     "check:security-policy": "node scripts/validate-security-policy.mjs",
-    "ci:local": "npm run format:check && npm run lint && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:install-scripts && npm pack --dry-run && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
+    "ci:local": "npm run format:check && npm run check:renovate && npm run lint && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:install-scripts && npm run check:sbom && npm pack --dry-run && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:install-scripts && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
-    "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json"
+    "prepublishOnly": "npm run lint && npm run format:check && npm run check:dead-code && npm run test:coverage && npm run test:fuzz && npm run build && npm run test:e2e && npm run audit && npm run check:install-scripts && npm run check:sbom && npm run check:package-size && npm run check:version && npm run check:mcp && npm run check:security-policy",
+    "version": "node scripts/sync-version.mjs && git add package.json package-lock.json mcp.json server.json",
+    "check:renovate": "node scripts/validate-renovate-policy.mjs && npx --yes --package renovate@43.272.4 -- renovate-config-validator --strict",
+    "hooks:install": "pre-commit install --install-hooks --hook-type pre-commit --hook-type pre-push",
+    "hooks:run": "pre-commit run --all-files",
+    "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check .",
+    "security:semgrep:test": "node scripts/validate-semgrep-rules.mjs",
+    "security:snyk": "node scripts/run-snyk.mjs",
+    "security:snyk:required": "node scripts/run-snyk.mjs --required",
+    "security:sonar": "node scripts/check-sonar-quality-gate.mjs",
+    "check:sbom": "node scripts/check-sbom.mjs"
   },
   "engines": {
     "node": "^22.0.0 || ^24.0.0",
@@ -110,14 +119,16 @@
   "overrides": {
     "babel-plugin-istanbul": "8.0.0",
     "express-rate-limit": "8.5.1",
-    "fast-uri": "3.1.2",
+    "fast-uri": "3.1.4",
     "glob": "13.0.6",
     "hono": "4.12.27",
     "ip-address": "10.2.0",
     "test-exclude": "8.0.0",
     "@babel/core": "7.29.7",
-    "js-yaml": "4.2.0",
-    "markdown-it": "14.2.0"
+    "js-yaml": "4.3.0",
+    "markdown-it": "14.3.0",
+    "brace-expansion@1.1.15": "1.1.16",
+    "brace-expansion@5.0.6": "5.0.7"
   },
   "publishConfig": {
     "access": "public"

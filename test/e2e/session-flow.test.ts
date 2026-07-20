@@ -72,6 +72,27 @@ describe('full stdio session flow', () => {
     expect(started.success).toBe(true);
     expect(started.session_id).toBeTruthy();
 
+    const jsonExport = await client.callTool({
+      name: 'export_sessions',
+      arguments: { format: 'json' }
+    });
+    expect(jsonExport.structuredContent).toMatchObject({
+      format: 'json',
+      sessions: expect.any(Array),
+      fixes: expect.any(Array),
+      commands: expect.any(Array)
+    });
+
+    const summaryExport = await client.callTool({
+      name: 'export_sessions',
+      arguments: { format: 'summary' }
+    });
+    expect(summaryExport.structuredContent).toMatchObject({
+      format: 'summary',
+      stats: expect.any(Object),
+      sessions: expect.any(Array)
+    });
+
     await client.callTool({
       name: 'record_command',
       arguments: {

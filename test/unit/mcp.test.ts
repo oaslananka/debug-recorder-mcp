@@ -16,7 +16,12 @@ import {
   type DebugRecorderRuntime
 } from '../../src/mcp.js';
 import { Store } from '../../src/store.js';
-import type { ExportPayload } from '../../src/types.js';
+import {
+  ExportSessionsOutputSchema,
+  JsonExportSessionsOutputSchema,
+  SummaryExportSessionsOutputSchema,
+  type ExportPayload
+} from '../../src/types.js';
 
 const originalHttpToken = process.env.DEBUG_RECORDER_HTTP_TOKEN;
 
@@ -239,9 +244,21 @@ describe('MCP handlers', () => {
       exit_code: 0
     });
 
-    const exported = parseResponse<ExportPayload & { exported_at: string }>(
-      handlers.handleExportSessions({ format: 'json' })
-    );
+    const exportResponse = handlers.handleExportSessions({ format: 'json' });
+    const exported = parseResponse<
+      ExportPayload & { exported_at: string; format: 'json' }
+    >(exportResponse);
+
+    expect(exportResponse.structuredContent).toEqual(exported);
+    expect(exportResponse.structuredContent).toMatchObject({ format: 'json' });
+    expect(
+      ExportSessionsOutputSchema.safeParse(exportResponse.structuredContent)
+        .success
+    ).toBe(true);
+    expect(
+      JsonExportSessionsOutputSchema.safeParse(exportResponse.structuredContent)
+        .success
+    ).toBe(true);
 
     const targetDb = createTestDb();
     const targetStore = new Store(targetDb);
@@ -380,14 +397,29 @@ describe('MCP handlers', () => {
       count: number;
       sessions: Array<{ id: string }>;
     }>(handlers.handleListSessions({ limit: 10, offset: 0 }));
+    const summaryResponse = handlers.handleExportSessions({
+      format: 'summary'
+    });
     const summary = parseResponse<{
+      format: 'summary';
       schema_version: number;
       stats: { total: number };
       sessions: Array<{ id: string; title: string }>;
-    }>(handlers.handleExportSessions({ format: 'summary' }));
+    }>(summaryResponse);
 
     expect(listed.count).toBe(1);
     expect(listed.sessions[0]?.id).toBe(session.id);
+    expect(summaryResponse.structuredContent).toEqual(summary);
+    expect(summary.format).toBe('summary');
+    expect(
+      ExportSessionsOutputSchema.safeParse(summaryResponse.structuredContent)
+        .success
+    ).toBe(true);
+    expect(
+      SummaryExportSessionsOutputSchema.safeParse(
+        summaryResponse.structuredContent
+      ).success
+    ).toBe(true);
     expect(summary.stats.total).toBe(1);
     expect(summary.sessions[0]?.title).toBe('summary me');
   });

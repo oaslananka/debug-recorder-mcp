@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.1...debug-recorder-mcp-v1.1.2) (2026-07-20)
+
+
+### Bug Fixes
+
+* **release:** validate npm SBOM before publication ([#75](https://github.com/oaslananka/debug-recorder-mcp/issues/75)) ([a08048e](https://github.com/oaslananka/debug-recorder-mcp/commit/a08048e5bca714fc3d160a0f012d364c5a5b4064))
+
+## [1.1.1](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.0...debug-recorder-mcp-v1.1.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* **mcp:** align export output schemas ([#68](https://github.com/oaslananka/debug-recorder-mcp/issues/68)) ([0b511dd](https://github.com/oaslananka/debug-recorder-mcp/commit/0b511ddccecf4e56675d702583bf4f0d946d48a3))
+
 ## [1.1.0](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.0.3...debug-recorder-mcp-v1.1.0) (2026-06-25)
 
 

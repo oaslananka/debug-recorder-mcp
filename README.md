@@ -121,7 +121,7 @@ More setup examples are in [Client setup recipes](./docs/client-recipes.md).
 | `list_sessions`        | Browse sessions with filters.                                                                        |
 | `get_stats`            | Summarize debug history.                                                                             |
 | `get_diagnostics`      | Return a redacted operational diagnostics snapshot.                                                  |
-| `export_sessions`      | Export local history for backup or migration.                                                        |
+| `export_sessions`      | Export a full JSON backup or a lightweight summary inventory.                                        |
 | `import_sessions`      | Import a validated export payload.                                                                   |
 
 ## Real usage examples
@@ -144,9 +144,15 @@ The client can call `find_similar_errors`, then inspect the best match with `get
 
 ### Back up or migrate history
 
-1. Call `export_sessions` with JSON output.
-2. Store the returned payload in your backup system.
-3. Restore later with `import_sessions`.
+1. Call `export_sessions` with `format: "json"`. The response is marked with
+   `format: "json"` and contains the full `sessions`, `fixes`, and `commands`
+   arrays.
+2. Store the returned object in your backup system.
+3. Restore later by passing that object as `import_sessions.payload`.
+
+For a lightweight inventory, call `export_sessions` with `format: "summary"`.
+Summary responses are marked with `format: "summary"`, include aggregate
+`stats` and abbreviated session rows, and are not restore payloads.
 
 ## HTTP transport
 
@@ -261,6 +267,7 @@ npm run check:package-size
 npm run check:version
 npm run check:mcp
 npm run check:security-policy
+npm run check:sbom
 npm run docs:site
 ```
 
@@ -295,3 +302,23 @@ If this project saves you debugging time, support development here:
 - GitHub Sponsors: <https://github.com/sponsors/oaslananka>
 
 Funding metadata is available in both `.github/FUNDING.yml` and `package.json`.
+
+## Agent plugin and runtime configuration
+
+This repository owns the product-level agent plugin, MCP runtime configuration, and product-specific skills for `debug-recorder-mcp`. The central [`agent-tools`](https://github.com/oaslananka/agent-tools) repository should catalog this plugin, but the manifest and workflow instructions live here so they stay synchronized with the actual MCP server package.
+
+| File | Purpose |
+| --- | --- |
+| [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) | Claude Code-valid product plugin manifest. |
+| [`.mcp.json`](.mcp.json) | Claude Code project-local MCP server configuration. |
+| [`.codex/config.example.toml`](.codex/config.example.toml) | Codex CLI MCP configuration example. |
+| [`.vscode/mcp.example.json`](.vscode/mcp.example.json) | VS Code / GitHub Copilot workspace MCP configuration example. |
+| [`opencode.example.jsonc`](opencode.example.jsonc) | OpenCode project MCP configuration example. |
+| `.opencode/skills/` | OpenCode-native mirrored skill definitions. |
+| [`docs/agent-runtime-config.md`](docs/agent-runtime-config.md) | Agent runtime setup and validation notes. |
+
+Validate plugin packaging locally:
+
+```bash
+claude plugin validate .
+```

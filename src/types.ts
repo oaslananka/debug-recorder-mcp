@@ -449,16 +449,88 @@ export const ListSessionsOutputSchema = z.object({
   sessions: z.array(SessionSchema)
 });
 
-export const ExportSessionsOutputSchema = z
-  .object({
+export type ExportSummarySession = {
+  id: string;
+  title: string;
+  status: SessionStatus;
+  language: string | null;
+  error_type: string | null;
+  created_at: string;
+};
+
+export type JsonExportSessionsOutput = {
+  format: 'json';
+  exported_at: string;
+  schema_version: number;
+  sessions: SessionRow[];
+  fixes: FixRow[];
+  commands: CommandRow[];
+};
+
+export type SummaryExportSessionsOutput = {
+  format: 'summary';
+  exported_at: string;
+  schema_version: number;
+  stats: z.infer<typeof StatsOutputSchema>;
+  sessions: ExportSummarySession[];
+};
+
+export type ExportSessionsOutput = {
+  format: 'json' | 'summary';
+  exported_at: string;
+  schema_version: number;
+  sessions: SessionRow[] | ExportSummarySession[];
+  fixes?: FixRow[];
+  commands?: CommandRow[];
+  stats?: z.infer<typeof StatsOutputSchema>;
+};
+
+/** Abbreviated session row returned by summary exports. */
+export const ExportSummarySessionSchema: z.ZodType<ExportSummarySession> =
+  z.object({
+    id: IdSchema,
+    title: z.string().min(1).max(INPUT_LIMITS.title),
+    status: SessionStatusSchema,
+    language: z.string().max(INPUT_LIMITS.shortText).nullable(),
+    error_type: z.string().max(INPUT_LIMITS.shortText).nullable(),
+    created_at: z.string()
+  });
+
+/** Full JSON backup response returned by `export_sessions`. */
+export const JsonExportSessionsOutputSchema: z.ZodType<JsonExportSessionsOutput> =
+  z.object({
+    format: z.literal('json'),
     exported_at: z.string(),
     schema_version: z.number().int().min(1),
-    sessions: z.array(SessionRowSchema).optional(),
+    sessions: z.array(SessionRowSchema),
+    fixes: z.array(FixRowSchema),
+    commands: z.array(CommandRowSchema)
+  });
+
+/** Lightweight inventory response returned by `export_sessions`. */
+export const SummaryExportSessionsOutputSchema: z.ZodType<SummaryExportSessionsOutput> =
+  z.object({
+    format: z.literal('summary'),
+    exported_at: z.string(),
+    schema_version: z.number().int().min(1),
+    stats: StatsOutputSchema,
+    sessions: z.array(ExportSummarySessionSchema)
+  });
+
+/** MCP registration schema accepting both documented export variants. */
+export const ExportSessionsOutputSchema: z.ZodType<ExportSessionsOutput> =
+  z.object({
+    format: z.enum(['json', 'summary']),
+    exported_at: z.string(),
+    schema_version: z.number().int().min(1),
+    sessions: z.union([
+      z.array(SessionRowSchema),
+      z.array(ExportSummarySessionSchema)
+    ]),
     fixes: z.array(FixRowSchema).optional(),
     commands: z.array(CommandRowSchema).optional(),
     stats: StatsOutputSchema.optional()
-  })
-  .passthrough();
+  });
 
 export const ImportSessionsOutputSchema = z.object({
   success: z.boolean(),

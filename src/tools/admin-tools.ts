@@ -23,6 +23,7 @@ export function createAdminToolHandlers(store: Store) {
 
     if (input.format === 'summary') {
       return jsonContent({
+        format: 'summary',
         exported_at: new Date().toISOString(),
         schema_version: CURRENT_SCHEMA_VERSION,
         stats: store.getStats(),
@@ -38,6 +39,7 @@ export function createAdminToolHandlers(store: Store) {
     }
 
     return jsonContent({
+      format: 'json',
       exported_at: new Date().toISOString(),
       ...exported
     });

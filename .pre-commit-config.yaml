@@ -1,0 +1,83 @@
+minimum_pre_commit_version: '4.6.0'
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 43.272.4
+    hooks:
+      - id: renovate-config-validator
+        args: [--strict]
+
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.170.0
+    hooks:
+      - id: semgrep
+        name: semgrep repository rules
+        args:
+          - --config
+          - .semgrep.yml
+          - --error
+          - --metrics=off
+          - --disable-version-check
+          - --quiet
+          - --skip-unknown-extensions
+        files: ^(?:src|scripts|test)/.*\.(?:[cm]?[jt]s)$
+
+  - repo: local
+    hooks:
+      - id: renovate-policy
+        name: renovate repository policy
+        entry: node scripts/validate-renovate-policy.mjs
+        language: system
+        pass_filenames: false
+        files: ^(?:renovate\.json|\.github/(?:renovate-global\.json|workflows/renovate\.yml)|scripts/validate-renovate-policy\.mjs)$
+
+      - id: prettier-staged
+        name: prettier staged source
+        entry: npx --no-install prettier --check
+        language: system
+        require_serial: true
+        files: ^(?:src|test)/.*\.ts$
+
+      - id: eslint-staged
+        name: eslint staged source
+        entry: npx --no-install eslint
+        language: system
+        require_serial: true
+        files: ^(?:src|scripts|test)/.*\.(?:ts|mjs)$
+
+      - id: full-local-ci
+        name: full local CI before push
+        entry: npm run ci:local
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+      - id: snyk-open-source
+        name: Snyk dependency scan
+        entry: node scripts/run-snyk.mjs
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push, manual]
+
+      - id: sonar-quality-gate
+        name: SonarQube Cloud quality gate
+        entry: node scripts/check-sonar-quality-gate.mjs
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
