@@ -1,0 +1,10 @@
+{
+  "platform": "github",
+  "repositories": ["oaslananka/debug-recorder-mcp"],
+  "autodiscover": false,
+  "onboarding": false,
+  "requireConfig": "required",
+  "branchPrefix": "renovate-managed/",
+  "platformCommit": "enabled",
+  "gitAuthor": "Renovate Bot <bot@renovateapp.com>"
+}
