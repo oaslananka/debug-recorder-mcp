@@ -57,6 +57,9 @@ describe('operational diagnostics', () => {
     process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'true';
     process.env.DEBUG_RECORDER_REMOTE_HTTP = 'true';
     process.env.LOG_LEVEL = 'debug';
+    db.close();
+    db = createTestDb();
+    store = new Store(db);
 
     store.createSession({ title: 'diagnostic session', tags: [] });
     store.exportAll();
@@ -78,6 +81,25 @@ describe('operational diagnostics', () => {
     expect(serialized).not.toContain(rawDbPath);
     expect(serialized).not.toContain(rawToken);
   });
+
+  it.each(['1', 'yes', 'YeS'])(
+    'reports %s as enabled using effective runtime configuration',
+    (value) => {
+      db.close();
+      process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = value;
+      process.env.DEBUG_RECORDER_REMOTE_HTTP = value;
+      db = createTestDb();
+      store = new Store(db);
+
+      process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'no';
+      process.env.DEBUG_RECORDER_REMOTE_HTTP = 'no';
+
+      const diagnostics = getDiagnostics(store);
+
+      expect(diagnostics.config.redact_before_store).toBe(true);
+      expect(diagnostics.config.remote_http).toBe(true);
+    }
+  );
 
   it('redacts representative tokens, paths, stack traces, and command output', () => {
     const rawPath = '/home/alice/private/project/src/index.ts';

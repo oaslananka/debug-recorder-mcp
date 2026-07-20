@@ -252,6 +252,17 @@ describe('HTTP server hardening', () => {
     expect(() => resolveHttpConfig()).toThrow(/MAX_BODY_BYTES/);
   });
 
+  it.each([
+    ['DEBUG_RECORDER_REMOTE_HTTP', 'sometimes'],
+    ['DEBUG_RECORDER_REMOTE_HTTP', 'enabled']
+  ])('rejects invalid boolean environment value %s=%s', (name, value) => {
+    process.env[name] = value;
+
+    expect(() => resolveHttpConfig()).toThrow(
+      `Invalid ${name}: expected true/false, 1/0, or yes/no`
+    );
+  });
+
   it('serves health, version, and not-found responses for allowed hosts', async () => {
     const { baseUrl } = await listen();
     const host = new URL(baseUrl).host;

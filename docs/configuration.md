@@ -11,10 +11,16 @@
 | `DEBUG_RECORDER_ALLOWED_HOSTS`       | `127.0.0.1:<PORT>,localhost:<PORT>,[::1]:<PORT>` | Comma-separated allowlist for the HTTP `Host` header.                      |
 | `DEBUG_RECORDER_ALLOWED_ORIGINS`     | loopback origins for `<PORT>`                    | Comma-separated allowlist for browser `Origin` headers when present.       |
 | `DEBUG_RECORDER_MAX_BODY_BYTES`      | `1048576`                                        | Maximum JSON body size accepted by the HTTP endpoint.                      |
-| `DEBUG_RECORDER_REMOTE_HTTP`         | `false`                                          | Must be `true` to bind HTTP to a non-loopback host.                        |
+| `DEBUG_RECORDER_REMOTE_HTTP`         | `false`                                          | Enable non-loopback HTTP with a supported true value.                      |
 | `DEBUG_RECORDER_REDACT_BEFORE_STORE` | `false`                                          | Redact common token patterns before saving session, command, and fix text. |
 | `LOG_LEVEL`                          | `info`                                           | Minimum structured log level: `debug`, `info`, `warn`, or `error`.         |
 | `FUZZY_THRESHOLD`                    | `0.5`                                            | Fuse.js threshold used by search reranking and fallback fuzzy search.      |
+
+Boolean variables accept `true`/`false`, `1`/`0`, and `yes`/`no`. Values are
+case-insensitive and surrounding whitespace is ignored. Unsupported values fail
+startup with an explicit configuration error instead of silently selecting a
+different behavior. The resolved values are retained as effective runtime
+configuration and are the values reported by `get_diagnostics`.
 
 ## Example
 

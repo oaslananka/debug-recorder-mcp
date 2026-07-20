@@ -5,6 +5,7 @@ import {
   type ServerResponse
 } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
+import { parseBooleanEnv } from './config.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import {
   recordHttpRejection,
@@ -82,15 +83,6 @@ function classifyHttpRejection(error: HttpRequestError): HttpRejectionReason {
   }
 
   return 'other';
-}
-
-function parseBoolean(value: string | undefined): boolean {
-  if (!value) {
-    return false;
-  }
-
-  const normalized = value.toLowerCase();
-  return normalized === 'true' || normalized === '1' || normalized === 'yes';
 }
 
 function parseList(value: string | undefined): string[] {
@@ -172,7 +164,11 @@ export function resolveHttpConfig(
   const host = options.host ?? process.env.HOST ?? DEFAULT_HOST;
   const port = options.port ?? parsePort(process.env.PORT);
   const remoteHttp =
-    options.remoteHttp ?? parseBoolean(process.env.DEBUG_RECORDER_REMOTE_HTTP);
+    options.remoteHttp ??
+    parseBooleanEnv(
+      'DEBUG_RECORDER_REMOTE_HTTP',
+      process.env.DEBUG_RECORDER_REMOTE_HTTP
+    );
   const token = options.token ?? process.env.DEBUG_RECORDER_HTTP_TOKEN;
   const envAllowedHosts = parseList(process.env.DEBUG_RECORDER_ALLOWED_HOSTS);
   const envAllowedOrigins = parseList(
@@ -481,6 +477,7 @@ export function createHttpServer(
   options: HttpServerOptions = {}
 ): { server: HttpServer; config: HttpServerConfig } {
   const config = resolveHttpConfig(options);
+  runtime.store.setRemoteHttpEnabled(config.remoteHttp);
   const server = createServer((request, response) => {
     void (async () => {
       const url = new URL(request.url ?? '/', 'http://localhost');

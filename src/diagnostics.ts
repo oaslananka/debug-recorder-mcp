@@ -1,3 +1,4 @@
+import type { RuntimeConfig } from './config.js';
 import { CURRENT_SCHEMA_VERSION } from './db.js';
 import { redactSecrets } from './logging.js';
 import type { Store } from './store.js';
@@ -117,18 +118,15 @@ export function resetDiagnosticCounters(): void {
   }
 }
 
-function isEnabled(value: string | undefined): boolean {
-  return value?.toLowerCase() === 'true';
-}
-
-function summarizeConfig(dbPath?: string) {
+function summarizeConfig(
+  runtimeConfig: Readonly<RuntimeConfig>,
+  dbPath?: string
+) {
   return {
     database_path: dbPath ? '[CONFIGURED]' : '[DEFAULT]',
     database_path_configured: dbPath !== undefined,
-    redact_before_store: isEnabled(
-      process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE
-    ),
-    remote_http: isEnabled(process.env.DEBUG_RECORDER_REMOTE_HTTP),
+    redact_before_store: runtimeConfig.redactBeforeStore,
+    remote_http: runtimeConfig.remoteHttp,
     http_auth_configured: Boolean(process.env.DEBUG_RECORDER_HTTP_TOKEN),
     allowed_hosts_configured: Boolean(process.env.DEBUG_RECORDER_ALLOWED_HOSTS),
     allowed_origins_configured: Boolean(
@@ -153,7 +151,7 @@ export function getDiagnostics(
       platform: process.platform,
       arch: process.arch
     },
-    config: summarizeConfig(options.dbPath),
+    config: summarizeConfig(store.getRuntimeConfig(), options.dbPath),
     counters: cloneCounters(),
     stats: store.getStats()
   };

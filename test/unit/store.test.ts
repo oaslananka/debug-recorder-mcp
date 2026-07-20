@@ -240,7 +240,12 @@ describe('Store', () => {
   });
 
   it('optionally redacts secrets before persistence', () => {
-    process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'true';
+    db.close();
+    db = createTestDb();
+    store = new Store(db, {
+      redactBeforeStore: true,
+      remoteHttp: false
+    });
     const messageToken = 'live-token-value';
     const commandToken = 'command-token';
     const session = store.createSession({
@@ -266,6 +271,25 @@ describe('Store', () => {
     expect(fetched?.commands[0]?.command).toContain('Bearer [REDACTED]');
     expect(fetched?.commands[0]?.output).toContain('api_key=[REDACTED]');
     expect(fetched?.fixes[0]?.description).toContain('token=[REDACTED]');
+  });
+
+  it('resolves redaction configuration once when the store is created', () => {
+    db.close();
+    process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'yes';
+    db = createTestDb();
+    store = new Store(db);
+
+    process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'no';
+    const secret = 'stable-config-secret';
+    const session = store.createSession({
+      title: 'stable redaction config',
+      error_message: `Authorization: Bearer ${secret}`,
+      tags: []
+    });
+
+    expect(store.getSession(session.id)?.error_message).toContain(
+      'Bearer [REDACTED]'
+    );
   });
 
   it('appends the close summary into the description', () => {
@@ -372,7 +396,10 @@ describe('Store', () => {
     const source = createTestDb();
     const target = createTestDb();
     const sourceStore = new Store(source);
-    const targetStore = new Store(target);
+    const targetStore = new Store(target, {
+      redactBeforeStore: true,
+      remoteHttp: false
+    });
     const secret = 'import-token-value';
 
     try {
@@ -397,7 +424,6 @@ describe('Store', () => {
       const payload = sourceStore.exportAll();
       expect(JSON.stringify(payload)).toContain(secret);
 
-      process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE = 'true';
       const result = targetStore.importAll(payload);
       const imported = targetStore.getSession(session.id);
       const importedText = JSON.stringify(imported);

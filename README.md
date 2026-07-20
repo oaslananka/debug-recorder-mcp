@@ -194,10 +194,15 @@ Wildcard origins are rejected for remote mode.
 | `DEBUG_RECORDER_ALLOWED_HOSTS`       | Comma-separated HTTP `Host` allowlist.                                |
 | `DEBUG_RECORDER_ALLOWED_ORIGINS`     | Comma-separated browser `Origin` allowlist.                           |
 | `DEBUG_RECORDER_MAX_BODY_BYTES`      | HTTP JSON body limit. Defaults to `1048576`.                          |
-| `DEBUG_RECORDER_REMOTE_HTTP`         | Must be `true` before binding to a non-loopback host.                 |
-| `DEBUG_RECORDER_REDACT_BEFORE_STORE` | Set `true` to redact common secret patterns before persistence.       |
+| `DEBUG_RECORDER_REMOTE_HTTP`         | Enable non-loopback HTTP with `true`, `1`, or `yes`.                  |
+| `DEBUG_RECORDER_REDACT_BEFORE_STORE` | Enable pre-store redaction with `true`, `1`, or `yes`.                |
 | `LOG_LEVEL`                          | Minimum structured log level: `debug`, `info`, `warn`, or `error`.    |
 | `FUZZY_THRESHOLD`                    | Override the Fuse.js reranking threshold.                             |
+
+Boolean configuration also accepts `false`, `0`, and `no`; values are
+case-insensitive, whitespace is ignored, and unsupported values fail fast.
+Diagnostics reports the resolved effective values rather than re-reading changed
+environment strings.
 
 ## Data and privacy
 

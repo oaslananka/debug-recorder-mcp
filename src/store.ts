@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type Database from 'better-sqlite3';
+import { resolveRuntimeConfig, type RuntimeConfig } from './config.js';
 import { CURRENT_SCHEMA_VERSION, openDb } from './db.js';
 import { recordDiagnosticEvent } from './diagnostics.js';
 import { redactSecrets } from './logging.js';
@@ -50,30 +51,6 @@ export class SessionNotFoundError extends Error {
     super(`Session not found: ${sessionId}`);
     this.name = 'SessionNotFoundError';
   }
-}
-
-function shouldRedactBeforeStore(): boolean {
-  const value = process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE?.toLowerCase();
-  return value === 'true' || value === '1' || value === 'yes';
-}
-
-function redactTextForStore(value: string): string {
-  if (!shouldRedactBeforeStore()) {
-    return value;
-  }
-
-  const redacted = redactSecrets(value);
-  return typeof redacted === 'string' ? redacted : value;
-}
-
-function redactNullableTextForStore(value: string | null): string | null {
-  return value === null ? null : redactTextForStore(value);
-}
-
-function redactOptionalTextForStore(
-  value: string | undefined
-): string | undefined {
-  return value === undefined ? undefined : redactTextForStore(value);
 }
 
 function formatSqliteDomainError(error: unknown): string {
@@ -156,7 +133,37 @@ function formatImportError(entity: string, id: string, error: unknown): string {
 }
 
 export class Store {
-  constructor(private readonly db: Database.Database) {}
+  constructor(
+    private readonly db: Database.Database,
+    private readonly runtimeConfig: RuntimeConfig = resolveRuntimeConfig()
+  ) {}
+
+  getRuntimeConfig(): Readonly<RuntimeConfig> {
+    return { ...this.runtimeConfig };
+  }
+
+  setRemoteHttpEnabled(enabled: boolean): void {
+    this.runtimeConfig.remoteHttp = enabled;
+  }
+
+  private redactTextForStore(value: string): string {
+    if (!this.runtimeConfig.redactBeforeStore) {
+      return value;
+    }
+
+    const redacted = redactSecrets(value);
+    return typeof redacted === 'string' ? redacted : value;
+  }
+
+  private redactNullableTextForStore(value: string | null): string | null {
+    return value === null ? null : this.redactTextForStore(value);
+  }
+
+  private redactOptionalTextForStore(
+    value: string | undefined
+  ): string | undefined {
+    return value === undefined ? undefined : this.redactTextForStore(value);
+  }
 
   static create(dbPath?: string): Store {
     return new Store(openDb(dbPath));
@@ -258,12 +265,12 @@ export class Store {
       )
       .run(
         id,
-        redactTextForStore(data.title),
-        redactOptionalTextForStore(data.description) ?? null,
-        redactOptionalTextForStore(data.error_message) ?? null,
-        redactOptionalTextForStore(data.error_type) ?? null,
-        redactOptionalTextForStore(data.stack_trace) ?? null,
-        redactOptionalTextForStore(data.environment) ?? null,
+        this.redactTextForStore(data.title),
+        this.redactOptionalTextForStore(data.description) ?? null,
+        this.redactOptionalTextForStore(data.error_message) ?? null,
+        this.redactOptionalTextForStore(data.error_type) ?? null,
+        this.redactOptionalTextForStore(data.stack_trace) ?? null,
+        this.redactOptionalTextForStore(data.environment) ?? null,
         data.language ?? null,
         data.framework ?? null,
         JSON.stringify(data.tags ?? []),
@@ -341,10 +348,10 @@ export class Store {
     }
 
     const now = Date.now();
-    const title = redactTextForStore(data.title ?? existing.title);
+    const title = this.redactTextForStore(data.title ?? existing.title);
     const description =
       data.description !== undefined
-        ? redactTextForStore(data.description)
+        ? this.redactTextForStore(data.description)
         : existing.description;
     const tags = data.tags !== undefined ? data.tags : existing.tags;
 
@@ -409,10 +416,10 @@ export class Store {
       .run(
         id,
         data.session_id,
-        redactTextForStore(data.description),
-        redactOptionalTextForStore(data.code_snippet) ?? null,
+        this.redactTextForStore(data.description),
+        this.redactOptionalTextForStore(data.code_snippet) ?? null,
         data.worked ? 1 : 0,
-        redactOptionalTextForStore(data.notes) ?? null,
+        this.redactOptionalTextForStore(data.notes) ?? null,
         now
       );
 
@@ -445,8 +452,8 @@ export class Store {
       .run(
         id,
         data.session_id,
-        redactTextForStore(data.command),
-        redactOptionalTextForStore(data.output) ?? null,
+        this.redactTextForStore(data.command),
+        this.redactOptionalTextForStore(data.output) ?? null,
         data.exit_code ?? null,
         now
       );
@@ -469,7 +476,7 @@ export class Store {
     const description = data.summary
       ? [
           currentSession.description,
-          `Resolution Summary: ${redactTextForStore(data.summary)}`
+          `Resolution Summary: ${this.redactTextForStore(data.summary)}`
         ]
           .filter(Boolean)
           .join('\n\n')
@@ -646,12 +653,12 @@ export class Store {
           try {
             insertSession.run(
               session.id,
-              redactTextForStore(session.title),
-              redactNullableTextForStore(session.description),
-              redactNullableTextForStore(session.error_message),
-              redactNullableTextForStore(session.error_type),
-              redactNullableTextForStore(session.stack_trace),
-              redactNullableTextForStore(session.environment),
+              this.redactTextForStore(session.title),
+              this.redactNullableTextForStore(session.description),
+              this.redactNullableTextForStore(session.error_message),
+              this.redactNullableTextForStore(session.error_type),
+              this.redactNullableTextForStore(session.stack_trace),
+              this.redactNullableTextForStore(session.environment),
               session.language,
               session.framework,
               session.tags,
@@ -685,10 +692,10 @@ export class Store {
             insertFix.run(
               fix.id,
               fix.session_id,
-              redactTextForStore(fix.description),
-              redactNullableTextForStore(fix.code_snippet),
+              this.redactTextForStore(fix.description),
+              this.redactNullableTextForStore(fix.code_snippet),
               fix.worked,
-              redactNullableTextForStore(fix.notes),
+              this.redactNullableTextForStore(fix.notes),
               fix.created_at
             );
             fixIds.add(fix.id);
@@ -717,8 +724,8 @@ export class Store {
             insertCommand.run(
               command.id,
               command.session_id,
-              redactTextForStore(command.command),
-              redactNullableTextForStore(command.output),
+              this.redactTextForStore(command.command),
+              this.redactNullableTextForStore(command.output),
               command.exit_code,
               command.ran_at
             );
