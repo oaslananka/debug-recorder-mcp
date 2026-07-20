@@ -73,3 +73,11 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-push, manual]
+
+      - id: sonar-quality-gate
+        name: SonarQube Cloud quality gate
+        entry: node scripts/check-sonar-quality-gate.mjs
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]

@@ -4,7 +4,7 @@ import { describe, expect, it } from '@jest/globals';
 
 const script = join(process.cwd(), 'scripts', 'run-snyk.mjs');
 
-function environmentWithoutSnykToken(): NodeJS.ProcessEnv {
+function environmentWithoutSnykToken(): Record<string, string | undefined> {
   const env = { ...process.env };
   delete env.SNYK_TOKEN;
   delete env.SYNK_PAT_TOKEN;
