@@ -25,11 +25,15 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ['22.22.3', '24.16.0']
+    env:
+      # renovate: datasource=github-releases depName=codecov/codecov-cli
+      CODECOV_CLI_VERSION: v11.3.1
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -96,6 +100,41 @@ jobs:
 
       - name: SBOM/VEX policy invariants
         run: npm run check:security-policy
+
+      - name: Validate Codecov configuration
+        if: ${{ matrix.node-version == '24.16.0' }}
+        run: npm run check:codecov -- --remote
+
+      - name: Upload coverage to Codecov
+        if: >-
+          ${{ !cancelled() && matrix.node-version == '24.16.0' &&
+          (github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/cobertura-coverage.xml
+          disable_search: true
+          flags: unit
+          name: node-24-coverage
+          fail_ci_if_error: true
+          handle_no_reports_found: true
+          version: ${{ env.CODECOV_CLI_VERSION }}
+
+      - name: Upload test results to Codecov
+        if: >-
+          ${{ !cancelled() &&
+          (github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: test-results/node-${{ matrix.node-version }}
+          flags: node-${{ matrix.node-version }}
+          name: node-${{ matrix.node-version }}-tests
+          fail_ci_if_error: true
+          handle_no_reports_found: true
+          version: ${{ env.CODECOV_CLI_VERSION }}
 
       - name: Upload quality artifacts
         if: ${{ !cancelled() }}

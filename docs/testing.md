@@ -9,6 +9,7 @@ npm ci
 npm run format:check
 npm run lint
 npm run check:dead-code
+npm run check:codecov
 npm run test:coverage
 npm run test:fuzz
 npm run build
@@ -69,3 +70,28 @@ regression tests, dead-code checks, dependency audit, install-script approval ch
 size checks, version synchronization, MCP metadata validation, SBOM/VEX policy invariant checks, workflow
 linting, workflow security scanning, secret scanning, Trivy, CodeQL, and
 scheduled OpenSSF Scorecard.
+
+## Codecov coverage and test analytics
+
+The Node 24 quality job uploads the canonical Cobertura report to Codecov. Both
+Node 22 and Node 24 jobs upload their JUnit XML results with runtime-specific
+flags so failed and flaky tests can be compared across supported runtimes.
+Upload steps run with `!cancelled()` so reports generated before a test failure
+are still sent, while fork pull requests are kept secret-free and skip uploads.
+
+`codecov.yml` keeps project and patch statuses informational during baseline
+establishment. Jest remains the blocking local coverage gate. Promote Codecov
+statuses to blocking only after the default branch has a stable baseline and the
+Codecov GitHub App is active for the repository.
+
+JavaScript Bundle Analysis is intentionally not enabled. This repository ships
+a TypeScript-compiled Node CLI/server package and has no Rollup, Vite, or
+Webpack browser bundle. The npm packed/unpacked artifact budget is the relevant
+size regression gate and is enforced by `npm run check:package-size`.
+
+Validate policy locally and against Codecov's official validator with:
+
+```bash
+npm run check:codecov
+npm run check:codecov -- --remote
+```
