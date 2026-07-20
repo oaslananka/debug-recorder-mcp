@@ -80,20 +80,23 @@ Use `save_search_preset` to create or update a preset, `list_search_presets` to 
 
 Every successful export includes these common fields:
 
-| Field | Meaning |
-| --- | --- |
-| `format` | Literal discriminator: `"json"` or `"summary"`. |
-| `exported_at` | ISO-8601 timestamp for when the response was created. |
-| `schema_version` | Current storage schema version. |
-| `sessions` | Session rows whose shape depends on `format`. |
+| Field            | Meaning                                                                                |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| `format`         | Literal discriminator: `"json"` or `"summary"`.                                        |
+| `exported_at`    | ISO-8601 timestamp for when the response was created.                                  |
+| `format_version` | Public backup contract version. Current exports use `2`.                               |
+| `schema_version` | Informational SQLite storage schema version; it does not control backup compatibility. |
+| `sessions`       | Session rows whose shape depends on `format`.                                          |
 
 Use `export_sessions` with `format: "json"` for a full backup. The response
 contains:
 
 - `format: "json"`
+- `format_version: 2`
 - complete storage rows in `sessions`
 - all `fixes`
 - all `commands`
+- all `saved_search_presets`
 
 Full JSON session rows preserve numeric `created_at` and `updated_at` timestamps
 and all nullable debug fields.
@@ -116,9 +119,23 @@ fields and safely ignores the output-only `format` discriminator before import.
 
 Default import behavior:
 
-- existing IDs are skipped
+- existing session, fix, and command IDs are skipped
+- existing preset names are skipped
 - orphan child rows are reported as invalid
-- unsupported `schema_version` values are rejected
+- legacy v1.1.x payloads without `format_version` are treated as backup format `1`
+- future `format_version` values are rejected with `IMPORT_INCOMPATIBLE`
+- `schema_version` is retained for diagnostics but does not determine compatibility
+
+Current format `2` backups must include `saved_search_presets`. When
+`skip_existing` is `false`, conflicting preset names are deterministically
+replaced by the incoming preset, including its filters and timestamps. Session,
+fix, and command ID conflicts remain invalid in that mode rather than being
+silently overwritten.
+
+When pre-store redaction is enabled, imported session text, fixes, commands, and
+preset queries are redacted before persistence. Export does not perform a second
+redaction pass, so backup files must be protected with the same care as the
+SQLite database.
 
 ## Scaling
 

@@ -11,6 +11,7 @@ import {
   type CommandRow,
   type ExportPayload,
   type FixRow,
+  type SavedSearchPresetRow,
   type SessionRow
 } from '../../src/types.js';
 
@@ -79,11 +80,27 @@ const commandRowArbitrary: Arbitrary<CommandRow> = fc.record({
   ran_at: timestampArbitrary
 });
 
+const presetRowArbitrary: Arbitrary<SavedSearchPresetRow> = fc.record({
+  name: fc.string({ minLength: 1, maxLength: 40 }),
+  query: fc.string({ minLength: 1, maxLength: 160 }),
+  language: nullableText(40),
+  framework: nullableText(40),
+  status: fc.oneof(
+    fc.constant(null),
+    fc.constantFrom('open' as const, 'resolved' as const, 'abandoned' as const)
+  ),
+  limit_value: fc.integer({ min: 1, max: 50 }),
+  created_at: timestampArbitrary,
+  updated_at: timestampArbitrary
+});
+
 const exportPayloadArbitrary: Arbitrary<ExportPayload> = fc.record({
+  format_version: fc.constant(2),
   schema_version: fc.constant(CURRENT_SCHEMA_VERSION),
   sessions: fc.array(sessionRowArbitrary, { maxLength: 4 }),
   fixes: fc.array(fixRowArbitrary, { maxLength: 4 }),
-  commands: fc.array(commandRowArbitrary, { maxLength: 4 })
+  commands: fc.array(commandRowArbitrary, { maxLength: 4 }),
+  saved_search_presets: fc.array(presetRowArbitrary, { maxLength: 4 })
 });
 
 beforeAll(() => {
@@ -137,10 +154,15 @@ describe('property regression gates', () => {
             result.imported.commands +
             result.skipped.commands +
             result.invalid.commands;
+          const presetCount =
+            result.imported.presets +
+            result.skipped.presets +
+            result.invalid.presets;
 
           expect(sessionCount).toBe(payload.sessions.length);
           expect(fixCount).toBe(payload.fixes.length);
           expect(commandCount).toBe(payload.commands.length);
+          expect(presetCount).toBe(payload.saved_search_presets?.length ?? 0);
         } finally {
           db.close();
         }

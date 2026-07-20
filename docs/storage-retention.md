@@ -19,6 +19,10 @@ project-specific:
   redacted backup or delete the database.
 - Store JSON backups in the same trust boundary as the original database,
   preferably encrypted or in a restricted local backup location.
+- Backup format `2` includes saved search presets as well as sessions, fixes,
+  and commands. Legacy v1.1.x backups remain importable as format `1`.
+- Treat `format_version` as the compatibility boundary. `schema_version` is
+  informational and may change independently as SQLite migrations are added.
 
 ## Backup and restore
 
