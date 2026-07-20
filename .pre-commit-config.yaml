@@ -56,6 +56,7 @@ repos:
         entry: npx --no-install eslint
         language: system
         files: ^(?:src|scripts|test)/.*\.(?:ts|mjs)$
+        exclude: ^test/semgrep/
 
       - id: full-local-ci
         name: full local CI before push
@@ -64,3 +65,11 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-push]
+
+      - id: snyk-open-source
+        name: Snyk dependency scan
+        entry: node scripts/run-snyk.mjs
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push, manual]
