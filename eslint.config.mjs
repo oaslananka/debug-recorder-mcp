@@ -8,7 +8,13 @@ const jsFiles = ['*.js', '*.mjs', 'scripts/**/*.mjs'];
 
 export default [
   {
-    ignores: ['coverage/**', 'dist/**', 'docs/api/**', 'node_modules/**']
+    ignores: [
+      'coverage/**',
+      'dist/**',
+      'docs/api/**',
+      'node_modules/**',
+      'test/semgrep/**'
+    ]
   },
   js.configs.recommended,
   {
