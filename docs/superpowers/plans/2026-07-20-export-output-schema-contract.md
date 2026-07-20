@@ -275,7 +275,7 @@ git add README.md docs/usage.md docs/api docs/superpowers/plans/2026-07-20-expor
 git commit -m "docs: describe export response variants"
 ```
 
-- [ ] **Step 6: Push and open the pull request**
+- [x] **Step 6: Push and open the pull request**
 
 ```bash
 git push -u origin fix/mcp-export-output-schema-61
