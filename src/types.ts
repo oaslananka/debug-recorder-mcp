@@ -36,7 +36,12 @@ export const SessionRowSchema = z.object({
   tags: z.string().max(INPUT_LIMITS.tagsJson),
   status: SessionStatusSchema,
   created_at: z.number().int(),
-  updated_at: z.number().int()
+  updated_at: z.number().int(),
+  closed_at: z
+    .number()
+    .int()
+    .nullable()
+    .describe('Immutable completion timestamp in Unix milliseconds')
 });
 
 export const FixRowSchema = z.object({
@@ -267,11 +272,15 @@ export const ExportSessionsSchema = z.object({
 
 export const BACKUP_FORMAT_VERSION = 2 as const;
 
+const ImportSessionRowSchema = SessionRowSchema.extend({
+  closed_at: z.number().int().nullable().optional()
+});
+
 export const ExportPayloadSchema = z.object({
   exported_at: z.string().optional(),
   format_version: z.number().int().min(1).optional(),
   schema_version: z.number().int().min(1),
-  sessions: z.array(SessionRowSchema).max(INPUT_LIMITS.importSessions),
+  sessions: z.array(ImportSessionRowSchema).max(INPUT_LIMITS.importSessions),
   fixes: z.array(FixRowSchema).max(INPUT_LIMITS.importFixes),
   commands: z.array(CommandRowSchema).max(INPUT_LIMITS.importCommands),
   saved_search_presets: z
@@ -572,7 +581,10 @@ export const GetSessionContextOutputSchema = z.object({
     description: z.string().nullable()
   }),
   status: SessionStatusSchema,
-  duration_ms: z.number().min(0),
+  duration_ms: z
+    .number()
+    .min(0)
+    .describe('Elapsed milliseconds; stable after the session is closed'),
   fixes_tried: z.number().int().min(0).optional(),
   working_fix: FixSchema.nullable().optional(),
   failed_fixes: z.array(z.string()).optional(),

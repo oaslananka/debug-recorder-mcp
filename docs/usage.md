@@ -98,8 +98,10 @@ contains:
 - all `commands`
 - all `saved_search_presets`
 
-Full JSON session rows preserve numeric `created_at` and `updated_at` timestamps
-and all nullable debug fields.
+Full JSON session rows preserve numeric `created_at`, `updated_at`, and nullable
+`closed_at` timestamps together with all nullable debug fields. `closed_at` is set
+once when a session first becomes `resolved` or `abandoned`; later metadata updates
+or repeated close calls do not move it. There is no reopen operation.
 
 Use `format: "summary"` for a lightweight inventory. The response contains:
 
@@ -131,6 +133,14 @@ Current format `2` backups must include `saved_search_presets`. When
 replaced by the incoming preset, including its filters and timestamps. Session,
 fix, and command ID conflicts remain invalid in that mode rather than being
 silently overwritten.
+
+Older backups may omit `closed_at`. During import, open sessions receive `null`
+and resolved or abandoned sessions derive their completion timestamp from the
+legacy `updated_at` value.
+
+`get_session_context.duration_ms` is measured in milliseconds. It grows against
+the current time while a session is open and becomes stable against `closed_at`
+after completion.
 
 When pre-store redaction is enabled, imported session text, fixes, commands, and
 preset queries are redacted before persistence. Export does not perform a second

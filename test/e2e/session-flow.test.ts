@@ -114,7 +114,7 @@ describe('full stdio session flow', () => {
 
     const closed = parseToolResult<{
       success: boolean;
-      session: { status: string };
+      session: { status: string; created_at: number; closed_at: number | null };
     }>(
       (await client.callTool({
         name: 'close_session',
@@ -128,6 +128,7 @@ describe('full stdio session flow', () => {
 
     expect(closed.success).toBe(true);
     expect(closed.session.status).toBe('resolved');
+    expect(closed.session.closed_at).toEqual(expect.any(Number));
 
     const missing = await client.callTool({
       name: 'get_session',
@@ -145,6 +146,8 @@ describe('full stdio session flow', () => {
       id: string;
       commands: Array<{ command: string }>;
       fixes: Array<{ description: string; worked: boolean }>;
+      created_at: number;
+      closed_at: number | null;
     }>(
       (await client.callTool({
         name: 'get_session',
@@ -157,6 +160,20 @@ describe('full stdio session flow', () => {
     expect(fetched.id).toBe(started.session_id);
     expect(fetched.commands[0]?.command).toBe('node --version');
     expect(fetched.fixes[0]?.worked).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    const context = parseToolResult<{ duration_ms: number }>(
+      (await client.callTool({
+        name: 'get_session_context',
+        arguments: {
+          session_id: started.session_id,
+          include_commands: false,
+          include_fixes: false
+        }
+      })) as ToolTextContent
+    );
+    expect(context.duration_ms).toBe(
+      (fetched.closed_at ?? fetched.created_at) - fetched.created_at
+    );
 
     const searchResults = parseToolResult<{
       count: number;

@@ -2,7 +2,14 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type Database from 'better-sqlite3';
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest
+} from '@jest/globals';
 import { createTestDb } from '../../src/db.js';
 import {
   ImportIncompatibleError,
@@ -23,6 +30,7 @@ describe('Store', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     db.close();
     if (originalRedactBeforeStore === undefined) {
       delete process.env.DEBUG_RECORDER_REDACT_BEFORE_STORE;
@@ -330,6 +338,35 @@ describe('Store', () => {
     expect(closed?.description).toBe('Keep this description');
   });
 
+  it('persists an immutable completion timestamp for explicit and fix-driven closes', () => {
+    const now = jest.spyOn(Date, 'now');
+    now.mockReturnValue(1_000);
+    const explicit = store.createSession({ title: 'explicit close', tags: [] });
+    const fixDriven = store.createSession({ title: 'fix close', tags: [] });
+
+    now.mockReturnValue(5_000);
+    const closed = store.closeSession({
+      session_id: explicit.id,
+      status: 'abandoned'
+    });
+    store.addFix({
+      session_id: fixDriven.id,
+      description: 'worked',
+      worked: true
+    });
+
+    expect(closed?.closed_at).toBe(5_000);
+    expect(store.getSession(fixDriven.id)?.closed_at).toBe(5_000);
+
+    now.mockReturnValue(9_000);
+    store.updateSession(explicit.id, { title: 'metadata changed later' });
+    store.closeSession({ session_id: explicit.id, status: 'resolved' });
+
+    const afterLaterWrites = store.getSession(explicit.id);
+    expect(afterLaterWrites?.closed_at).toBe(5_000);
+    expect(afterLaterWrites?.updated_at).toBe(9_000);
+  });
+
   it('calculates stats including resolutionRate', () => {
     const resolved = store.createSession({ title: 'resolved', tags: [] });
     const abandoned = store.createSession({ title: 'abandoned', tags: [] });
@@ -351,6 +388,7 @@ describe('Store', () => {
 
   it('exports all user-managed rows with an independent backup format version', () => {
     const session = store.createSession({ title: 'export me', tags: [] });
+    store.closeSession({ session_id: session.id, status: 'resolved' });
     store.addFix({ session_id: session.id, description: 'fix', worked: false });
     store.recordCommand({
       session_id: session.id,
@@ -372,6 +410,7 @@ describe('Store', () => {
       schema_version: expect.any(Number)
     });
     expect(exported.sessions).toHaveLength(1);
+    expect(exported.sessions[0]?.closed_at).toEqual(expect.any(Number));
     expect(exported.fixes).toHaveLength(1);
     expect(exported.commands).toHaveLength(1);
     expect(exported.saved_search_presets).toHaveLength(1);
@@ -491,6 +530,10 @@ describe('Store', () => {
         error_message: 'Cannot read properties of undefined',
         tags: ['import']
       });
+      const closed = sourceStore.closeSession({
+        session_id: session.id,
+        status: 'resolved'
+      });
       sourceStore.addFix({
         session_id: session.id,
         description: 'guard',
@@ -519,6 +562,7 @@ describe('Store', () => {
       expect(result.imported.presets).toBe(1);
       expect(result.format_version).toBe(2);
       expect(importedSession?.title).toBe('import me');
+      expect(importedSession?.closed_at).toBe(closed?.closed_at);
       expect(targetStore.listSearchPresets()).toEqual([
         expect.objectContaining({
           name: 'round-trip',
@@ -617,7 +661,7 @@ describe('Store', () => {
     }
   });
 
-  it('imports the legacy v1.1 backup shape without presets', () => {
+  it('imports legacy backups without completion timestamps', () => {
     const source = createTestDb();
     const sourceStore = new Store(source);
 
@@ -626,20 +670,51 @@ describe('Store', () => {
         title: 'legacy backup',
         tags: ['legacy']
       });
-      const current = sourceStore.exportAll() as unknown as Record<
-        string,
-        unknown
-      >;
+      const closed = sourceStore.closeSession({
+        session_id: session.id,
+        status: 'abandoned'
+      });
+      const current = sourceStore.exportAll();
+      const legacySessions = current.sessions.map(({ closed_at, ...row }) => {
+        expect(closed_at).toEqual(expect.any(Number));
+        return row;
+      });
       const { format_version, saved_search_presets, ...legacy } = current;
       expect(format_version).toBe(2);
       expect(saved_search_presets).toEqual([]);
 
-      const result = store.importAll(legacy);
+      const result = store.importAll({ ...legacy, sessions: legacySessions });
+      const imported = store.getSession(session.id);
 
       expect(result.format_version).toBe(1);
       expect(result.imported.sessions).toBe(1);
       expect(result.imported.presets).toBe(0);
-      expect(store.getSession(session.id)?.title).toBe('legacy backup');
+      expect(imported?.title).toBe('legacy backup');
+      expect(imported?.closed_at).toBe(closed?.updated_at);
+    } finally {
+      source.close();
+    }
+  });
+
+  it('normalizes imported completion timestamps to session status', () => {
+    const source = createTestDb();
+    const sourceStore = new Store(source);
+
+    try {
+      const open = sourceStore.createSession({
+        title: 'open import',
+        tags: []
+      });
+      const payload = sourceStore.exportAll();
+      const result = store.importAll({
+        ...payload,
+        sessions: payload.sessions.map((session) =>
+          session.id === open.id ? { ...session, closed_at: 999_999 } : session
+        )
+      });
+
+      expect(result.imported.sessions).toBe(1);
+      expect(store.getSession(open.id)?.closed_at).toBeNull();
     } finally {
       source.close();
     }
