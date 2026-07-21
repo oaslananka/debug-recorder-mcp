@@ -53,9 +53,10 @@ local transcript/scratch files. Pull request validation includes Gitleaks.
 
 ## Dependency and code scanning
 
-The repository combines Renovate, pre-commit, Semgrep, Snyk, SonarQube Cloud,
-CodeQL, dependency review, Gitleaks, Trivy, Socket, and npm audit. These tools
-cover different threat classes and do not replace one another.
+The repository assigns one primary owner per security category and keeps other
+services as specialist or advisory signals. CodeQL owns blocking SAST, Trivy
+owns container/filesystem scanning, Codecov owns coverage and test analytics,
+and GitHub secret scanning/push protection owns secret prevention.
 
 - Renovate is operated by a repository-owned scheduled workflow and uses the
   `renovate-managed/` branch prefix.
@@ -64,7 +65,10 @@ cover different threat classes and do not replace one another.
 - Snyk scans npm production and development dependencies with the existing
   `SYNK_PAT_TOKEN` repository secret mapped to `SNYK_TOKEN` at runtime.
 - SonarQube Cloud automatic analysis remains the single Sonar analysis method;
-  its quality gate is not weakened to accommodate historical findings.
+  it tracks maintainability and technical debt without becoming a duplicate
+  coverage or SAST gate.
+- Snyk and Socket provide additional dependency/AppSec visibility without
+  replacing the required CodeQL, dependency-review, or Trivy controls.
 
 Installation, hook stages, pinned versions, manual commands, secret boundaries,
 and troubleshooting are documented in
