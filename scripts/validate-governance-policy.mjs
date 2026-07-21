@@ -54,11 +54,20 @@ try {
     );
   }
 
-  for (const hook of [
-    'full-local-ci',
-    'snyk-open-source',
-    'sonar-quality-gate'
+
+  for (const [policyPath, policyContent] of [
+    [PRECOMMIT, precommit],
+    ['package.json', read('package.json')],
+    ['renovate.json', read('renovate.json')],
+    [GOVERNANCE_DOC, governance],
+    [TOOLING_DOC, tooling]
   ]) {
+    if (/snyk|synk_pat_token/i.test(policyContent)) {
+      throw new Error(`${policyPath} must not reintroduce retired Snyk configuration`);
+    }
+  }
+
+  for (const hook of ['full-local-ci', 'sonar-quality-gate']) {
     const hookIndex = precommit.indexOf(`- id: ${hook}`);
     if (hookIndex < 0) {
       throw new Error(`${PRECOMMIT} must define manual hook: ${hook}`);
@@ -100,10 +109,12 @@ try {
     'Primary owner',
     'CodeQL',
     'Semgrep',
-    'Snyk',
     'Codecov',
     'SonarQube Cloud',
     'Trivy',
+    'Socket',
+    '`npm audit`',
+    'dependency review',
     'GitHub secret scanning and push protection'
   ]) {
     assertContains(TOOLING_DOC, tooling, required);

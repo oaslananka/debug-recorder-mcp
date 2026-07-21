@@ -14,7 +14,6 @@ This repository uses layered automation so developers receive fast local feedbac
 | Zizmor             | `1.27.0`        | GitHub Actions security analysis                  |
 | Gitleaks           | `8.30.1`        | CI defense-in-depth secret scanning               |
 | MCP publisher      | `1.7.9`         | Checksum-verified MCP Registry publication        |
-| Snyk CLI           | `1.1306.1`      | npm dependency vulnerability analysis             |
 | SonarQube Cloud    | Managed service | Automatic code-quality and security quality gate  |
 
 Renovate manages these pinned versions and their workflow/action references. Major, Node, MCP runtime, native dependency, and other high-risk updates require explicit maintainer approval.
@@ -27,9 +26,10 @@ advisory signals rather than duplicate blocking gates.
 | Category                        | Primary owner                              | Specialist or advisory signals                                               |
 | ------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
 | Dependency updates              | Renovate                                   | Dependabot alerts only; no duplicate version-update PRs                      |
-| SAST                            | CodeQL                                     | Semgrep for repository-owned patterns; Snyk Code only as platform visibility |
+| SAST                            | CodeQL                                     | Semgrep for repository-owned patterns                                      |
 | Secrets                         | GitHub secret scanning and push protection | Gitleaks as CI defense in depth                                              |
-| Container/filesystem            | Trivy                                      | Snyk container/IaC only if the platform becomes the organization standard    |
+| Dependency vulnerabilities      | dependency review and `npm audit`          | Socket and Dependabot alerts                                                |
+| Container/filesystem            | Trivy                                      | Docker build and smoke validation                                           |
 | Coverage and test analytics     | Codecov                                    | SonarQube Cloud may display metrics but is not a second coverage gate        |
 | Code quality and technical debt | ESLint, TypeScript, and Knip               | SonarQube Cloud advisory/new-code quality gate                               |
 | Workflow security               | actionlint and Zizmor                      | OpenSSF Scorecard for repository-level posture                               |
@@ -89,14 +89,10 @@ and pushes stay fast and deterministic:
 
 ```bash
 pre-commit run --hook-stage manual full-local-ci
-pre-commit run --hook-stage manual snyk-open-source
 pre-commit run --hook-stage manual sonar-quality-gate
 # or run all manual checks
 npm run hooks:manual
 ```
-
-A missing local Snyk token is reported and skipped so offline development is not
-blocked. GitHub Actions remains authoritative for authenticated Snyk results.
 
 ## Semgrep
 
@@ -114,26 +110,23 @@ npm run security:semgrep
 
 GitHub Actions uses `SEMGREP_APP_TOKEN` for trusted pull requests, main pushes, schedules, and manual runs. Fork pull requests never receive that secret; they run the committed `.semgrep.yml` rules in a fork-safe job instead.
 
-## Snyk
+## Dependency vulnerability checks
 
-For local authenticated scans, set one of these environment variables:
-
-```bash
-export SNYK_TOKEN=replace-with-your-token
-# Legacy repository-compatible spelling:
-export SYNK_PAT_TOKEN=replace-with-your-token
-npm run security:snyk
-```
-
-`SNYK_TOKEN` is preferred locally. The existing GitHub repository secret is named `SYNK_PAT_TOKEN`; the workflow maps it to the CLI-standard `SNYK_TOKEN` without printing either value.
-
-Require a token instead of allowing a local skip:
+GitHub dependency review is the pull-request gate for newly introduced packages
+and known vulnerabilities. The local and CI baseline also runs:
 
 ```bash
-npm run security:snyk:required
+npm audit --audit-level=moderate
 ```
 
-CI invokes the same repository runner through the npm registry, avoiding the separate Snyk binary CDN. It scans production and development npm dependencies and fails on high or critical findings. Emergency transitively fixed versions are pinned in `overrides`; `npm run check:security-policy` rejects known-vulnerable lockfile regressions.
+Renovate and Dependabot alerts provide update and advisory input. Socket remains
+an advisory supply-chain signal. These controls deliberately avoid a second
+token-bound dependency scanner that duplicates the same npm graph.
+
+Exact overrides currently pin `@hono/node-server@2.0.11` and
+`body-parser@2.3.0` so the supported MCP SDK graph remains above the active
+moderate/low advisory ranges. The HTTP, E2E, audit, and package gates verify the
+overridden graph until upstream constraints absorb those fixed versions.
 
 ## SonarQube Cloud
 
@@ -159,7 +152,7 @@ The scheduled workflow targets only `oaslananka/debug-recorder-mcp`, uses the `r
 
 Release Please uses the same PAT boundary when creating or updating release pull requests. The default GitHub Actions token must not be used for bot-authored pull requests because those events do not start the repository's normal pull-request workflows.
 
-Secret-consuming jobs use dedicated GitHub Environments: `release-automation`, `dependency-automation`, `semgrep-appsec`, and `snyk`. These boundaries make secret access explicit without changing the repository-level secret names.
+Secret-consuming jobs use dedicated GitHub Environments: `release-automation`, `dependency-automation`, and `semgrep-appsec`. These boundaries make secret access explicit without changing the repository-level secret names.
 
 The Dependency Dashboard is the approval surface for major and high-risk updates. Digest-only updates may automerge only after required checks pass.
 
@@ -178,5 +171,4 @@ GitHub Actions scans still run. Do not use `--no-verify` as a routine workflow.
 - `pre-commit: command not found`: install the pinned version with pipx and rerun `npm run hooks:install`.
 - `semgrep: command not found`: install Semgrep `1.170.0` with pipx.
 - Renovate validation fails: run `npm run check:renovate` and fix both schema and repository policy errors.
-- Snyk skips locally: set `SNYK_TOKEN`; CI continues to enforce authenticated scanning.
 - Sonar quality gate is red: run `npm run security:sonar`, then inspect the SonarQube Cloud project and the linked remediation issue.

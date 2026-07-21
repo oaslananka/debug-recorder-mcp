@@ -61,8 +61,6 @@
     "hooks:run": "pre-commit run --all-files",
     "security:semgrep": "semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check .",
     "security:semgrep:test": "node scripts/validate-semgrep-rules.mjs",
-    "security:snyk": "node scripts/run-snyk.mjs",
-    "security:snyk:required": "node scripts/run-snyk.mjs --required",
     "security:sonar": "node scripts/check-sonar-quality-gate.mjs",
     "check:sbom": "node scripts/check-sbom.mjs",
     "check:codecov": "node scripts/validate-codecov-policy.mjs",
@@ -132,7 +130,9 @@
     "js-yaml": "4.3.0",
     "markdown-it": "14.3.0",
     "brace-expansion@1.1.15": "1.1.16",
-    "brace-expansion@5.0.6": "5.0.7"
+    "brace-expansion@5.0.6": "5.0.7",
+    "@hono/node-server": "2.0.11",
+    "body-parser": "2.3.0"
   },
   "publishConfig": {
     "access": "public"

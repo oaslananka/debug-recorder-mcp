@@ -80,14 +80,6 @@ repos:
         always_run: true
         stages: [manual]
 
-      - id: snyk-open-source
-        name: Snyk dependency scan
-        entry: node scripts/run-snyk.mjs
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [manual]
-
       - id: sonar-quality-gate
         name: SonarQube Cloud quality gate
         entry: node scripts/check-sonar-quality-gate.mjs

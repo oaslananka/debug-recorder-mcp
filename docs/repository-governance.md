@@ -43,9 +43,9 @@ The main ruleset requires one primary blocking control per category:
 
 ## Advisory and specialist checks
 
-Codecov, SonarQube Cloud, Semgrep AppSec, Snyk, Gitleaks, Socket, and
-DeepScan remain visible specialist or advisory signals unless a future risk assessment makes
-one of them the primary owner for a category.
+Codecov, SonarQube Cloud, Semgrep AppSec, Gitleaks, Socket, and DeepScan
+remain visible specialist or advisory signals unless a future risk assessment
+makes one of them the primary owner for a category.
 
 ## Merge queue and Mergify
 
