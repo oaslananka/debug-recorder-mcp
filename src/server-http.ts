@@ -289,22 +289,38 @@ function writeNoContent(response: ServerResponse): void {
   response.end();
 }
 
+function getAllowedOrigin(
+  request: IncomingMessage,
+  config: HttpServerConfig
+): string | null {
+  const originHeader = request.headers.origin;
+
+  if (!originHeader) {
+    return null;
+  }
+
+  const normalizedOrigin = normalizeOrigin(originHeader);
+  for (const configuredOrigin of config.allowedOrigins) {
+    if (configuredOrigin === normalizedOrigin) {
+      return configuredOrigin;
+    }
+  }
+
+  return null;
+}
+
 function setCorsHeaders(
   request: IncomingMessage,
   response: ServerResponse,
   config: HttpServerConfig
 ): void {
-  const originHeader = request.headers.origin;
+  const allowedOrigin = getAllowedOrigin(request, config);
 
-  if (!originHeader) {
+  if (!allowedOrigin) {
     return;
   }
 
-  if (!config.allowedOrigins.has(normalizeOrigin(originHeader))) {
-    return;
-  }
-
-  response.setHeader('access-control-allow-origin', originHeader);
+  response.setHeader('access-control-allow-origin', allowedOrigin);
   response.setHeader('vary', 'Origin');
   response.setHeader('access-control-allow-methods', 'POST, GET, OPTIONS');
   response.setHeader(
@@ -472,6 +488,91 @@ async function handleMcpRequest(
   }
 }
 
+async function dispatchHttpRequest(
+  runtime: DebugRecorderRuntime,
+  request: IncomingMessage,
+  response: ServerResponse,
+  config: HttpServerConfig,
+  url: URL
+): Promise<void> {
+  const isMcpRequest = url.pathname === '/mcp';
+  validateRequestSecurity(request, config, isMcpRequest);
+  setCorsHeaders(request, response, config);
+
+  if (request.method === 'OPTIONS') {
+    writeNoContent(response);
+    return;
+  }
+
+  if (url.pathname === '/health') {
+    writeJson(response, 200, { ok: true });
+    return;
+  }
+
+  if (url.pathname === '/version') {
+    writeJson(response, 200, {
+      name: 'debug-recorder-mcp',
+      version: getVersion()
+    });
+    return;
+  }
+
+  if (!isMcpRequest) {
+    writeJson(response, 404, { error: 'Not found' });
+    return;
+  }
+
+  await handleMcpRequest(runtime, request, response, config);
+}
+
+function handleHttpRequestError(
+  request: IncomingMessage,
+  response: ServerResponse,
+  url: URL,
+  error: unknown
+): void {
+  const requestError = error instanceof HttpRequestError ? error : null;
+  const statusCode = requestError?.statusCode ?? 500;
+  const code = requestError?.code ?? -32000;
+  const message = requestError?.message ?? 'Internal server error';
+
+  if (requestError) {
+    recordHttpRejection(classifyHttpRejection(requestError));
+  }
+
+  log(statusCode >= 500 ? 'error' : 'warn', 'HTTP request rejected', {
+    method: request.method,
+    path: url.pathname,
+    statusCode,
+    error: error instanceof Error ? error.message : String(error)
+  });
+
+  if (response.headersSent) {
+    return;
+  }
+
+  if (statusCode === 401) {
+    response.setHeader('www-authenticate', 'Bearer');
+  }
+
+  writeJsonRpcError(response, statusCode, code, message);
+}
+
+async function handleHttpRequest(
+  runtime: DebugRecorderRuntime,
+  request: IncomingMessage,
+  response: ServerResponse,
+  config: HttpServerConfig
+): Promise<void> {
+  const url = new URL(request.url ?? '/', 'http://localhost');
+
+  try {
+    await dispatchHttpRequest(runtime, request, response, config, url);
+  } catch (error) {
+    handleHttpRequestError(request, response, url, error);
+  }
+}
+
 export function createHttpServer(
   runtime: DebugRecorderRuntime,
   options: HttpServerOptions = {}
@@ -479,67 +580,7 @@ export function createHttpServer(
   const config = resolveHttpConfig(options);
   runtime.store.setRemoteHttpEnabled(config.remoteHttp);
   const server = createServer((request, response) => {
-    void (async () => {
-      const url = new URL(request.url ?? '/', 'http://localhost');
-      const isMcpRequest = url.pathname === '/mcp';
-
-      try {
-        validateRequestSecurity(request, config, isMcpRequest);
-        setCorsHeaders(request, response, config);
-
-        if (request.method === 'OPTIONS') {
-          writeNoContent(response);
-          return;
-        }
-
-        if (url.pathname === '/health') {
-          writeJson(response, 200, { ok: true });
-          return;
-        }
-
-        if (url.pathname === '/version') {
-          writeJson(response, 200, {
-            name: 'debug-recorder-mcp',
-            version: getVersion()
-          });
-          return;
-        }
-
-        if (!isMcpRequest) {
-          writeJson(response, 404, { error: 'Not found' });
-          return;
-        }
-
-        await handleMcpRequest(runtime, request, response, config);
-      } catch (error) {
-        const statusCode =
-          error instanceof HttpRequestError ? error.statusCode : 500;
-        const code = error instanceof HttpRequestError ? error.code : -32000;
-        const message =
-          error instanceof HttpRequestError
-            ? error.message
-            : 'Internal server error';
-
-        if (error instanceof HttpRequestError) {
-          recordHttpRejection(classifyHttpRejection(error));
-        }
-
-        log(statusCode >= 500 ? 'error' : 'warn', 'HTTP request rejected', {
-          method: request.method,
-          path: url.pathname,
-          statusCode,
-          error: error instanceof Error ? error.message : String(error)
-        });
-
-        if (!response.headersSent) {
-          if (statusCode === 401) {
-            response.setHeader('www-authenticate', 'Bearer');
-          }
-
-          writeJsonRpcError(response, statusCode, code, message);
-        }
-      }
-    })();
+    void handleHttpRequest(runtime, request, response, config);
   });
 
   return { server, config };

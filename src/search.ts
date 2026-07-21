@@ -485,10 +485,14 @@ export function formatSearchMarkdown(
     }
   }
 
-  lines.push('', '## Postmortem prompts', '');
-  lines.push('- What was the common failure mode?');
-  lines.push('- Which fix attempts failed before the working fix?');
-  lines.push('- Which guardrail would have detected this earlier?');
+  lines.push(
+    '',
+    '## Postmortem prompts',
+    '',
+    '- What was the common failure mode?',
+    '- Which fix attempts failed before the working fix?',
+    '- Which guardrail would have detected this earlier?'
+  );
 
   return lines.join('\n');
 }

@@ -61,7 +61,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci --ignore-scripts
+          npm run install:approved-scripts
 
       - name: Release validation
         run: npm run ci:local
@@ -185,7 +187,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci --ignore-scripts
+          npm run install:approved-scripts
 
       - name: Verify MCP Registry readiness after npm publication
         env:

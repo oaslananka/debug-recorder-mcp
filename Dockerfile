@@ -1,19 +1,24 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf AS build
+# Renovate tracks the release channel and immutable digest together.
+ARG NODE_IMAGE_RELEASE=24-bookworm-slim
+ARG NODE_IMAGE_DIGEST=sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf
+
+FROM node@${NODE_IMAGE_DIGEST} AS build
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 COPY tsconfig.json ./
+COPY scripts/install-approved-dependencies.mjs scripts/npm-cli.mjs ./scripts/
 COPY src ./src
 
-RUN npm ci
-RUN npm run build
+RUN npm ci --ignore-scripts \
+    && npm run install:approved-scripts \
+    && npm run build \
+    && npm prune --omit=dev --ignore-scripts
 
-RUN npm prune --omit=dev
-
-FROM node:24-bookworm-slim@sha256:242549cd46785b480c832479a730f4f2a20865d61ea2e404fdb2a5c3d3b73ecf AS runtime
+FROM node@${NODE_IMAGE_DIGEST} AS runtime
 
 ENV NODE_ENV=production \
     HOST=127.0.0.1 \
@@ -28,9 +33,8 @@ COPY --chown=node:node mcp.json server.json README.md LICENSE CHANGELOG.md SECUR
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends --only-upgrade libgnutls30 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 USER node
 

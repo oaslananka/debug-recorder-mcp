@@ -24,6 +24,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
+      # renovate: datasource=github-releases depName=rhysd/actionlint extractVersion=^v(?<version>.*)$
+      ACTIONLINT_VERSION: 1.7.12
       # renovate: datasource=github-releases depName=zizmorcore/zizmor
       ZIZMOR_VERSION: 1.27.0
     steps:
@@ -34,11 +36,27 @@ jobs:
 
       - name: Install actionlint
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          export GOPATH="$RUNNER_TEMP/go"
-          echo "$GOPATH/bin" >> "$GITHUB_PATH"
-          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          version="${ACTIONLINT_VERSION}"
+          asset="actionlint_${version}_linux_amd64.tar.gz"
+          checksum="actionlint_${version}_checksums.txt"
+          install_dir="$RUNNER_TEMP/actionlint"
+          mkdir -p "$install_dir"
+          gh release download "v${version}" \
+            --repo rhysd/actionlint \
+            --pattern "$asset" \
+            --pattern "$checksum" \
+            --dir "$install_dir"
+          (
+            cd "$install_dir"
+            grep "  ${asset}$" "$checksum" | sha256sum --check --strict
+            tar -xzf "$asset" actionlint
+          )
+          chmod +x "$install_dir/actionlint"
+          echo "$install_dir" >> "$GITHUB_PATH"
 
       - name: actionlint
         run: actionlint -color
@@ -57,6 +75,9 @@ jobs:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      # renovate: datasource=github-releases depName=gitleaks/gitleaks extractVersion=^v(?<version>.*)$
+      GITLEAKS_VERSION: 8.30.1
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -66,11 +87,27 @@ jobs:
 
       - name: Install Gitleaks
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          export GOPATH="$RUNNER_TEMP/go"
-          echo "$GOPATH/bin" >> "$GITHUB_PATH"
-          go install github.com/zricethezav/gitleaks/v8@v8.30.1
+          version="${GITLEAKS_VERSION}"
+          asset="gitleaks_${version}_linux_x64.tar.gz"
+          checksum="gitleaks_${version}_checksums.txt"
+          install_dir="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$install_dir"
+          gh release download "v${version}" \
+            --repo gitleaks/gitleaks \
+            --pattern "$asset" \
+            --pattern "$checksum" \
+            --dir "$install_dir"
+          (
+            cd "$install_dir"
+            grep "  ${asset}$" "$checksum" | sha256sum --check --strict
+            tar -xzf "$asset" gitleaks
+          )
+          chmod +x "$install_dir/gitleaks"
+          echo "$install_dir" >> "$GITHUB_PATH"
 
       - name: Scan current tree
         run: gitleaks dir . --redact --no-banner --verbose

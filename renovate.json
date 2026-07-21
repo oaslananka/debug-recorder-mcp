@@ -72,7 +72,9 @@
         "rhysd/actionlint",
         "zizmorcore/zizmor-pre-commit",
         "zizmorcore/zizmor-action",
-        "zizmorcore/zizmor"
+        "zizmorcore/zizmor",
+        "gitleaks/gitleaks",
+        "modelcontextprotocol/registry"
       ],
       "groupName": "Dependency and security automation",
       "groupSlug": "dependency-security-automation",
@@ -257,6 +259,57 @@
       "depNameTemplate": "zizmorcore/zizmor",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned actionlint release used by workflow security CI.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "ACTIONLINT_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "rhysd/actionlint",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned Gitleaks release used by workflow security CI.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "GITLEAKS_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned MCP Registry publisher release.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/publish-mcp-registry\\.yml$/"
+      ],
+      "matchStrings": [
+        "MCP_PUBLISHER_VERSION:\\s*v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "modelcontextprotocol/registry",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the digest for the pinned Node 24 Docker release channel.",
+      "managerFilePatterns": [
+        "/^Dockerfile$/"
+      ],
+      "matchStrings": [
+        "ARG NODE_IMAGE_RELEASE=(?<currentValue>[^\\s]+)\\s+ARG NODE_IMAGE_DIGEST=(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "docker"
     }
   ]
 }

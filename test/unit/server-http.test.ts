@@ -345,6 +345,17 @@ describe('HTTP server hardening', () => {
     expect(rejected.statusCode).toBe(403);
   });
 
+  it('emits the canonical allowlisted origin instead of reflecting raw input', async () => {
+    const { baseUrl } = await listen();
+    const response = await postMcp(baseUrl, initializeRequest(1), {
+      origin: `${baseUrl}/`
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('access-control-allow-origin')).toBe(baseUrl);
+    await response.text();
+  });
+
   it('sets CORS response headers for allowed Streamable HTTP origins', async () => {
     const { baseUrl } = await listen();
     const response = await postMcp(baseUrl, initializeRequest(1), {

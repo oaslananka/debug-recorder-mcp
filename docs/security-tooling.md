@@ -4,15 +4,18 @@ This repository uses layered automation so developers receive fast local feedbac
 
 ## Tool versions
 
-| Tool            | Pinned version  | Purpose                                           |
-| --------------- | --------------- | ------------------------------------------------- |
-| Renovate        | `43.272.4`      | Dependency and pinned-reference updates           |
-| pre-commit      | `4.6.0`         | Local Git hook orchestration                      |
-| Semgrep         | `1.170.0`       | Repository-owned SAST rules and Semgrep AppSec CI |
-| actionlint      | `1.7.12`        | GitHub Actions syntax and semantic validation     |
-| Zizmor          | `1.27.0`        | GitHub Actions security analysis                  |
-| Snyk CLI        | `1.1306.1`      | npm dependency vulnerability analysis             |
-| SonarQube Cloud | Managed service | Automatic code-quality and security quality gate  |
+| Tool               | Pinned version  | Purpose                                           |
+| ------------------ | --------------- | ------------------------------------------------- |
+| Renovate runtime   | `43.272.6`      | Dependency and pinned-reference updates           |
+| Renovate validator | `43.272.4`      | Node 22-compatible local config validation        |
+| pre-commit         | `4.6.0`         | Local Git hook orchestration                      |
+| Semgrep            | `1.170.0`       | Repository-owned SAST rules and Semgrep AppSec CI |
+| actionlint         | `1.7.12`        | GitHub Actions syntax and semantic validation     |
+| Zizmor             | `1.27.0`        | GitHub Actions security analysis                  |
+| Gitleaks           | `8.30.1`        | CI defense-in-depth secret scanning               |
+| MCP publisher      | `1.7.9`         | Checksum-verified MCP Registry publication        |
+| Snyk CLI           | `1.1306.1`      | npm dependency vulnerability analysis             |
+| SonarQube Cloud    | Managed service | Automatic code-quality and security quality gate  |
 
 Renovate manages these pinned versions and their workflow/action references. Major, Node, MCP runtime, native dependency, and other high-risk updates require explicit maintainer approval.
 

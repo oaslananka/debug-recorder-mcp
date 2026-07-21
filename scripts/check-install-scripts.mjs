@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
+import { spawnNpmSync } from './npm-cli.mjs';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -124,14 +124,10 @@ function isUnknownApproveScriptsCommand(output) {
 }
 
 function checkPendingScripts(allowScripts) {
-  const result = spawnSync(
-    'npm',
-    ['approve-scripts', '--allow-scripts-pending'],
-    {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe']
-    }
-  );
+  const result = spawnNpmSync(['approve-scripts', '--allow-scripts-pending'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
   const output = `${result.stdout}${result.stderr}`.trim();
 
   if (result.status !== 0) {

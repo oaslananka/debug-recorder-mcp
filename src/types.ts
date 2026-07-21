@@ -627,11 +627,10 @@ export type GetStats = z.infer<typeof GetStatsSchema>;
 export type GetDiagnostics = z.infer<typeof GetDiagnosticsSchema>;
 
 export type Fix = Omit<FixRow, 'worked'> & { worked: boolean };
-export type Command = CommandRow;
 export type Session = Omit<SessionRow, 'tags'> & {
   tags: string[];
   fixes: Fix[];
-  commands: Command[];
+  commands: CommandRow[];
 };
 
 export type SavedSearchPreset = Omit<SavedSearchPresetRow, 'limit_value'> & {
