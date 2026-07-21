@@ -29,7 +29,7 @@ jobs:
         uses: renovatebot/github-action@3064367f740a1a91cca218698a63902689cce200 # v46.1.20
         with:
           configurationFile: .github/renovate-global.json
-          renovate-version: 43.272.4
+          renovate-version: 43.272.6
           token: ${{ secrets.GH_AUTH_TOKEN }}
           env-regex: '^(?:RENOVATE_\w+|LOG_LEVEL)$'
         env:
