@@ -46,7 +46,7 @@ jobs:
           inputs: .github/workflows
           persona: auditor
           min-severity: low
-          version: 1.25.2
+          version: 1.27.0
           advanced-security: false
 
   secret-scan:
