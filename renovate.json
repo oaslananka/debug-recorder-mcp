@@ -68,7 +68,11 @@
         "snyk/actions",
         "snyk",
         "codecov/codecov-action",
-        "codecov/codecov-cli"
+        "codecov/codecov-cli",
+        "rhysd/actionlint",
+        "zizmorcore/zizmor-pre-commit",
+        "zizmorcore/zizmor-action",
+        "zizmorcore/zizmor"
       ],
       "groupName": "Dependency and security automation",
       "groupSlug": "dependency-security-automation",
@@ -238,6 +242,19 @@
         "CODECOV_CLI_VERSION:\\s*v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
       "depNameTemplate": "codecov/codecov-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned Zizmor engine used by workflow security CI.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/security\\.yml$/"
+      ],
+      "matchStrings": [
+        "ZIZMOR_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "zizmorcore/zizmor",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
     }

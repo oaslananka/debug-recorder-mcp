@@ -22,8 +22,8 @@ Supported local development targets are Node 22 LTS and Node 24 LTS.
 
 ## Local Git Hooks and Security Tools
 
-Install the pinned pre-commit and Semgrep environments, then enable both commit
-and push hooks:
+Install the pinned pre-commit and Semgrep environments, then enable the fast
+commit hook:
 
 ```bash
 pipx install 'pre-commit==4.6.0'
@@ -31,10 +31,14 @@ pipx install 'semgrep==1.170.0'
 npm run hooks:install
 ```
 
-The commit stage runs fast hygiene, formatting, lint, Renovate policy, and
-repository Semgrep checks. The push stage runs `npm run ci:local` and an
-optional local Snyk scan; authenticated GitHub Actions scans remain
-authoritative.
+The commit stage runs fast hygiene, actionlint, Zizmor, formatting, lint,
+Renovate policy, and repository Semgrep checks. Full CI, Snyk, and SonarQube
+Cloud checks are explicit manual hooks; authenticated GitHub Actions scans
+remain authoritative.
+
+```bash
+npm run hooks:manual
+```
 
 See [Dependency and security tooling](./docs/security-tooling.md) for hook
 stages, tokens, manual commands, fork behavior, and troubleshooting.
@@ -67,6 +71,7 @@ The underlying checks include:
 ```bash
 npm run check:renovate
 npm run check:codecov
+npm run check:governance
 npm run lint
 npm run format:check
 npm run check:dead-code
@@ -96,8 +101,9 @@ docker build -t debug-recorder-mcp:local .
 ## Protected Main Branch
 
 All changes to `main` must go through a pull request. The branch protection
-rule requires the pull request branch to be up to date, code owner approval,
-resolved conversations, and these passing checks:
+ruleset requires the pull request branch to be up to date, resolved
+conversations, and these passing checks. Required approvals remain zero for the
+solo-maintainer workflow:
 
 - `Quality / Node 22.22.3`
 - `Quality / Node 24.16.0`

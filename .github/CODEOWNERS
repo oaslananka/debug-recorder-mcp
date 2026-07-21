@@ -15,6 +15,8 @@ src/store.ts         @oaslananka
 # MCP tool definitions — public API surface
 src/mcp.ts           @oaslananka
 
-# CI/CD pipeline changes
-.azure/              @oaslananka
-azure-pipelines.yml  @oaslananka
+# CI/CD, dependency automation, and local hook policy
+.github/workflows/       @oaslananka
+.github/CODEOWNERS       @oaslananka
+.pre-commit-config.yaml  @oaslananka
+renovate.json            @oaslananka

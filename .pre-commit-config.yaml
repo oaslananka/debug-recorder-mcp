@@ -1,5 +1,5 @@
 minimum_pre_commit_version: '4.6.0'
-default_install_hook_types: [pre-commit, pre-push]
+default_install_hook_types: [pre-commit]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -9,9 +9,12 @@ repos:
         args: [--maxkb=500]
       - id: check-json
       - id: check-merge-conflict
+      - id: check-toml
       - id: check-yaml
       - id: detect-private-key
       - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
       - id: trailing-whitespace
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
@@ -19,6 +22,17 @@ repos:
     hooks:
       - id: renovate-config-validator
         args: [--strict]
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.27.0
+    hooks:
+      - id: zizmor
+        args: [--offline, --min-severity, low]
 
   - repo: https://github.com/semgrep/semgrep
     rev: v1.170.0
@@ -59,12 +73,12 @@ repos:
         files: ^(?:src|scripts|test)/.*\.(?:ts|mjs)$
 
       - id: full-local-ci
-        name: full local CI before push
+        name: full local CI
         entry: npm run ci:local
         language: system
         pass_filenames: false
         always_run: true
-        stages: [pre-push]
+        stages: [manual]
 
       - id: snyk-open-source
         name: Snyk dependency scan
@@ -72,7 +86,7 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        stages: [pre-push, manual]
+        stages: [manual]
 
       - id: sonar-quality-gate
         name: SonarQube Cloud quality gate
