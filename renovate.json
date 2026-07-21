@@ -66,7 +66,9 @@
         "pre-commit/pre-commit-hooks",
         "semgrep/semgrep",
         "snyk/actions",
-        "snyk"
+        "snyk",
+        "codecov/codecov-action",
+        "codecov/codecov-cli"
       ],
       "groupName": "Dependency and security automation",
       "groupSlug": "dependency-security-automation",
@@ -225,6 +227,19 @@
       ],
       "depNameTemplate": "snyk",
       "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pinned Codecov CLI used by coverage and test analytics uploads.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "CODECOV_CLI_VERSION:\\s*v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "codecov/codecov-cli",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ]
 }

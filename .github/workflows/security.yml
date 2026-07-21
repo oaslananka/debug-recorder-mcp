@@ -41,12 +41,12 @@ jobs:
         run: actionlint -color
 
       - name: zizmor
-        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
         with:
           inputs: .github/workflows
           persona: auditor
           min-severity: low
-          version: 1.25.2
+          version: 1.27.0
           advanced-security: false
 
   secret-scan:

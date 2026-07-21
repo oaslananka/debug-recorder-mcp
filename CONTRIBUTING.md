@@ -66,6 +66,7 @@ The underlying checks include:
 
 ```bash
 npm run check:renovate
+npm run check:codecov
 npm run lint
 npm run format:check
 npm run check:dead-code
