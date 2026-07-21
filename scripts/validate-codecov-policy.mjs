@@ -75,7 +75,8 @@ try {
     'environment: codecov',
     'fail_ci_if_error: true',
     'handle_no_reports_found: true',
-    'npm run check:codecov -- --remote'
+    'npm run check:codecov -- --remote',
+    'permissions: {}'
   ]) {
     assertContains(WORKFLOW_PATH, workflow, required);
   }

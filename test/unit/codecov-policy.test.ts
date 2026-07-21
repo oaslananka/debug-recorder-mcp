@@ -71,6 +71,20 @@ describe('Codecov policy validator', () => {
     );
   });
 
+  it('requires an explicit workflow-level deny-all permissions block', () => {
+    const root = createFixture();
+    const workflowPath = join(root, '.github/workflows/ci.yml');
+    writeFileSync(
+      workflowPath,
+      readFileSync(workflowPath, 'utf8').replace('permissions: {}\n\n', '')
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('permissions: {}');
+  });
+
   it('rejects workflow-level token permissions', () => {
     const root = createFixture();
     const workflowPath = join(root, '.github/workflows/ci.yml');
