@@ -42,3 +42,4 @@ flowchart TD
 - [ADR-0002: Hybrid FTS5 Recall with Fuse.js Reranking](./adr/0002-hybrid-fts5-and-fuse-search.md)
 - [ADR-0003: Local-First Streamable HTTP Security Model](./adr/0003-local-first-streamable-http-security.md)
 - [ADR-0005: MCP Registry Identity and Version Metadata](./adr/0005-mcp-registry-versioning-and-metadata.md)
+- [ADR-0006: Public HTTP OAuth Resource-Server Profile](./adr/0006-public-http-oauth-resource-server-profile.md)

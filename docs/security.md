@@ -33,6 +33,14 @@ DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com
 
 Wildcard origins are rejected for remote mode.
 
+The static bearer token is a private shared secret, not a public multi-user
+authorization system. It does not provide verified subject identity, scopes,
+tenant isolation, individual revocation, or user-attributed audit events. Public
+internet deployment is unsupported until the profile in
+[Public HTTP authorization](./public-http-authorization.md) is implemented and
+validated. The architecture decision is recorded in
+[ADR-0006](./adr/0006-public-http-oauth-resource-server-profile.md).
+
 ## Secrets
 
 Logs are written to stderr so stdout remains safe for the stdio MCP protocol.
@@ -78,3 +86,4 @@ and troubleshooting are documented in
 
 - [ADR-0003: Local-First Streamable HTTP Security Model](./adr/0003-local-first-streamable-http-security.md)
 - [ADR-0004: Release, Provenance, and Publish Flow](./adr/0004-release-provenance-and-publish-flow.md)
+- [ADR-0006: Public HTTP OAuth Resource-Server Profile](./adr/0006-public-http-oauth-resource-server-profile.md)

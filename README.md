@@ -181,7 +181,18 @@ DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com
 npm run start:http
 ```
 
-Wildcard origins are rejected for remote mode.
+Wildcard origins are rejected for remote mode. The static bearer token is
+**private/shared-secret mode**: every caller shares one identity, one authority
+level, and one SQLite dataset. It is suitable for loopback, an encrypted trusted
+network, or a private authenticating proxy, but it is not OAuth and does not
+provide per-user scopes or revocation.
+
+**Public multi-user HTTP is not supported** by the current release. The accepted
+target architecture uses an external authorization server and MCP-aware gateway
+with protected-resource discovery, audience-bound tokens, scopes, rate limits,
+audit events, and subject-aware storage. See
+[Public HTTP authorization](./docs/public-http-authorization.md) and
+[ADR-0006](./docs/adr/0006-public-http-oauth-resource-server-profile.md).
 
 ## Configuration
 
@@ -190,7 +201,7 @@ Wildcard origins are rejected for remote mode.
 | `DEBUG_RECORDER_DB`                  | Override the SQLite database path.                                    |
 | `HOST`                               | HTTP bind host. Defaults to `127.0.0.1`.                              |
 | `PORT`                               | HTTP port. Defaults to `3000`.                                        |
-| `DEBUG_RECORDER_HTTP_TOKEN`          | Optional bearer token for local HTTP; required for non-loopback HTTP. |
+| `DEBUG_RECORDER_HTTP_TOKEN`          | Private/shared-secret token; required for non-loopback HTTP, not OAuth. |
 | `DEBUG_RECORDER_ALLOWED_HOSTS`       | Comma-separated HTTP `Host` allowlist.                                |
 | `DEBUG_RECORDER_ALLOWED_ORIGINS`     | Comma-separated browser `Origin` allowlist.                           |
 | `DEBUG_RECORDER_MAX_BODY_BYTES`      | HTTP JSON body limit. Defaults to `1048576`.                          |
@@ -245,6 +256,7 @@ Important docs:
 - [Configuration](./docs/configuration.md)
 - [Architecture](./docs/architecture.md)
 - [Security](./docs/security.md)
+- [Public HTTP authorization](./docs/public-http-authorization.md)
 - [Operations](./docs/operations.md)
 - [Troubleshooting](./docs/troubleshooting.md)
 - [Storage retention](./docs/storage-retention.md)
