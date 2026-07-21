@@ -65,10 +65,11 @@ try {
 
   for (const required of [
     'CODECOV_CLI_VERSION: v11.3.1',
-    'codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0',
-    'codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # v1.2.1',
     'reports/coverage/cobertura-coverage.xml',
-    'directory: reports/test-results/node-${{ matrix.node-version }}',
+    'report_type: test_results',
+    'reports/test-results/node-${{ matrix.node-version }}/coverage/junit.xml',
+    'reports/test-results/node-${{ matrix.node-version }}/fuzz/junit.xml',
+    'reports/test-results/node-${{ matrix.node-version }}/e2e/junit.xml',
     'flags: node-${{ matrix.node-version }}',
     'actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1',
     'environment: codecov',
@@ -85,6 +86,32 @@ try {
     'github.event.pull_request.head.repo.full_name == github.repository',
     1
   );
+
+  assertOccurrenceCount(
+    WORKFLOW_PATH,
+    workflow,
+    'codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0',
+    2
+  );
+
+  assertOccurrenceCount(
+    WORKFLOW_PATH,
+    workflow,
+    `    permissions:
+      contents: read`,
+    3
+  );
+
+  if (
+    workflow.includes(`permissions:
+  contents: read`)
+  ) {
+    throw new Error('CI permissions must be declared at job level.');
+  }
+
+  if (workflow.includes('codecov/test-results-action@')) {
+    throw new Error('Deprecated Codecov test-results-action must not be used.');
+  }
 
   if (config.includes('bundle_analysis:')) {
     throw new Error(

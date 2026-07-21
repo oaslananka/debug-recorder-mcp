@@ -71,6 +71,36 @@ describe('Codecov policy validator', () => {
     );
   });
 
+  it('rejects workflow-level token permissions', () => {
+    const root = createFixture();
+    const workflowPath = join(root, '.github/workflows/ci.yml');
+    writeFileSync(
+      workflowPath,
+      `permissions:\n  contents: read\n\n${readFileSync(workflowPath, 'utf8')}`
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'permissions must be declared at job level'
+    );
+  });
+
+  it('rejects the deprecated Codecov test-results action', () => {
+    const root = createFixture();
+    const workflowPath = join(root, '.github/workflows/ci.yml');
+    writeFileSync(
+      workflowPath,
+      `${readFileSync(workflowPath, 'utf8')}\n# codecov/test-results-action@deprecated\n`
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Deprecated Codecov test-results-action');
+  });
+
   it('rejects Codecov token access without a dedicated environment', () => {
     const root = createFixture();
     const workflowPath = join(root, '.github/workflows/ci.yml');

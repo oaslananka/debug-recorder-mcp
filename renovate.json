@@ -68,7 +68,6 @@
         "snyk/actions",
         "snyk",
         "codecov/codecov-action",
-        "codecov/test-results-action",
         "codecov/codecov-cli"
       ],
       "groupName": "Dependency and security automation",
