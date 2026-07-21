@@ -40,5 +40,5 @@ All entries below are treated as true positives and remediated in code, workflow
 
 - Unit and regression tests cover canonical CORS handling, exact-version lifecycle rebuilds, workflow install policy, checksum-verified tool downloads, and Store factory behavior.
 - `npm ci --ignore-scripts` plus `npm run install:approved-scripts` is exercised in clean Node 22 and Node 24 environments.
-- actionlint, Zizmor, Semgrep, CodeQL, Trivy, Snyk, Docker smoke tests, and the complete local CI gate must pass before merge.
+- actionlint, Zizmor, Semgrep, CodeQL, Trivy, Docker smoke tests, dependency review, and the complete local CI gate must pass before merge.
 - The issue closes only after SonarQube Cloud reports the `main` quality gate as `OK` and no open historical findings remain.

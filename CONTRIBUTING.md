@@ -32,9 +32,9 @@ npm run hooks:install
 ```
 
 The commit stage runs fast hygiene, actionlint, Zizmor, formatting, lint,
-Renovate policy, and repository Semgrep checks. Full CI, Snyk, and SonarQube
-Cloud checks are explicit manual hooks; authenticated GitHub Actions scans
-remain authoritative.
+Renovate policy, and repository Semgrep checks. Full CI and the SonarQube Cloud
+quality gate are explicit manual hooks; GitHub Actions remains authoritative for
+required dependency, SAST, container, and workflow-security checks.
 
 ```bash
 npm run hooks:manual

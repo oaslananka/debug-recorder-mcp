@@ -1,5 +1,8 @@
 # Dependency and Security Automation Design
 
+> Historical note (2026-07-21): the Snyk-specific portions of this record were retired by issue #90 after the account and credential were removed. Current security ownership is defined in `docs/security-tooling.md`.
+
+
 ## Objective
 
 Make dependency maintenance and security feedback operational, reproducible, and repository-owned without turning ordinary commits into slow, token-dependent operations.

@@ -1,5 +1,8 @@
 # Dependency and Security Automation Implementation Plan
 
+> Historical note (2026-07-21): the Snyk-specific portions of this record were retired by issue #90 after the account and credential were removed. Current security ownership is defined in `docs/security-tooling.md`.
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Operate Renovate and provide layered pre-commit, Semgrep, Snyk, and SonarQube Cloud security feedback for debug-recorder-mcp.

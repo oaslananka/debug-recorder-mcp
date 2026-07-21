@@ -17,6 +17,12 @@ function assertFile(path) {
   }
 }
 
+function assertFileAbsent(path) {
+  if (existsSync(path)) {
+    throw new Error(`Retired security integration must remain absent: ${path}`);
+  }
+}
+
 try {
   assertFile('docs/security-sbom-vex.md');
   assertFile('docs/security/vex/README.md');
@@ -25,6 +31,14 @@ try {
   assertFile('scripts/install-approved-dependencies.mjs');
   assertFile('scripts/npm-cli.mjs');
 
+  for (const path of [
+    '.github/workflows/snyk.yml',
+    'scripts/run-snyk.mjs',
+    'test/unit/snyk-script.test.ts'
+  ]) {
+    assertFileAbsent(path);
+  }
+
   const policy = read('docs/security-sbom-vex.md');
   const template = read('docs/security/vex/_template.md');
   const release = read('.github/workflows/release.yml');
@@ -32,7 +46,6 @@ try {
   const security = read('.github/workflows/security.yml');
   const renovate = read('.github/workflows/renovate.yml');
   const semgrep = read('.github/workflows/semgrep.yml');
-  const snyk = read('.github/workflows/snyk.yml');
   const manifest = JSON.parse(read('package.json'));
   const lockfile = JSON.parse(read('package-lock.json'));
 
@@ -106,13 +119,6 @@ try {
     semgrep,
     'environment: semgrep-appsec'
   );
-  assertContains('.github/workflows/snyk.yml', snyk, 'environment: snyk');
-  assertContains('.github/workflows/snyk.yml', snyk, 'npm ci --ignore-scripts');
-  assertContains(
-    '.github/workflows/snyk.yml',
-    snyk,
-    'node scripts/run-snyk.mjs --required'
-  );
   const sonarRemediation = read('docs/sonar-remediation.md');
   const sonarIssueKeys = [
     'AZ-AWHstJy5ZX4v8T4kq',
@@ -183,13 +189,20 @@ try {
   }
 
   assertContains('package.json', read('package.json'), '"check:sbom"');
-  if (snyk.includes('snyk/actions/setup')) {
-    throw new Error(
-      '.github/workflows/snyk.yml must not depend on the Snyk binary CDN setup action'
-    );
+  for (const [policyPath, policyContent] of [
+    ['.pre-commit-config.yaml', read('.pre-commit-config.yaml')],
+    ['package.json', read('package.json')],
+    ['renovate.json', read('renovate.json')],
+    ['docs/security.md', read('docs/security.md')],
+    ['docs/security-tooling.md', read('docs/security-tooling.md')]
+  ]) {
+    if (/snyk|synk_pat_token/i.test(policyContent)) {
+      throw new Error(`${policyPath} must not reintroduce retired Snyk configuration`);
+    }
   }
-
   const requiredOverrides = {
+    '@hono/node-server': '2.0.11',
+    'body-parser': '2.3.0',
     'fast-uri': '3.1.4',
     'js-yaml': '4.3.0',
     'markdown-it': '14.3.0'

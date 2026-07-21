@@ -70,13 +70,13 @@ and GitHub secret scanning/push protection owns secret prevention.
   `renovate-managed/` branch prefix.
 - Semgrep uses committed high-signal rules locally and authenticated AppSec
   analysis for trusted GitHub events. Fork pull requests receive no secrets.
-- Snyk scans npm production and development dependencies with the existing
-  `SYNK_PAT_TOKEN` repository secret mapped to `SNYK_TOKEN` at runtime.
+- GitHub dependency review and `npm audit --audit-level=moderate` own npm
+  dependency policy; Renovate and Dependabot alerts provide remediation input.
 - SonarQube Cloud automatic analysis remains the single Sonar analysis method;
   it tracks maintainability and technical debt without becoming a duplicate
   coverage or SAST gate.
-- Snyk and Socket provide additional dependency/AppSec visibility without
-  replacing the required CodeQL, dependency-review, or Trivy controls.
+- Socket provides advisory dependency and supply-chain visibility without
+  replacing the required dependency-review, CodeQL, or Trivy controls.
 
 Installation, hook stages, pinned versions, manual commands, secret boundaries,
 and troubleshooting are documented in
