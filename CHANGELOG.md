@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.2...debug-recorder-mcp-v1.1.3) (2026-07-21)
+
+
+### Bug Fixes
+
+* **ci:** install Codecov CLI from PyPI ([#93](https://github.com/oaslananka/debug-recorder-mcp/issues/93)) ([84b237d](https://github.com/oaslananka/debug-recorder-mcp/commit/84b237de3c42341634a328cf6b8102f5f51edaac))
+* **config:** report effective boolean settings ([#77](https://github.com/oaslananka/debug-recorder-mcp/issues/77)) ([a9a99d2](https://github.com/oaslananka/debug-recorder-mcp/commit/a9a99d2fa351dcbee78dfe248b9b1b54d94f52bf))
+* **mcp:** return actionable tool execution errors ([#79](https://github.com/oaslananka/debug-recorder-mcp/issues/79)) ([d9fb70d](https://github.com/oaslananka/debug-recorder-mcp/commit/d9fb70d0c007daded24cbf1c3bef983f5b44825e))
+* **search:** make deep pagination truthful ([#82](https://github.com/oaslananka/debug-recorder-mcp/issues/82)) ([1f7ae3f](https://github.com/oaslananka/debug-recorder-mcp/commit/1f7ae3fb5da18abd55c4d1d607aec1a3c1dfc7b8))
+* **security:** remediate Sonar main findings ([#88](https://github.com/oaslananka/debug-recorder-mcp/issues/88)) ([c88d101](https://github.com/oaslananka/debug-recorder-mcp/commit/c88d101dd4dbe692e3a7f455793b3b982f43733a))
+* **storage:** persist stable session completion time ([#81](https://github.com/oaslananka/debug-recorder-mcp/issues/81)) ([b6f3f7e](https://github.com/oaslananka/debug-recorder-mcp/commit/b6f3f7ef2c9ea8be4d3ef67a0964815cf08111fb))
+* **storage:** version complete backup format ([#80](https://github.com/oaslananka/debug-recorder-mcp/issues/80)) ([175bdef](https://github.com/oaslananka/debug-recorder-mcp/commit/175bdef545429d73a4d9b538a0d947774cf87d49))
+
 ## [1.1.2](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.1...debug-recorder-mcp-v1.1.2) (2026-07-20)
 
 
