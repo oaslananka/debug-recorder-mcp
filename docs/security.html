@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security model | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="security">Security</h1>
+<h2 id="local-first-transports">Local-first transports</h2>
+<p>Stdio is the primary transport for local MCP clients. It avoids opening a network</p>
+<p>listener and is the recommended production/local integration path.</p>
+<p>Streamable HTTP is available for local tooling and controlled deployments. It</p>
+<p>binds to <code>127.0.0.1</code> by default, accepts only <code>POST /mcp</code> for MCP messages, and</p>
+<p>creates a fresh stateless MCP server and HTTP transport for every request.</p>
+<h2 id="http-controls">HTTP controls</h2>
+<p>The HTTP entrypoint enforces:</p>
+<ul>
+<li>loopback default bind</li>
+<li>explicit <code>DEBUG_RECORDER_REMOTE_HTTP=true</code> before non-loopback bind</li>
+<li>bearer token requirement for non-loopback bind</li>
+<li><code>Host</code> allowlist validation</li>
+<li><code>Origin</code> allowlist validation when an <code>Origin</code> header is present</li>
+<li>fixed JSON request body limit</li>
+<li>deterministic JSON-RPC errors for malformed or oversized request bodies</li>
+</ul>
+<p>Remote HTTP requires:</p>
+<pre><code>
+HOST=0.0.0.0
+
+DEBUG_RECORDER_REMOTE_HTTP=true
+
+DEBUG_RECORDER_HTTP_TOKEN=replace-with-a-long-random-token
+
+DEBUG_RECORDER_ALLOWED_HOSTS=debug-recorder.example.com
+
+DEBUG_RECORDER_ALLOWED_ORIGINS=https://debug-recorder.example.com
+
+</code></pre>
+<p>Wildcard origins are rejected for remote mode.</p>
+<p>The static bearer token is a private shared secret, not a public multi-user</p>
+<p>authorization system. It does not provide verified subject identity, scopes,</p>
+<p>tenant isolation, individual revocation, or user-attributed audit events. Public</p>
+<p>internet deployment is unsupported until the profile in</p>
+<p><a href="./public-http-authorization.md">Public HTTP authorization</a> is implemented and</p>
+<p>validated. The architecture decision is recorded in</p>
+<p><a href="./adr/0006-public-http-oauth-resource-server-profile.md">ADR-0006</a>.</p>
+<h2 id="secrets">Secrets</h2>
+<p>Logs are written to stderr so stdout remains safe for the stdio MCP protocol.</p>
+<p>Structured log metadata is redacted for common token shapes and key names.</p>
+<p>Persistence redaction is optional because exact local debugging text can be</p>
+<p>valuable. Set <code>DEBUG_RECORDER_REDACT_BEFORE_STORE=true</code> to redact common</p>
+<p>credential patterns before storing session, fix, and command text. This protects</p>
+<p>new writes and imports only; use the documented redacted-copy workflow for</p>
+<p>existing databases.</p>
+<p>Database files and JSON exports should be treated as sensitive local artifacts.</p>
+<p>See <a href="./storage-retention.md">Storage retention and maintenance</a> for retention,</p>
+<p>backup, compaction, and migration rollback guidance.</p>
+<p>Never commit tokens, package credentials, registry credentials, private keys, or</p>
+<p>local transcript/scratch files. Pull request validation includes Gitleaks.</p>
+<h2 id="dependency-and-code-scanning">Dependency and code scanning</h2>
+<p>The repository assigns one primary owner per security category and keeps other</p>
+<p>services as specialist or advisory signals. CodeQL owns blocking SAST, Trivy</p>
+<p>owns container/filesystem scanning, Codecov owns coverage and test analytics,</p>
+<p>and GitHub secret scanning/push protection owns secret prevention.</p>
+<ul>
+<li>Renovate is operated by a repository-owned scheduled workflow and uses the</li>
+</ul>
+<p>  <code>renovate-managed/</code> branch prefix.</p>
+<ul>
+<li>Semgrep uses committed high-signal rules locally and authenticated AppSec</li>
+</ul>
+<p>  analysis for trusted GitHub events. Fork pull requests receive no secrets.</p>
+<ul>
+<li>GitHub dependency review and <code>npm audit --audit-level=moderate</code> own npm</li>
+</ul>
+<p>  dependency policy; Renovate and Dependabot alerts provide remediation input.</p>
+<ul>
+<li>SonarQube Cloud automatic analysis remains the single Sonar analysis method;</li>
+</ul>
+<p>  it tracks maintainability and technical debt without becoming a duplicate</p>
+<p>  coverage or SAST gate.</p>
+<ul>
+<li>Socket provides advisory dependency and supply-chain visibility without</li>
+</ul>
+<p>  replacing the required dependency-review, CodeQL, or Trivy controls.</p>
+<p>Installation, hook stages, pinned versions, manual commands, secret boundaries,</p>
+<p>and troubleshooting are documented in</p>
+<p><a href="./security-tooling.md">Dependency and security tooling</a>. The July 2026 historical finding cleanup is recorded in <a href="./sonar-remediation.md">SonarQube Cloud remediation</a>.</p>
+<h2 id="architecture-decisions">Architecture decisions</h2>
+<ul>
+<li><a href="./adr/0003-local-first-streamable-http-security.md">ADR-0003: Local-First Streamable HTTP Security Model</a></li>
+<li><a href="./adr/0004-release-provenance-and-publish-flow.md">ADR-0004: Release, Provenance, and Publish Flow</a></li>
+<li><a href="./adr/0006-public-http-oauth-resource-server-profile.md">ADR-0006: Public HTTP OAuth Resource-Server Profile</a></li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

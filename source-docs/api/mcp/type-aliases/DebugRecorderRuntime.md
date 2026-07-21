@@ -1,0 +1,35 @@
+[**debug-recorder-mcp**](../../README.md)
+
+***
+
+[debug-recorder-mcp](../../README.md) / [mcp](../README.md) / DebugRecorderRuntime
+
+# Type Alias: DebugRecorderRuntime
+
+> **DebugRecorderRuntime** = `object`
+
+Defined in: [src/mcp.ts:51](https://github.com/oaslananka/debug-recorder-mcp/blob/74abd4e988b917f2d222f04dd5173d4dcc8d7a4d/src/mcp.ts#L51)
+
+## Properties
+
+### db
+
+> **db**: `Database.Database`
+
+Defined in: [src/mcp.ts:52](https://github.com/oaslananka/debug-recorder-mcp/blob/74abd4e988b917f2d222f04dd5173d4dcc8d7a4d/src/mcp.ts#L52)
+
+***
+
+### dbPath?
+
+> `optional` **dbPath?**: `string`
+
+Defined in: [src/mcp.ts:54](https://github.com/oaslananka/debug-recorder-mcp/blob/74abd4e988b917f2d222f04dd5173d4dcc8d7a4d/src/mcp.ts#L54)
+
+***
+
+### store
+
+> **store**: [`Store`](../../store/classes/Store.md)
+
+Defined in: [src/mcp.ts:53](https://github.com/oaslananka/debug-recorder-mcp/blob/74abd4e988b917f2d222f04dd5173d4dcc8d7a4d/src/mcp.ts#L53)

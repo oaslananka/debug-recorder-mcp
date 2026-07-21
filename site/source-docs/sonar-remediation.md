@@ -1,0 +1,44 @@
+# SonarQube Cloud remediation record
+
+This record classifies every open SonarQube Cloud finding captured from `main` on July 21, 2026 before remediation. The repository quality gate and rule thresholds were not weakened.
+
+All entries below are treated as true positives and remediated in code, workflow, tests, or container policy. Final closure is verified by a fresh `main` analysis after merge.
+
+| Sonar issue            | Type          | Rule                  | Location                                        | Disposition | Remediation                                                                                                             |
+| ---------------------- | ------------- | --------------------- | ----------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `AZ-AWHstJy5ZX4v8T4kq` | VULNERABILITY | `githubactions:S6506` | `.github/workflows/publish-mcp-registry.yml:97` | Remediated  | Replaced the direct download with a pinned GitHub release asset and strict SHA-256 verification.                        |
+| `AZ-AWHogJy5ZX4v8T4kj` | VULNERABILITY | `githubactions:S6505` | `.github/workflows/docs.yml:48`                 | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ-AWHq6Jy5ZX4v8T4kl` | VULNERABILITY | `githubactions:S6505` | `.github/workflows/npm-initial-publish.yml:64`  | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ801SU8Gb18dzC2eaSJ` | CODE_SMELL    | `javascript:S7781`    | `scripts/build-docs-site.mjs:45`                | Remediated  | Uses `String#replaceAll()` for literal backtick removal.                                                                |
+| `AZ801SU8Gb18dzC2eaSK` | CODE_SMELL    | `javascript:S8786`    | `scripts/build-docs-site.mjs:53`                | Remediated  | Replaced the backtracking Markdown matcher with bounded index/character parsing.                                        |
+| `AZ801SU8Gb18dzC2eaSL` | CODE_SMELL    | `javascript:S3776`    | `scripts/build-docs-site.mjs:61`                | Remediated  | Split Markdown rendering into focused parser and state-transition helpers.                                              |
+| `AZ801SU8Gb18dzC2eaSM` | CODE_SMELL    | `javascript:S8786`    | `scripts/build-docs-site.mjs:97`                | Remediated  | Replaced the backtracking Markdown matcher with bounded index/character parsing.                                        |
+| `AZ801SU8Gb18dzC2eaSN` | CODE_SMELL    | `javascript:S8786`    | `scripts/build-docs-site.mjs:107`               | Remediated  | Replaced the backtracking Markdown matcher with bounded index/character parsing.                                        |
+| `AZ801SVEGb18dzC2eaSO` | VULNERABILITY | `javascript:S4036`    | `scripts/check-install-scripts.mjs:128`         | Remediated  | Runs the real absolute `npm_execpath` through `process.execPath` instead of resolving `npm` from PATH.                  |
+| `AZ801SWFGb18dzC2eaSR` | VULNERABILITY | `tssecurity:S8348`    | `src/server-http.ts:307`                        | Remediated  | Returns the canonical normalized value from the configured origin allowlist instead of reflecting the request header.   |
+| `AZ801SWFGb18dzC2eaSQ` | CODE_SMELL    | `typescript:S3776`    | `src/server-http.ts:482`                        | Remediated  | Split route dispatch and error response handling out of the HTTP server callback.                                       |
+| `AZ801SW5Gb18dzC2eaSZ` | CODE_SMELL    | `typescript:S7778`    | `src/search.ts:489`                             | Remediated  | Emits the complete postmortem prompt block with one `Array#push()` call.                                                |
+| `AZ801SW5Gb18dzC2eaSa` | CODE_SMELL    | `typescript:S7778`    | `src/search.ts:490`                             | Remediated  | Emits the complete postmortem prompt block with one `Array#push()` call.                                                |
+| `AZ801SW5Gb18dzC2eaSb` | CODE_SMELL    | `typescript:S7778`    | `src/search.ts:491`                             | Remediated  | Emits the complete postmortem prompt block with one `Array#push()` call.                                                |
+| `AZ-AWHrVJy5ZX4v8T4kn` | VULNERABILITY | `githubactions:S6505` | `.github/workflows/release.yml:188`             | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ801SVMGb18dzC2eaSP` | VULNERABILITY | `javascript:S4036`    | `scripts/verify-mcp-registry-release.mjs:16`    | Remediated  | Runs the real absolute `npm_execpath` through `process.execPath` instead of resolving `npm` from PATH.                  |
+| `AZ801SXAGb18dzC2eaSd` | CODE_SMELL    | `docker:S8431`        | `Dockerfile:3`                                  | Remediated  | Uses digest-only `FROM` references while tracking the Node 24 release channel separately for Renovate.                  |
+| `AZ801SXAGb18dzC2eaSe` | CODE_SMELL    | `docker:S8431`        | `Dockerfile:16`                                 | Remediated  | Uses digest-only `FROM` references while tracking the Node 24 release channel separately for Renovate.                  |
+| `AZ-AWHsbJy5ZX4v8T4kp` | VULNERABILITY | `githubactions:S8545` | `.github/workflows/security.yml:73`             | Remediated  | Installs the pinned release asset with GitHub CLI and verifies the published checksum instead of mutable Go resolution. |
+| `AZ801SXAGb18dzC2eaSc` | CODE_SMELL    | `docker:S7031`        | `Dockerfile:29`                                 | Remediated  | Merged package upgrade, cleanup, and npm removal into one image layer.                                                  |
+| `AZ-AWHqkJy5ZX4v8T4kk` | VULNERABILITY | `githubactions:S6505` | `.github/workflows/ci.yml:43`                   | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ-AWHrVJy5ZX4v8T4km` | VULNERABILITY | `githubactions:S6505` | `.github/workflows/release.yml:64`              | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ-AWHsbJy5ZX4v8T4ko` | VULNERABILITY | `githubactions:S8545` | `.github/workflows/security.yml:41`             | Remediated  | Installs the pinned release asset with GitHub CLI and verifies the published checksum instead of mutable Go resolution. |
+| `AZ-AWHu5Jy5ZX4v8T4kr` | VULNERABILITY | `docker:S6505`        | `Dockerfile:11`                                 | Remediated  | Changed installation to `npm ci --ignore-scripts` followed by an exact-version allowlisted rebuild.                     |
+| `AZ801SWlGb18dzC2eaST` | CODE_SMELL    | `typescript:S5869`    | `src/logging.ts:6`                              | Remediated  | Uses the case-insensitive flag with a lowercase-only character class.                                                   |
+| `AZ801SWlGb18dzC2eaSU` | CODE_SMELL    | `typescript:S6353`    | `src/logging.ts:9`                              | Remediated  | Uses the concise `\w` character class.                                                                                  |
+| `AZ801SWlGb18dzC2eaSV` | CODE_SMELL    | `typescript:S6035`    | `src/logging.ts:11`                             | Remediated  | Uses a character class instead of single-character alternation.                                                         |
+| `AZ801SWOGb18dzC2eaSS` | CODE_SMELL    | `typescript:S6564`    | `src/types.ts:630`                              | Remediated  | Removed the redundant `Command` alias and uses `CommandRow` directly.                                                   |
+| `AZ801STOGb18dzC2eaSI` | CODE_SMELL    | `typescript:S2699`    | `test/unit/store.test.ts:43`                    | Remediated  | Asserts that the Store factory persists and returns the created session.                                                |
+
+## Verification
+
+- Unit and regression tests cover canonical CORS handling, exact-version lifecycle rebuilds, workflow install policy, checksum-verified tool downloads, and Store factory behavior.
+- `npm ci --ignore-scripts` plus `npm run install:approved-scripts` is exercised in clean Node 22 and Node 24 environments.
+- actionlint, Zizmor, Semgrep, CodeQL, Trivy, Docker smoke tests, dependency review, and the complete local CI gate must pass before merge.
+- The issue closes only after SonarQube Cloud reports the `main` quality gate as `OK` and no open historical findings remain.
