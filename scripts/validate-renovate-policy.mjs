@@ -15,24 +15,34 @@ for (const preset of [
   ':pinDevDependencies',
   'abandonments:recommended'
 ]) {
-  assert.ok(repositoryConfig.extends.includes(preset), `missing preset: ${preset}`);
+  assert.ok(
+    repositoryConfig.extends.includes(preset),
+    `missing preset: ${preset}`
+  );
 }
 
-assert.deepEqual(globalConfig.repositories, [
-  'oaslananka/debug-recorder-mcp'
-]);
+assert.deepEqual(globalConfig.repositories, ['oaslananka/debug-recorder-mcp']);
 assert.equal(globalConfig.autodiscover, false);
 assert.equal(globalConfig.onboarding, false);
 assert.equal(globalConfig.requireConfig, 'required');
 assert.equal(globalConfig.branchPrefix, 'renovate-managed/');
 assert.equal(globalConfig.platformCommit, 'enabled');
 
-assert.ok(
-  repositoryConfig.customManagers.some(
-    (manager) => manager.depNameTemplate === 'ghcr.io/renovatebot/renovate'
-  ),
-  'Renovate runtime custom manager is missing'
-);
+for (const dependency of [
+  'ghcr.io/renovatebot/renovate',
+  'rhysd/actionlint',
+  'gitleaks/gitleaks',
+  'modelcontextprotocol/registry',
+  'node',
+  'zizmorcore/zizmor'
+]) {
+  assert.ok(
+    repositoryConfig.customManagers.some(
+      (manager) => manager.depNameTemplate === dependency
+    ),
+    `${dependency} custom manager is missing`
+  );
+}
 assert.ok(
   repositoryConfig.packageRules.some(
     (rule) =>
@@ -58,7 +68,9 @@ assert.match(
   workflow,
   /renovatebot\/github-action@3064367f740a1a91cca218698a63902689cce200 # v46\.1\.20/
 );
-assert.match(workflow, /renovate-version: 43\.272\.4/);
+assert.match(workflow, /renovate-version: 43\.272\.6/);
 assert.match(workflow, /token: \$\{\{ secrets\.GH_AUTH_TOKEN \}\}/);
 
-console.log('Renovate repository policy and self-hosted runner are consistent.');
+console.log(
+  'Renovate repository policy and self-hosted runner are consistent.'
+);

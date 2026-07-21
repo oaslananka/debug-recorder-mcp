@@ -72,7 +72,7 @@ and GitHub secret scanning/push protection owns secret prevention.
 
 Installation, hook stages, pinned versions, manual commands, secret boundaries,
 and troubleshooting are documented in
-[Dependency and security tooling](./security-tooling.md).
+[Dependency and security tooling](./security-tooling.md). The July 2026 historical finding cleanup is recorded in [SonarQube Cloud remediation](./sonar-remediation.md).
 
 ## Architecture decisions
 

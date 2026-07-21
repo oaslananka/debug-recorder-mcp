@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execNpmSync } from './npm-cli.mjs';
 import { readFileSync } from 'node:fs';
 
 function readJson(path) {
@@ -13,7 +13,7 @@ function assert(condition, message) {
 
 function npmViewVersion(packageName, version) {
   try {
-    return execFileSync('npm', ['view', `${packageName}@${version}`, 'version'], {
+    return execNpmSync(['view', `${packageName}@${version}`, 'version'], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe']
     }).trim();
@@ -35,13 +35,25 @@ const npmPackages = (server.packages ?? []).filter(
 );
 
 assert(pkg.name === 'debug-recorder-mcp', 'Unexpected package name');
-assert(pkg.mcpName === server.name, 'package.json mcpName/server.json name mismatch');
+assert(
+  pkg.mcpName === server.name,
+  'package.json mcpName/server.json name mismatch'
+);
 assert(server.version === pkg.version, 'server.json version mismatch');
-assert(npmPackages.length === 1, 'server.json must contain exactly one npm package');
+assert(
+  npmPackages.length === 1,
+  'server.json must contain exactly one npm package'
+);
 
 const [npmPackage] = npmPackages;
-assert(npmPackage.identifier === pkg.name, 'server.json npm package identifier mismatch');
-assert(npmPackage.version === pkg.version, 'server.json npm package version mismatch');
+assert(
+  npmPackage.identifier === pkg.name,
+  'server.json npm package identifier mismatch'
+);
+assert(
+  npmPackage.version === pkg.version,
+  'server.json npm package version mismatch'
+);
 assert(
   npmPackage.transport?.type === 'stdio',
   'server.json npm package transport must remain stdio'

@@ -7,7 +7,6 @@ import { redactSecrets } from './logging.js';
 import {
   BACKUP_FORMAT_VERSION,
   type AddFix,
-  type Command,
   type CommandRow,
   type CloseSession,
   type CreateSession,
@@ -171,7 +170,7 @@ function mapSavedSearchPreset(row: SavedSearchPresetRow): SavedSearchPreset {
 function mapSession(
   row: SessionRow,
   fixes: Fix[] = [],
-  commands: Command[] = []
+  commands: CommandRow[] = []
 ): Session {
   return {
     ...row,

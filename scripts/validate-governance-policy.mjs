@@ -116,7 +116,9 @@ try {
     'rhysd/actionlint',
     'zizmorcore/zizmor-pre-commit',
     'zizmorcore/zizmor-action',
-    'zizmorcore/zizmor'
+    'zizmorcore/zizmor',
+    'gitleaks/gitleaks',
+    'modelcontextprotocol/registry'
   ]) {
     if (!automationRule?.matchPackageNames?.includes(dependency)) {
       throw new Error(`renovate.json must group security tool: ${dependency}`);

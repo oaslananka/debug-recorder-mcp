@@ -14,7 +14,7 @@ Defined in: [src/types.ts:525](https://github.com/oaslananka/debug-recorder-mcp/
 
 ### commands
 
-> **commands**: [`Command`](Command.md)[]
+> **commands**: [`CommandRow`](CommandRow.md)[]
 
 ### fixes
 

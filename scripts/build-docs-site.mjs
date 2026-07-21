@@ -42,83 +42,140 @@ function escapeHtml(value) {
 function slugify(value) {
   return value
     .toLowerCase()
-    .replace(/`/g, '')
+    .replaceAll('`', '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function replaceMarkdownLinks(value) {
+  let cursor = 0;
+  let html = '';
+
+  while (cursor < value.length) {
+    const labelStart = value.indexOf('[', cursor);
+    if (labelStart < 0) {
+      return html + value.slice(cursor);
+    }
+
+    const labelEnd = value.indexOf('](', labelStart + 1);
+    const hrefEnd = labelEnd < 0 ? -1 : value.indexOf(')', labelEnd + 2);
+    if (labelEnd < 0 || hrefEnd < 0) {
+      return html + value.slice(cursor);
+    }
+
+    const label = value.slice(labelStart + 1, labelEnd);
+    const href = escapeHtml(value.slice(labelEnd + 2, hrefEnd));
+    html += `${value.slice(cursor, labelStart)}<a href="${href}">${label}</a>`;
+    cursor = hrefEnd + 1;
+  }
+
+  return html;
 }
 
 function inlineMarkdown(value) {
   let html = escapeHtml(value);
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
-    const safeHref = escapeHtml(href);
-    return `<a href="${safeHref}">${label}</a>`;
-  });
-  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  return html;
+  html = replaceMarkdownLinks(html);
+  return html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+function parseHeading(line) {
+  let level = 0;
+  while (level < 4 && line[level] === '#') {
+    level += 1;
+  }
+
+  if (level === 0 || line[level] !== ' ') {
+    return null;
+  }
+
+  const text = line.slice(level + 1).trim();
+  return text ? { level, text } : null;
+}
+
+function parseBullet(line) {
+  if (
+    line.length < 3 ||
+    (line[0] !== '-' && line[0] !== '*') ||
+    line[1] !== ' '
+  ) {
+    return null;
+  }
+
+  const text = line.slice(2).trim();
+  return text || null;
+}
+
+function closeList(state, html) {
+  if (!state.inList) {
+    return;
+  }
+
+  html.push('</ul>');
+  state.inList = false;
+}
+
+function toggleCodeBlock(state, html) {
+  if (state.inCode) {
+    html.push('</code></pre>');
+    state.inCode = false;
+    return;
+  }
+
+  closeList(state, html);
+  html.push('<pre><code>');
+  state.inCode = true;
+}
+
+function renderMarkdownLine(line, state, html) {
+  if (line.startsWith('```')) {
+    toggleCodeBlock(state, html);
+    return;
+  }
+
+  if (state.inCode) {
+    html.push(`${escapeHtml(line)}\n`);
+    return;
+  }
+
+  if (!line.trim()) {
+    closeList(state, html);
+    return;
+  }
+
+  const heading = parseHeading(line);
+  if (heading) {
+    closeList(state, html);
+    const id = slugify(heading.text);
+    html.push(
+      `<h${heading.level} id="${id}">${inlineMarkdown(heading.text)}</h${heading.level}>`
+    );
+    return;
+  }
+
+  const bullet = parseBullet(line);
+  if (bullet) {
+    if (!state.inList) {
+      html.push('<ul>');
+      state.inList = true;
+    }
+    html.push(`<li>${inlineMarkdown(bullet)}</li>`);
+    return;
+  }
+
+  closeList(state, html);
+  html.push(`<p>${inlineMarkdown(line)}</p>`);
 }
 
 function markdownToHtml(markdown) {
-  const lines = markdown.split(/\r?\n/);
   const html = [];
-  let inCode = false;
-  let inList = false;
+  const state = { inCode: false, inList: false };
 
-  const closeList = () => {
-    if (inList) {
-      html.push('</ul>');
-      inList = false;
-    }
-  };
-
-  for (const line of lines) {
-    if (line.startsWith('```')) {
-      if (inCode) {
-        html.push('</code></pre>');
-        inCode = false;
-      } else {
-        closeList();
-        html.push('<pre><code>');
-        inCode = true;
-      }
-      continue;
-    }
-
-    if (inCode) {
-      html.push(`${escapeHtml(line)}\n`);
-      continue;
-    }
-
-    if (!line.trim()) {
-      closeList();
-      continue;
-    }
-
-    const heading = line.match(/^(#{1,4})\s+(.+)$/);
-    if (heading) {
-      closeList();
-      const level = heading[1].length;
-      const text = heading[2].trim();
-      const id = slugify(text);
-      html.push(`<h${level} id="${id}">${inlineMarkdown(text)}</h${level}>`);
-      continue;
-    }
-
-    const bullet = line.match(/^[-*]\s+(.+)$/);
-    if (bullet) {
-      if (!inList) {
-        html.push('<ul>');
-        inList = true;
-      }
-      html.push(`<li>${inlineMarkdown(bullet[1])}</li>`);
-      continue;
-    }
-
-    closeList();
-    html.push(`<p>${inlineMarkdown(line)}</p>`);
+  for (const line of markdown.split(/\r?\n/)) {
+    renderMarkdownLine(line, state, html);
   }
 
-  closeList();
+  closeList(state, html);
   return html.join('\n');
 }
 
@@ -164,6 +221,10 @@ async function copyRecursive(from, to) {
   await copyFile(from, to);
 }
 
+function withoutMarkdownExtension(path) {
+  return path.toLowerCase().endsWith('.md') ? path.slice(0, -3) : path;
+}
+
 async function writeMarkdownPage(sourcePath, outputPath, title, depth) {
   const markdown = await readFile(join(ROOT, sourcePath), 'utf8');
   const html = markdownToHtml(markdown);
@@ -185,7 +246,7 @@ await writeFile(
 await copyRecursive(DOCS, join(OUT, 'source-docs'));
 
 for (const [source, title] of TOP_LEVEL_DOCS) {
-  const clean = source.replace(/\.md$/i, '').replace(/^docs\//, 'docs/');
+  const clean = withoutMarkdownExtension(source);
   const target =
     source === 'README.md'
       ? join(OUT, 'readme.html')
@@ -217,7 +278,7 @@ await writeFile(
         const href =
           source === 'README.md'
             ? 'readme.html'
-            : `${source.replace(/\.md$/i, '')}.html`;
+            : `${withoutMarkdownExtension(source)}.html`;
         return `<article class="card"><h3>${escapeHtml(title)}</h3><p><a href="${href}">Open ${escapeHtml(title)}</a></p></article>`;
       }).join('\n')}
     </section>
@@ -239,7 +300,7 @@ await writeFile(
     )
       .map(
         ([source, title]) =>
-          `<li><a href="../${source.replace(/\.md$/i, '')}.html">${escapeHtml(title)}</a></li>`
+          `<li><a href="../${withoutMarkdownExtension(source)}.html">${escapeHtml(title)}</a></li>`
       )
       .join('')}</ul></article>`,
     1

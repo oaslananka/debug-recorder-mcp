@@ -46,7 +46,11 @@ describe('Store', () => {
 
     try {
       const created = Store.create(dbPath);
-      created.createSession({ title: 'factory session', tags: [] });
+      const session = created.createSession({
+        title: 'factory session',
+        tags: []
+      });
+      expect(created.getSession(session.id)?.title).toBe('factory session');
       created.close();
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

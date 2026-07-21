@@ -21,6 +21,9 @@ try {
   assertFile('docs/security-sbom-vex.md');
   assertFile('docs/security/vex/README.md');
   assertFile('docs/security/vex/_template.md');
+  assertFile('docs/sonar-remediation.md');
+  assertFile('scripts/install-approved-dependencies.mjs');
+  assertFile('scripts/npm-cli.mjs');
 
   const policy = read('docs/security-sbom-vex.md');
   const template = read('docs/security/vex/_template.md');
@@ -110,6 +113,75 @@ try {
     snyk,
     'node scripts/run-snyk.mjs --required'
   );
+  const sonarRemediation = read('docs/sonar-remediation.md');
+  const sonarIssueKeys = [
+    'AZ-AWHstJy5ZX4v8T4kq',
+    'AZ-AWHogJy5ZX4v8T4kj',
+    'AZ-AWHq6Jy5ZX4v8T4kl',
+    'AZ801SU8Gb18dzC2eaSJ',
+    'AZ801SU8Gb18dzC2eaSK',
+    'AZ801SU8Gb18dzC2eaSL',
+    'AZ801SU8Gb18dzC2eaSM',
+    'AZ801SU8Gb18dzC2eaSN',
+    'AZ801SVEGb18dzC2eaSO',
+    'AZ801SWFGb18dzC2eaSR',
+    'AZ801SWFGb18dzC2eaSQ',
+    'AZ801SW5Gb18dzC2eaSZ',
+    'AZ801SW5Gb18dzC2eaSa',
+    'AZ801SW5Gb18dzC2eaSb',
+    'AZ-AWHrVJy5ZX4v8T4kn',
+    'AZ801SVMGb18dzC2eaSP',
+    'AZ801SXAGb18dzC2eaSd',
+    'AZ801SXAGb18dzC2eaSe',
+    'AZ-AWHsbJy5ZX4v8T4kp',
+    'AZ801SXAGb18dzC2eaSc',
+    'AZ-AWHqkJy5ZX4v8T4kk',
+    'AZ-AWHrVJy5ZX4v8T4km',
+    'AZ-AWHsbJy5ZX4v8T4ko',
+    'AZ-AWHu5Jy5ZX4v8T4kr',
+    'AZ801SWlGb18dzC2eaST',
+    'AZ801SWlGb18dzC2eaSU',
+    'AZ801SWlGb18dzC2eaSV',
+    'AZ801SWOGb18dzC2eaSS',
+    'AZ801STOGb18dzC2eaSI'
+  ];
+  for (const issueKey of sonarIssueKeys) {
+    assertContains('docs/sonar-remediation.md', sonarRemediation, issueKey);
+  }
+
+  for (const [path, workflow] of [
+    ['.github/workflows/ci.yml', ci],
+    ['.github/workflows/docs.yml', read('.github/workflows/docs.yml')],
+    [
+      '.github/workflows/npm-initial-publish.yml',
+      read('.github/workflows/npm-initial-publish.yml')
+    ],
+    ['.github/workflows/release.yml', release]
+  ]) {
+    for (const line of workflow
+      .split('\n')
+      .filter((entry) => entry.includes('npm ci'))) {
+      assertContains(path, line, '--ignore-scripts');
+    }
+    assertContains(path, workflow, 'npm run install:approved-scripts');
+  }
+
+  const dockerfile = read('Dockerfile');
+  assertContains('Dockerfile', dockerfile, 'npm ci --ignore-scripts');
+  assertContains('Dockerfile', dockerfile, 'npm run install:approved-scripts');
+  if (security.includes('go install ')) {
+    throw new Error(
+      '.github/workflows/security.yml must not use mutable Go installs'
+    );
+  }
+  if (
+    read('.github/workflows/publish-mcp-registry.yml').includes('curl -fsSL')
+  ) {
+    throw new Error(
+      '.github/workflows/publish-mcp-registry.yml must use checksum-verified release assets'
+    );
+  }
+
   assertContains('package.json', read('package.json'), '"check:sbom"');
   if (snyk.includes('snyk/actions/setup')) {
     throw new Error(

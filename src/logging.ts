@@ -3,12 +3,12 @@ const KEY_VALUE_PATTERN =
   /((?:token|secret|password|api[_-]?key)[^=\n:]{0,32}[=:]\s*)([^\s,\]}]+)/gi;
 const AUTHORIZATION_HEADER_PATTERN =
   /(authorization[^=\n:]{0,32}[=:]\s*)(bearer\s+)?([^\s,\]}]+)/gi;
-const BEARER_PATTERN = /\b(Bearer)\s+[A-Za-z0-9._-]+\b/gi;
+const BEARER_PATTERN = /\b(Bearer)\s+[a-z0-9._-]+\b/gi;
 const BASE64_TOKEN_PATTERN = /\b[A-Za-z0-9+/]{40,}={0,2}\b/g;
 const SECRET_PREFIX_PATTERN = /\bsk-[A-Za-z0-9]{16,}\b/g;
-const GITHUB_TOKEN_PATTERN = /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g;
+const GITHUB_TOKEN_PATTERN = /\bgh[pousr]_\w{20,}\b/g;
 const NPM_TOKEN_PATTERN = /\bnpm_[A-Za-z0-9]{20,}\b/g;
-const SLACK_TOKEN_PATTERN = /\bxox(?:a|b|p|r|s)-[A-Za-z0-9-]{20,}\b/g;
+const SLACK_TOKEN_PATTERN = /\bxox[abprs]-[A-Za-z0-9-]{20,}\b/g;
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
   debug: 10,
   info: 20,

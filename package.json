@@ -67,7 +67,8 @@
     "check:sbom": "node scripts/check-sbom.mjs",
     "check:codecov": "node scripts/validate-codecov-policy.mjs",
     "hooks:manual": "pre-commit run --hook-stage manual --all-files",
-    "check:governance": "node scripts/validate-governance-policy.mjs"
+    "check:governance": "node scripts/validate-governance-policy.mjs",
+    "install:approved-scripts": "node scripts/install-approved-dependencies.mjs"
   },
   "engines": {
     "node": "^22.0.0 || ^24.0.0",

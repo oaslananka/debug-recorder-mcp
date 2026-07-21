@@ -10,7 +10,6 @@
 
 - [AddFix](type-aliases/AddFix.md)
 - [CloseSession](type-aliases/CloseSession.md)
-- [Command](type-aliases/Command.md)
 - [CommandRow](type-aliases/CommandRow.md)
 - [CreateSession](type-aliases/CreateSession.md)
 - [DeleteSearchPreset](type-aliases/DeleteSearchPreset.md)
