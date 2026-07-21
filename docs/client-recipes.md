@@ -106,9 +106,12 @@ Security notes:
 - `DEBUG_RECORDER_ALLOWED_ORIGINS` is checked when an `Origin` header is present.
 - Wildcard origins are rejected.
 
-## Streamable HTTP: non-loopback deployment
+## Streamable HTTP: non-loopback private deployment
 
-Remote HTTP mode must be explicit and token-protected.
+Remote HTTP mode must be explicit and token-protected. This is
+private/shared-secret mode for callers that intentionally share one identity and
+one SQLite dataset. It is not OAuth and must not be exposed as a public
+multi-user service.
 
 ```bash
 HOST=0.0.0.0 \
@@ -121,7 +124,10 @@ DEBUG_RECORDER_REDACT_BEFORE_STORE=true \
 npm run start:http
 ```
 
-Put a TLS-terminating reverse proxy in front of remote deployments. Do not expose the service with plain HTTP on an untrusted network.
+Put a TLS-terminating reverse proxy in front of private remote deployments.
+Do not expose the service with plain HTTP on an untrusted network. For public
+OAuth requirements and the unsupported current boundary, see
+[Public HTTP authorization](./public-http-authorization.md).
 
 ## Safe example session
 

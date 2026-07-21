@@ -21,6 +21,20 @@ curl -fsS http://127.0.0.1:3000/health
 The local HTTP server validates `Host` and `Origin` and enforces a body-size
 limit. Set `DEBUG_RECORDER_HTTP_TOKEN` if local token auth is desired.
 
+## Remote deployment boundaries
+
+The built-in bearer token is private/shared-secret mode. Use it only when all
+callers intentionally share one trust boundary and one SQLite dataset, such as
+an encrypted private network or a private reverse proxy. Bind the core to
+loopback whenever a proxy is present and prevent direct network access around
+the proxy.
+
+Do not expose the built-in token mode as a public multi-user service. The future
+public profile requires an external authorization server, an MCP-aware gateway,
+OAuth protected-resource discovery, audience/resource validation, scopes, TLS,
+rate limits, request correlation, proxy trust, audit events, and a subject/tenant
+storage decision. See [Public HTTP authorization](./public-http-authorization.md).
+
 ## Docker
 
 Build:

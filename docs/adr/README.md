@@ -10,6 +10,7 @@ pull request or release note.
 | [ADR-0003](./0003-local-first-streamable-http-security.md) | Local-first Streamable HTTP security model |
 | [ADR-0004](./0004-release-provenance-and-publish-flow.md) | Release, provenance, and publish flow |
 | [ADR-0005](./0005-mcp-registry-versioning-and-metadata.md) | MCP Registry identity and version metadata |
+| [ADR-0006](./0006-public-http-oauth-resource-server-profile.md) | Public HTTP OAuth resource-server profile |
 
 ## ADR Format
 

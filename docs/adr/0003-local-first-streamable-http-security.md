@@ -41,7 +41,8 @@ HTTP mode:
   transport lifecycle.
 - More advanced remote hosting concerns such as TLS termination, rate limiting,
   and identity federation remain outside this package and belong in deployment
-  infrastructure.
+  infrastructure. The target public profile is defined by
+  [ADR-0006](./0006-public-http-oauth-resource-server-profile.md).
 
 ## Alternatives Considered
 
@@ -59,7 +60,8 @@ HTTP mode:
 - MCP Streamable HTTP requirements change in a way that requires persistent
   sessions or standardized headers not covered by the current transport.
 - The project adds hosted multi-user mode.
-- Users need first-class TLS, OAuth, or reverse-proxy deployment documentation.
+- The public OAuth profile in ADR-0006 is implemented or MCP authorization
+  discovery requirements change.
 
 ## References
 
