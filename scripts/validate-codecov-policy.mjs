@@ -64,7 +64,7 @@ try {
   }
 
   for (const required of [
-    'CODECOV_CLI_VERSION: v11.3.1',
+    'CODECOV_CLI_VERSION: 11.3.1',
     'reports/coverage/cobertura-coverage.xml',
     'report_type: test_results',
     'reports/test-results/node-${{ matrix.node-version }}/coverage/junit.xml',
@@ -98,6 +98,23 @@ try {
   assertOccurrenceCount(
     WORKFLOW_PATH,
     workflow,
+    'use_pypi: true',
+    2
+  );
+
+  if (/skip_validation:\s*true/.test(workflow)) {
+    throw new Error('Codecov CLI integrity validation must not be bypassed.');
+  }
+
+  if (/CODECOV_CLI_VERSION:\s*(?:latest|v)/.test(workflow)) {
+    throw new Error(
+      'Codecov PyPI uploads must use an exact unprefixed CLI version.'
+    );
+  }
+
+  assertOccurrenceCount(
+    WORKFLOW_PATH,
+    workflow,
     `    permissions:
       contents: read`,
     3
@@ -127,11 +144,18 @@ try {
     throw new Error('package.json must expose the check:codecov policy script');
   }
 
-  const hasCodecovManager = (renovate.customManagers ?? []).some((manager) =>
+  const codecovManager = (renovate.customManagers ?? []).find((manager) =>
     manager.description?.includes('Codecov CLI')
   );
-  if (!hasCodecovManager) {
-    throw new Error('renovate.json must manage the pinned Codecov CLI version');
+  const expectedCodecovMatch = String.raw`CODECOV_CLI_VERSION:\s*(?<currentValue>\d+\.\d+\.\d+)`;
+  if (
+    codecovManager?.depNameTemplate !== 'codecov-cli' ||
+    codecovManager?.datasourceTemplate !== 'pypi' ||
+    codecovManager?.matchStrings?.[0] !== expectedCodecovMatch
+  ) {
+    throw new Error(
+      'renovate.json must manage the exact Codecov CLI version from PyPI'
+    );
   }
 
   if (process.argv.includes('--remote')) {

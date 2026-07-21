@@ -71,65 +71,96 @@ describe('Codecov policy validator', () => {
     );
   });
 
-  it('requires an explicit workflow-level deny-all permissions block', () => {
+  it.each([
+    {
+      name: 'requires an explicit workflow-level deny-all permissions block',
+      mutate: (workflow: string) => workflow.replace('permissions: {}\n\n', ''),
+      expected: 'permissions: {}'
+    },
+    {
+      name: 'rejects workflow-level token permissions',
+      mutate: (workflow: string) =>
+        `permissions:\n  contents: read\n\n${workflow}`,
+      expected: 'permissions must be declared at job level'
+    },
+    {
+      name: 'rejects the deprecated Codecov test-results action',
+      mutate: (workflow: string) =>
+        `${workflow}\n# codecov/test-results-action@deprecated\n`,
+      expected: 'Deprecated Codecov test-results-action'
+    },
+    {
+      name: 'rejects Codecov token access without a dedicated environment',
+      mutate: (workflow: string) =>
+        workflow.replace('    environment: codecov\n', ''),
+      expected: 'environment: codecov'
+    },
+    {
+      name: 'requires the exact PyPI Codecov CLI path for both uploads',
+      mutate: (workflow: string) =>
+        workflow.replace('          use_pypi: true\n', ''),
+      expected: 'use_pypi: true'
+    }
+  ])('$name', ({ mutate, expected }) => {
     const root = createFixture();
     const workflowPath = join(root, '.github/workflows/ci.yml');
-    writeFileSync(
-      workflowPath,
-      readFileSync(workflowPath, 'utf8').replace('permissions: {}\n\n', '')
-    );
+    writeFileSync(workflowPath, mutate(readFileSync(workflowPath, 'utf8')));
 
     const result = runPolicy(root);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('permissions: {}');
+    expect(result.stderr).toContain(expected);
   });
 
-  it('rejects workflow-level token permissions', () => {
-    const root = createFixture();
-    const workflowPath = join(root, '.github/workflows/ci.yml');
-    writeFileSync(
-      workflowPath,
-      `permissions:\n  contents: read\n\n${readFileSync(workflowPath, 'utf8')}`
-    );
-
-    const result = runPolicy(root);
-
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain(
-      'permissions must be declared at job level'
-    );
-  });
-
-  it('rejects the deprecated Codecov test-results action', () => {
-    const root = createFixture();
-    const workflowPath = join(root, '.github/workflows/ci.yml');
-    writeFileSync(
-      workflowPath,
-      `${readFileSync(workflowPath, 'utf8')}\n# codecov/test-results-action@deprecated\n`
-    );
-
-    const result = runPolicy(root);
-
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('Deprecated Codecov test-results-action');
-  });
-
-  it('rejects Codecov token access without a dedicated environment', () => {
+  it('rejects bypassing Codecov CLI validation', () => {
     const root = createFixture();
     const workflowPath = join(root, '.github/workflows/ci.yml');
     writeFileSync(
       workflowPath,
       readFileSync(workflowPath, 'utf8').replace(
-        '    environment: codecov\n',
-        ''
+        '          use_pypi: true\n',
+        '          use_pypi: true\n          skip_validation: true\n'
       )
     );
 
     const result = runPolicy(root);
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('environment: codecov');
+    expect(result.stderr).toContain('must not be bypassed');
+  });
+
+  it('rejects mutable or binary-prefixed Codecov CLI versions', () => {
+    const root = createFixture();
+    const workflowPath = join(root, '.github/workflows/ci.yml');
+    writeFileSync(
+      workflowPath,
+      readFileSync(workflowPath, 'utf8').replace(
+        'CODECOV_CLI_VERSION: 11.3.1',
+        'CODECOV_CLI_VERSION: latest'
+      )
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('CODECOV_CLI_VERSION: 11.3.1');
+  });
+
+  it('requires Renovate to track Codecov CLI from PyPI', () => {
+    const root = createFixture();
+    const renovatePath = join(root, 'renovate.json');
+    writeFileSync(
+      renovatePath,
+      readFileSync(renovatePath, 'utf8').replace(
+        '"datasourceTemplate": "pypi"',
+        '"datasourceTemplate": "github-releases"'
+      )
+    );
+
+    const result = runPolicy(root);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('exact Codecov CLI version from PyPI');
   });
 
   it('rejects bundle analysis for the non-bundled package', () => {

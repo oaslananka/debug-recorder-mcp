@@ -76,6 +76,9 @@ scheduled OpenSSF Scorecard.
 The Node 24 quality job uploads the canonical Cobertura report to Codecov. Both
 Node 22 and Node 24 jobs upload their JUnit XML results with runtime-specific
 flags so failed and flaky tests can be compared across supported runtimes.
+The pinned Codecov action installs exact `codecov-cli==11.3.1` packages through
+its PyPI path; this avoids the action's external Keybase public-key fetch while
+keeping the action SHA, CLI version, token boundary, and upload failures strict.
 Upload steps run with `!cancelled()` so reports generated before a test failure
 are still sent, while fork pull requests are kept secret-free and skip uploads.
 

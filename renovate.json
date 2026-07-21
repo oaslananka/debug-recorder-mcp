@@ -225,11 +225,10 @@
         "/^\\.github/workflows/ci\\.yml$/"
       ],
       "matchStrings": [
-        "CODECOV_CLI_VERSION:\\s*v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+        "CODECOV_CLI_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "depNameTemplate": "codecov/codecov-cli",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "depNameTemplate": "codecov-cli",
+      "datasourceTemplate": "pypi"
     },
     {
       "customType": "regex",

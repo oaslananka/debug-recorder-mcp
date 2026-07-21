@@ -133,8 +133,8 @@ jobs:
       matrix:
         node-version: ['22.22.3', '24.16.0']
     env:
-      # renovate: datasource=github-releases depName=codecov/codecov-cli
-      CODECOV_CLI_VERSION: v11.3.1
+      # renovate: datasource=pypi depName=codecov-cli
+      CODECOV_CLI_VERSION: 11.3.1
     steps:
       - name: Download quality reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -153,6 +153,7 @@ jobs:
           name: node-24-coverage
           fail_ci_if_error: true
           handle_no_reports_found: true
+          use_pypi: true
           version: ${{ env.CODECOV_CLI_VERSION }}
 
       - name: Upload test results to Codecov
@@ -169,6 +170,7 @@ jobs:
           name: node-${{ matrix.node-version }}-tests
           fail_ci_if_error: true
           handle_no_reports_found: true
+          use_pypi: true
           version: ${{ env.CODECOV_CLI_VERSION }}
 
   docker:
