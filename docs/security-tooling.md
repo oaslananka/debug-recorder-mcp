@@ -9,10 +9,32 @@ This repository uses layered automation so developers receive fast local feedbac
 | Renovate        | `43.272.4`      | Dependency and pinned-reference updates           |
 | pre-commit      | `4.6.0`         | Local Git hook orchestration                      |
 | Semgrep         | `1.170.0`       | Repository-owned SAST rules and Semgrep AppSec CI |
+| actionlint      | `1.7.12`        | GitHub Actions syntax and semantic validation     |
+| Zizmor          | `1.27.0`        | GitHub Actions security analysis                  |
 | Snyk CLI        | `1.1306.1`      | npm dependency vulnerability analysis             |
 | SonarQube Cloud | Managed service | Automatic code-quality and security quality gate  |
 
 Renovate manages these pinned versions and their workflow/action references. Major, Node, MCP runtime, native dependency, and other high-risk updates require explicit maintainer approval.
+
+## Tool ownership matrix
+
+Each category has one primary owner. Additional services are specialist or
+advisory signals rather than duplicate blocking gates.
+
+| Category                        | Primary owner                              | Specialist or advisory signals                                               |
+| ------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| Dependency updates              | Renovate                                   | Dependabot alerts only; no duplicate version-update PRs                      |
+| SAST                            | CodeQL                                     | Semgrep for repository-owned patterns; Snyk Code only as platform visibility |
+| Secrets                         | GitHub secret scanning and push protection | Gitleaks as CI defense in depth                                              |
+| Container/filesystem            | Trivy                                      | Snyk container/IaC only if the platform becomes the organization standard    |
+| Coverage and test analytics     | Codecov                                    | SonarQube Cloud may display metrics but is not a second coverage gate        |
+| Code quality and technical debt | ESLint, TypeScript, and Knip               | SonarQube Cloud advisory/new-code quality gate                               |
+| Workflow security               | actionlint and Zizmor                      | OpenSSF Scorecard for repository-level posture                               |
+| Releases and supply chain       | Release Please, OIDC, attestations, SBOM   | OpenSSF Scorecard                                                            |
+
+Codecov statuses remain informational while the baseline stabilizes. CodeQL, Trivy, dependency review, and workflow security are the blocking
+category owners in the `main` ruleset. See
+[Repository governance](./repository-governance.md) for the exact merge model.
 
 ## Install local hooks
 
@@ -25,7 +47,9 @@ npm ci
 npm run hooks:install
 ```
 
-The install command enables both `pre-commit` and `pre-push` stages.
+The install command enables only the fast `pre-commit` stage. Full tests and
+network-dependent scanners are deliberate manual commands, not automatic push
+hooks.
 
 Run the commit-stage checks across the repository:
 
@@ -33,10 +57,10 @@ Run the commit-stage checks across the repository:
 npm run hooks:run
 ```
 
-Run the push-stage checks explicitly:
+Run the complete manual hook stage explicitly:
 
 ```bash
-pre-commit run --hook-stage pre-push --all-files
+npm run hooks:manual
 ```
 
 ## Hook stages
@@ -45,7 +69,9 @@ pre-commit run --hook-stage pre-push --all-files
 
 The fast commit path runs:
 
-- JSON/YAML, merge-conflict, private-key, large-file, whitespace, and EOF checks;
+- JSON/YAML/TOML, merge-conflict, private-key, large-file, line-ending,
+  whitespace, and EOF checks;
+- actionlint and offline Zizmor checks for changed GitHub Actions workflows;
 - strict Renovate config validation;
 - repository Semgrep rules on staged JavaScript and TypeScript;
 - Prettier and ESLint on staged TypeScript source/tests;
@@ -53,23 +79,21 @@ The fast commit path runs:
 
 Semgrep rule fixtures are generated in a temporary directory by `scripts/validate-semgrep-rules.mjs`; intentionally insecure examples are never tracked as analyzable repository source.
 
-### pre-push
-
-Before a push, hooks run:
-
-- `npm run ci:local`;
-- `node scripts/run-snyk.mjs`.
-
-A missing local Snyk token is reported and skipped so offline development is not blocked. GitHub Actions remains authoritative for authenticated Snyk results.
-
 ### manual
 
-Run token-dependent or remote status checks deliberately:
+Full tests and token-dependent or remote checks are explicit so routine commits
+and pushes stay fast and deterministic:
 
 ```bash
+pre-commit run --hook-stage manual full-local-ci
 pre-commit run --hook-stage manual snyk-open-source
 pre-commit run --hook-stage manual sonar-quality-gate
+# or run all manual checks
+npm run hooks:manual
 ```
+
+A missing local Snyk token is reported and skipped so offline development is not
+blocked. GitHub Actions remains authoritative for authenticated Snyk results.
 
 ## Semgrep
 
@@ -141,7 +165,7 @@ The Dependency Dashboard is the approval surface for major and high-risk updates
 Use hook skips only for a documented emergency and never to bypass repository CI:
 
 ```bash
-SKIP=snyk-open-source git push
+SKIP=actionlint,zizmor git commit
 ```
 
 GitHub Actions scans still run. Do not use `--no-verify` as a routine workflow.
