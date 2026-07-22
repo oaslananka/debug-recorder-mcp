@@ -27,7 +27,7 @@ defaults:
     shell: bash
 
 env:
-  MCP_PUBLISHER_VERSION: v1.7.9
+  MCP_PUBLISHER_VERSION: v1.8.0
 
 jobs:
   validate:
