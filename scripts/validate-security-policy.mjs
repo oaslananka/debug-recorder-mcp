@@ -203,9 +203,9 @@ try {
   const requiredOverrides = {
     '@hono/node-server': '2.0.11',
     'body-parser': '2.3.0',
-    'fast-uri': '3.1.4',
-    'js-yaml': '4.3.0',
-    'markdown-it': '14.3.0'
+    'fast-uri': '4.2.1',
+    'js-yaml': '4.3.2',
+    'markdown-it': '14.3.1'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredOverrides
@@ -218,8 +218,8 @@ try {
   }
 
   const requiredVersionScopedOverrides = {
-    'brace-expansion@1.1.15': '1.1.16',
-    'brace-expansion@5.0.6': '5.0.7'
+    'brace-expansion@^1.1.7': '1.1.21',
+    'brace-expansion@^5.0.5': '5.0.12'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredVersionScopedOverrides
@@ -232,9 +232,10 @@ try {
   }
 
   const forbiddenLockedVersions = new Map([
-    ['brace-expansion', new Set(['1.1.15', '5.0.6'])],
-    ['fast-uri', new Set(['3.1.2'])],
-    ['js-yaml', new Set(['4.2.0'])],
+    ['brace-expansion', new Set(['1.1.15', '1.1.16', '5.0.6', '5.0.7'])],
+    ['fast-uri', new Set(['3.1.2', '3.1.4'])],
+    ['js-yaml', new Set(['4.2.0', '4.3.0'])],
+    ['markdown-it', new Set(['14.3.0'])],
     ['linkify-it', new Set(['5.0.1'])]
   ]);
   for (const [packagePath, packageMetadata] of Object.entries(
