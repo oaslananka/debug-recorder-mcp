@@ -203,9 +203,9 @@ try {
   const requiredOverrides = {
     '@hono/node-server': '2.0.11',
     'body-parser': '2.3.0',
-    'fast-uri': '3.1.4',
-    'js-yaml': '4.3.0',
-    'markdown-it': '14.3.0'
+    'fast-uri': '3.1.8',
+    'js-yaml': '4.3.2',
+    'markdown-it': '14.3.1'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredOverrides
@@ -218,8 +218,8 @@ try {
   }
 
   const requiredVersionScopedOverrides = {
-    'brace-expansion@1.1.15': '1.1.16',
-    'brace-expansion@5.0.6': '5.0.7'
+    'brace-expansion@1': '1.1.21',
+    'brace-expansion@5': '5.0.12'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredVersionScopedOverrides
