@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Release flow | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="release-flow">Release Flow</h1>
+<p>This repository uses GitHub Actions and release-please manifest mode for normal</p>
+<p>package releases.</p>
+<h2 id="release-inputs">Release inputs</h2>
+<ul>
+<li><code>release-please-config.json</code></li>
+<li><code>.release-please-manifest.json</code></li>
+<li><code>CHANGELOG.md</code></li>
+<li><code>package.json</code></li>
+<li><code>package-lock.json</code></li>
+<li><code>mcp.json</code></li>
+<li><code>server.json</code></li>
+</ul>
+<p>Manual version inputs are not part of the release workflow. The release version,</p>
+<p>tag, major, minor, and patch values are read only from release-please outputs.</p>
+<h2 id="pull-request-validation">Pull request validation</h2>
+<p>Pull requests run validation only:</p>
+<ul>
+<li>format check</li>
+<li>typecheck and lint</li>
+<li>dead-code check</li>
+<li>coverage tests</li>
+<li>deterministic fuzz regression tests</li>
+<li>build</li>
+<li>e2e tests</li>
+<li>dependency audit</li>
+<li>package dry run</li>
+<li>package size check</li>
+<li>version synchronization</li>
+<li>MCP metadata validation</li>
+<li>Docker build, smoke, and scan</li>
+<li>workflow lint and workflow security scan</li>
+<li>secret scan</li>
+<li>filesystem vulnerability scan</li>
+<li>CodeQL</li>
+</ul>
+<p>Pull request validation does not publish npm packages, MCP Registry metadata,</p>
+<p>containers, marketplace assets, or production GitHub Releases.</p>
+<h2 id="main-branch-release-automation">Main branch release automation</h2>
+<p>When commits land on <code>main</code>, release-please runs first. If no release is due,</p>
+<p>asset and publish jobs are skipped. If release-please creates a release, the</p>
+<p>release workflow:</p>
+<p>1. installs with <code>npm ci</code></p>
+<p>2. runs the local release gate</p>
+<p>3. creates the npm package tarball with <code>npm pack</code></p>
+<p>4. generates a CycloneDX SBOM with <code>npm sbom</code></p>
+<p>5. writes SHA256 checksums</p>
+<p>6. creates a GitHub artifact attestation for the package tarball</p>
+<p>7. attaches the tarball, SBOM, and checksums to the GitHub Release</p>
+<p>8. waits for the <code>npm-publish</code> environment before publishing to npm</p>
+<p>9. verifies the published npm version</p>
+<p>10. verifies MCP Registry readiness against the published npm version</p>
+<p>11. uploads <code>server.json</code> as the registry descriptor artifact</p>
+<p>The npm publish step uses provenance and is intended for npm trusted publishing</p>
+<p>through GitHub OIDC. A repository secret named <code>NPM_TOKEN</code> is supported as a fallback when trusted</p>
+<p>publishing is not available, and as the required path for the first package</p>
+<p>creation when npm trusted publishing has not yet been attached to the package.</p>
+<h3 id="first-npm-publish-with-token">First npm publish with token</h3>
+<p>npm trusted publishing can only be configured correctly when the package and its</p>
+<p>publisher relationship exist in npm. For the first public package creation, use</p>
+<p><code>.github/workflows/npm-initial-publish.yml</code>:</p>
+<p>1. create an npm automation or granular access token that can publish</p>
+<p>   <code>debug-recorder-mcp</code></p>
+<p>2. save it as repository secret <code>NPM_TOKEN</code></p>
+<p>3. approve the <code>npm-publish</code> environment</p>
+<p>4. run <strong>Initial npm Token Publish</strong> with the version that already exists in</p>
+<p>   <code>package.json</code></p>
+<p>5. verify <code>npm view debug-recorder-mcp@&lt;version&gt; version</code></p>
+<p>6. configure npm trusted publishing for future Release workflow runs</p>
+<h3 id="npm-trusted-publishing-blocker">npm trusted publishing blocker</h3>
+<p><code>debug-recorder-mcp</code> must exist on npm with this GitHub repository configured as</p>
+<p>an allowed trusted publisher, or the release workflow's <code>npm-publish</code> job must</p>
+<p>run with <code>NPM_TOKEN</code> that can create or update that package. If npm returns</p>
+<p><code>E404</code> from <code>PUT https://registry.npmjs.org/debug-recorder-mcp</code> during</p>
+<p><code>npm publish --provenance</code>, treat it as an npm package ownership/token/trusted</p>
+<p>publisher configuration blocker, not a build failure.</p>
+<p>To recover:</p>
+<p>1. publish the first package through <strong>Initial npm Token Publish</strong>, or configure</p>
+<p>   npm trusted publishing for package <code>debug-recorder-mcp</code> and GitHub repository</p>
+<p>   <code>oaslananka/debug-recorder-mcp</code></p>
+<p>2. if a different scoped/owned package name is required, update <code>package.json</code>,</p>
+<p>   <code>mcp.json</code>, <code>server.json</code>, docs, and release verification scripts together</p>
+<p>3. rerun the <code>Release</code> workflow from <code>main</code></p>
+<p>4. verify <code>npm view debug-recorder-mcp@&lt;version&gt; version</code></p>
+<p>5. only then continue with MCP Registry submission</p>
+<p>The repository Actions setting must keep default <code>GITHUB_TOKEN</code> permissions at</p>
+<p>read-only while enabling &quot;Allow GitHub Actions to create and approve pull</p>
+<p>requests&quot;. Release Please still receives only the job-level permissions in</p>
+<p><code>.github/workflows/release.yml</code>, but GitHub blocks release PR creation unless</p>
+<p>that repository setting is enabled.</p>
+<h2 id="mcp-registry">MCP Registry</h2>
+<p>The registry identity remains:</p>
+<pre><code>
+io.github.oaslananka/debug-recorder-mcp
+
+</code></pre>
+<p>Before an MCP Registry update:</p>
+<ul>
+<li><code>server.json.name</code> must match <code>package.json.mcpName</code></li>
+<li><code>server.json.packages[].identifier</code> must remain <code>debug-recorder-mcp</code></li>
+<li><code>server.json.version</code> must match <code>package.json.version</code> for package releases</li>
+<li><code>server.json.packages[].version</code> must exist on npm</li>
+<li><code>node scripts/check-version-sync.mjs</code> must pass</li>
+<li><code>node scripts/validate-mcp-metadata.mjs</code> must pass</li>
+</ul>
+<p>Registry publishing is intentionally separate from npm publishing and remains a</p>
+<p>manual maintainer submission until the registry provides a stable authenticated</p>
+<p>submission mechanism for this project. The automated release workflow now runs a</p>
+<p>post-npm <code>MCP Registry Readiness</code> gate before maintainers submit registry</p>
+<p>metadata.</p>
+<p>Release checklist for npm plus MCP Registry:</p>
+<p>1. Release Please creates the GitHub Release and versioned metadata.</p>
+<p>2. Release assets are built, attested, checksummed, and attached.</p>
+<p>3. The <code>npm-publish</code> environment is approved.</p>
+<p>4. The tarball is published to npm with provenance.</p>
+<p>5. <code>npm view debug-recorder-mcp@&lt;version&gt; version</code> returns the release version.</p>
+<p>6. <code>npm run check:version</code> passes.</p>
+<p>7. <code>npm run check:mcp</code> passes.</p>
+<p>8. <code>npm run check:mcp-registry:published</code> passes.</p>
+<p>9. The <code>mcp-registry-descriptor</code> workflow artifact contains the exact <code>server.json</code></p>
+<p>   used for manual registry submission.</p>
+<p>10. A maintainer submits or updates the registry entry for</p>
+<p>    <code>io.github.oaslananka/debug-recorder-mcp</code>.</p>
+<p>If npm publication succeeds but MCP Registry readiness fails, the release is in a</p>
+<p>partial success state: npm is live, but registry metadata must not be submitted</p>
+<p>until the failure is fixed. The workflow creates a follow-up issue labeled for</p>
+<p>release, MCP, packaging, and triage so the published-but-not-registry-ready state</p>
+<p>is visible.</p>
+<h2 id="architecture-decisions">Architecture decisions</h2>
+<ul>
+<li><a href="./adr/0004-release-provenance-and-publish-flow.md">ADR-0004: Release, Provenance, and Publish Flow</a></li>
+<li><a href="./adr/0005-mcp-registry-versioning-and-metadata.md">ADR-0005: MCP Registry Identity and Version Metadata</a></li>
+</ul>
+</article>
+  </main>
+</body>
+</html>

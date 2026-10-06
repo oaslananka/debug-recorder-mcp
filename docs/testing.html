@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testing | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="testing">Testing</h1>
+<h2 id="local-gate">Local gate</h2>
+<p>Run the full local gate before opening or updating a release pull request:</p>
+<pre><code>
+npm ci
+
+npm run format:check
+
+npm run lint
+
+npm run check:dead-code
+
+npm run check:codecov
+
+npm run test:coverage
+
+npm run test:fuzz
+
+npm run build
+
+npm run test:e2e
+
+npm audit --audit-level=moderate
+
+npm run check:install-scripts
+
+npm pack --dry-run
+
+npm run check:package-size
+
+node scripts/check-version-sync.mjs
+
+node scripts/validate-mcp-metadata.mjs
+
+npm run check:security-policy
+
+</code></pre>
+<p>Run the e2e stdio flow after building:</p>
+<pre><code>
+npm run build
+
+npm run test:e2e
+
+</code></pre>
+<p>Run deterministic property-based regression tests for import payloads, search</p>
+<p>normalization, HTTP allowlist validation, and redaction:</p>
+<pre><code>
+npm run test:fuzz
+
+</code></pre>
+<p>Run the package hygiene checks whenever exports, scripts, package metadata, or</p>
+<p>the <code>files</code> allowlist changes:</p>
+<pre><code>
+npm run check:dead-code
+
+npm run check:package-size
+
+</code></pre>
+<p>Run the Docker gate when the Dockerfile or HTTP runtime changes:</p>
+<pre><code>
+docker build -t debug-recorder-mcp:local .
+
+</code></pre>
+<h2 id="coverage-focus">Coverage focus</h2>
+<p>The unit suite covers:</p>
+<ul>
+<li>database migrations and store behavior</li>
+<li>missing-session domain errors</li>
+<li>import/export boundaries</li>
+<li>search behavior</li>
+<li>tool handler validation</li>
+<li>secret redaction</li>
+<li>HTTP host, origin, auth, body limit, malformed JSON, and transport isolation</li>
+<li>property-based fuzz regressions for import/export boundaries, search query</li>
+</ul>
+<p>  normalization, HTTP allowlists, and redaction</p>
+<p>CI enforces coverage thresholds, e2e flow coverage, deterministic fuzz</p>
+<p>regression tests, dead-code checks, dependency audit, install-script approval checks, package dry run, package</p>
+<p>size checks, version synchronization, MCP metadata validation, SBOM/VEX policy invariant checks, workflow</p>
+<p>linting, workflow security scanning, secret scanning, Trivy, CodeQL, and</p>
+<p>scheduled OpenSSF Scorecard.</p>
+<h2 id="codecov-coverage-and-test-analytics">Codecov coverage and test analytics</h2>
+<p>The Node 24 quality job uploads the canonical Cobertura report to Codecov. Both</p>
+<p>Node 22 and Node 24 jobs upload their JUnit XML results with runtime-specific</p>
+<p>flags so failed and flaky tests can be compared across supported runtimes.</p>
+<p>The pinned Codecov action installs exact <code>codecov-cli==11.3.1</code> packages through</p>
+<p>its PyPI path; this avoids the action's external Keybase public-key fetch while</p>
+<p>keeping the action SHA, CLI version, token boundary, and upload failures strict.</p>
+<p>Upload steps run with <code>!cancelled()</code> so reports generated before a test failure</p>
+<p>are still sent, while fork pull requests are kept secret-free and skip uploads.</p>
+<p><code>codecov.yml</code> keeps project and patch statuses informational during baseline</p>
+<p>establishment. Jest remains the blocking local coverage gate. Promote Codecov</p>
+<p>statuses to blocking only after the default branch has a stable baseline and the</p>
+<p>Codecov GitHub App is active for the repository.</p>
+<p>JavaScript Bundle Analysis is intentionally not enabled. This repository ships</p>
+<p>a TypeScript-compiled Node CLI/server package and has no Rollup, Vite, or</p>
+<p>Webpack browser bundle. The npm packed/unpacked artifact budget is the relevant</p>
+<p>size regression gate and is enforced by <code>npm run check:package-size</code>.</p>
+<p>Validate policy locally and against Codecov's official validator with:</p>
+<pre><code>
+npm run check:codecov
+
+npm run check:codecov -- --remote
+
+</code></pre>
+</article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SBOM and VEX policy | debug-recorder-mcp documentation</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">debug-recorder-mcp</a>
+    <nav>
+      <a href="../docs/index.html">Docs</a>
+      <a href="../api/index.html">API</a>
+      <a href="https://github.com/oaslananka/debug-recorder-mcp">GitHub</a>
+      <a href="https://www.npmjs.com/package/debug-recorder-mcp">npm</a>
+    </nav>
+  </header>
+  <main>
+<article class="doc">
+<h1 id="sbom-and-vex-dependency-finding-policy">SBOM and VEX Dependency Finding Policy</h1>
+<p>This project treats dependency and scanner findings as release-quality signals. The goal is to keep runtime users safe while avoiding noisy, undocumented exceptions for dev-only or non-exploitable findings.</p>
+<h2 id="release-assets">Release assets</h2>
+<p>Every GitHub Release build must keep producing the following assets:</p>
+<ul>
+<li>npm package tarball from <code>npm pack</code>.</li>
+<li>CycloneDX SBOM from <code>npm sbom --sbom-format=cyclonedx</code>.</li>
+<li>Local dependency-graph validation from <code>npm run check:sbom</code>.</li>
+<li><code>SHA256SUMS</code> for release artifacts.</li>
+<li>GitHub artifact provenance attestations for the package tarball.</li>
+</ul>
+<p>The release workflow must fail rather than publish when any of those assets cannot be generated.</p>
+<h2 id="finding-classification">Finding classification</h2>
+<p>| Class                         | Examples                                                                                                     | Required action                                                                                                                               |</p>
+<p>| ----------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |</p>
+<p>| Production/runtime            | Direct runtime dependencies, transitive dependencies shipped in the npm package, HTTP transport dependencies | Fix immediately for <code>moderate</code>, <code>high</code>, and <code>critical</code> findings before release.                                                               |</p>
+<p>| Optional/native runtime       | <code>better-sqlite3</code> native build chain or platform-specific optional packages                                   | Fix immediately when exploitable in supported runtime use; otherwise document scope and mitigation.                                           |</p>
+<p>| Development-only              | Jest, TypeDoc, lint, coverage, test-only transform packages                                                  | Fix before merge when <code>npm audit --audit-level=moderate</code> fails, unless a documented temporary VEX decision exists.                            |</p>
+<p>| Scanner-only container/OS     | Findings emitted by Trivy for base image or package-manager metadata                                         | Fix <code>high</code> and <code>critical</code> findings before release, or document why the vulnerable component is unreachable/not present in the final artifact. |</p>
+<p>| False positive / not affected | Finding targets an unused adapter, disabled feature, unreachable platform path, or non-shipped file          | Record a VEX decision and keep scanner/audit output linked to that decision.                                                                  |</p>
+<h2 id="fix-vs-temporary-acceptance">Fix vs temporary acceptance</h2>
+<p>Fix immediately when any of these are true:</p>
+<ul>
+<li>The vulnerable package is used by production code or included in the published npm package.</li>
+<li>The vulnerability affects Streamable HTTP, local storage, redaction, search/query handling, release automation, install scripts, or package publication.</li>
+<li>The finding is <code>high</code> or <code>critical</code> in a supported runtime path.</li>
+<li>A patch is available and does not require a breaking downgrade or unsafe override.</li>
+</ul>
+<p>Temporary acceptance is allowed only when all of these are true:</p>
+<ul>
+<li>The finding is not exploitable in the supported configuration, or it is dev/test-only and blocked from runtime publication.</li>
+<li>A tracking issue exists with owner, scope, mitigation, and re-review date.</li>
+<li>The decision is captured using the VEX record format below.</li>
+<li>CI output links maintainers to this policy when the relevant audit/scanner step fails.</li>
+</ul>
+<h2 id="vex-decision-record-format">VEX decision record format</h2>
+<p>Store VEX/advisory decisions in <code>docs/security/vex/YYYY-MM-DD-&lt;package-or-advisory&gt;.md</code> when needed. Use <a href="./security/vex/_template.md"><code>docs/security/vex/_template.md</code></a> and keep the directory README current.</p>
+<pre><code>
+# VEX: &lt;package/advisory&gt;
+
+
+
+- Date: YYYY-MM-DD
+
+- Review by: &lt;GitHub handle&gt;
+
+- Advisory: &lt;GHSA/CVE/npm advisory URL or identifier&gt;
+
+- Package and version: &lt;name&gt;@&lt;version&gt;
+
+- Affected path: production | optional-native | development-only | scanner-only
+
+- Status: affected | not_affected | fixed | under_investigation
+
+- Justification: component_not_present | vulnerable_code_not_in_execute_path | vulnerable_code_cannot_be_controlled_by_adversary | inline_mitigations_already_exist | dev_dependency_only | other
+
+- Mitigation: &lt;patch, override, config, or release gate&gt;
+
+- Tracking issue/PR: #&lt;number&gt;
+
+- Re-review date: YYYY-MM-DD
+
+
+
+## Evidence
+
+
+
+- Commands run:
+
+  - `npm audit --audit-level=moderate`
+
+  - `npm sbom --sbom-format=cyclonedx &gt;/tmp/debug-recorder-mcp.cdx.json`
+
+  - `npm run check:sbom`
+
+  - `npm run ci:local`
+
+- Notes: &lt;why this is safe for this package&gt;
+
+</code></pre>
+<h2 id="current-policy-baseline">Current policy baseline</h2>
+<p>As of this policy, the expected baseline is:</p>
+<ul>
+<li><code>npm audit --audit-level=moderate</code> reports zero vulnerabilities.</li>
+<li><code>npm approve-scripts --allow-scripts-pending</code> reports no unreviewed install scripts.</li>
+<li>Release assets include SBOM, checksums, and provenance attestations.</li>
+<li><code>npm run check:security-policy</code> verifies policy files, release asset invariants, and CI scanner failure links.</li>
+<li>Any future exception must be explicit, issue-linked, and time-bounded.</li>
+</ul>
+<h2 id="maintainer-checklist">Maintainer checklist</h2>
+<p>Before merging a dependency/security PR:</p>
+<p>1. Run <code>npm ci</code> from a clean checkout.</p>
+<p>2. Run <code>npm run check:install-scripts</code> and review any new install scripts.</p>
+<p>3. Update <a href="./install-script-policy.md"><code>docs/install-script-policy.md</code></a> when an approved script changes.</p>
+<p>4. Run <code>npm audit --audit-level=moderate</code>.</p>
+<p>5. Generate a local SBOM with <code>npm sbom --sbom-format=cyclonedx &gt;/tmp/debug-recorder-mcp.cdx.json</code>.</p>
+<p>6. Run <code>npm run check:sbom</code>.</p>
+<p>7. Run <code>npm run check:security-policy</code>.</p>
+<p>8. Run <code>npm run ci:local</code>.</p>
+<p>9. If anything remains unfixed, add a VEX decision record and link the tracking issue.</p>
+</article>
+  </main>
+</body>
+</html>
