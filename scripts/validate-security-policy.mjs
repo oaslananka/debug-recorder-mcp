@@ -205,7 +205,7 @@ try {
     'body-parser': '2.3.0',
     'fast-uri': '3.1.8',
     'js-yaml': '4.3.2',
-    'markdown-it': '14.3.0'
+    'markdown-it': '14.3.1'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredOverrides

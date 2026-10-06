@@ -42,6 +42,7 @@ Before writing code, research current stable versions and update the approved ta
 | `test-exclude` | `8.0.0` | Current stable coverage exclusion helper compatible with `babel-plugin-istanbul` 8 and `glob` 13. |
 | `typedoc` | `0.28.18` | API documentation generator compatible with TypeScript 5.9. |
 | `typedoc-plugin-markdown` | `4.11.0` | Selected to generate TypeDoc output as Markdown under `docs/api`. |
+| `markdown-it` | `14.3.1` | Patched version for GHSA-253c-mchw-3w2r; required by TypeDoc 0.28.x dev dependency. |
 
 [WORK RULES]
 
