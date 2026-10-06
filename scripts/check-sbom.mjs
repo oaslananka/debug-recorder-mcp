@@ -4,7 +4,8 @@ import { spawnSync } from 'node:child_process';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const result = spawnSync(npmCommand, ['sbom', '--sbom-format=cyclonedx'], {
   encoding: 'utf8',
-  shell: false
+  shell: false,
+  maxBuffer: 1024 * 1024 * 100
 });
 
 if (result.error) {
