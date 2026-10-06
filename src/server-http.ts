@@ -332,9 +332,7 @@ function setCorsHeaders(
 
 function assertJsonContentType(request: IncomingMessage): void {
   const contentType = request.headers['content-type'] as
-    | string
-    | string[]
-    | undefined;
+    string | string[] | undefined;
   const normalized: string | undefined = Array.isArray(contentType)
     ? contentType[0]
     : contentType;

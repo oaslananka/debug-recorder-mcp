@@ -5,10 +5,7 @@ import type { Store } from './store.js';
 import { NAME, VERSION } from './version.js';
 
 export type DiagnosticEvent =
-  | 'session_created'
-  | 'search'
-  | 'import'
-  | 'export';
+  'session_created' | 'search' | 'import' | 'export';
 export type HttpRejectionReason =
   | 'body_too_large'
   | 'forbidden_host'
