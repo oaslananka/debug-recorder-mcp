@@ -12,6 +12,7 @@ native or postinstall execution.
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `better-sqlite3@12.8.0` | Required native SQLite binding for the local-first debug session store. The package uses install/build steps to provide or compile native bindings.      | Review changelog, native build changes, release provenance, and `npm audit` before changing this pin.                 |
 | `unrs-resolver@1.12.2`  | Transitive resolver dependency used by the lint/developer tooling dependency graph. Its postinstall path is reviewed and pinned to the lockfile version. | Review resolver package release notes, transitive dependency changes, and the lockfile diff before changing this pin. |
+| `@parcel/watcher@2.6.0` | Native file watcher used by the build tooling. Its postinstall compiles a native binary for the platform.               | Review release notes, native build changes, and lockfile diff before changing this pin.                              |
 
 Do not replace these with unpinned package names. Version-pinned entries make a
 future dependency update create a visible policy diff.

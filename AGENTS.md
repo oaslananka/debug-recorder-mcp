@@ -41,7 +41,15 @@ Before writing code, research current stable versions and update the approved ta
 | `glob` | `13.0.6` | Current stable glob release used through overrides to keep Jest coverage tooling off deprecated glob versions. |
 | `test-exclude` | `8.0.0` | Current stable coverage exclusion helper compatible with `babel-plugin-istanbul` 8 and `glob` 13. |
 | `typedoc` | `0.28.18` | API documentation generator compatible with TypeScript 5.9. |
-| `typedoc-plugin-markdown` | `4.11.0` | Selected to generate TypeDoc output as Markdown under `docs/api`. |
+| `typedoc-plugin-markdown` | `4.12.0` | Selected to generate TypeDoc output as Markdown under `docs/api`. |
+| `@humanfs/core` | `0.20.0` | Override to fix moderate vulnerability GHSA-p498-v437-472g in transitive dependency. |
+| `@humanfs/node` | `0.17.0` | Override to fix moderate vulnerability GHSA-p498-v437-472g in transitive dependency (Node 24+). |
+| `@humanfs/types` | `0.16.0` | Type definitions for @humanfs/core and @humanfs/node. |
+| `baseline-browser-mapping` | `2.11.27` | Override to fix moderate vulnerability GHSA-w5vr-8v7q-w6rv in transitive dependency. |
+| `browserslist` | `4.29.3` | Override to fix high vulnerability GHSA-c83g-rgw3-j3cx in transitive dependency. |
+| `proxy-addr` | `2.0.8` | Override to fix critical vulnerability GHSA-jqcg-44mw-7w3h in transitive dependency. |
+| `qs` | `6.16.0` | Override to fix moderate vulnerability GHSA-x5fp-wj9c-mxmx in transitive dependency. |
+| `smol-toml` | `1.9.0` | Override to fix moderate vulnerability GHSA-7w5x-hrqm-74c2 in transitive dependency. |
 
 [WORK RULES]
 

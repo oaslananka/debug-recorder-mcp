@@ -205,7 +205,7 @@ try {
     'body-parser': '2.3.0',
     'fast-uri': '3.1.8',
     'js-yaml': '4.3.2',
-    'markdown-it': '14.3.1'
+    'markdown-it': '14.3.2'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredOverrides
@@ -218,8 +218,8 @@ try {
   }
 
   const requiredVersionScopedOverrides = {
-    'brace-expansion@1': '1.1.21',
-    'brace-expansion@5': '5.0.12'
+    'brace-expansion@^1.1.7': '1.1.21',
+    'brace-expansion@^5.0.5': '5.0.12'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredVersionScopedOverrides
@@ -233,8 +233,8 @@ try {
 
   const forbiddenLockedVersions = new Map([
     ['brace-expansion', new Set(['1.1.15', '5.0.6'])],
-    ['fast-uri', new Set(['3.1.2'])],
-    ['js-yaml', new Set(['4.2.0'])],
+    ['fast-uri', new Set(['3.1.2', '3.1.3', '3.1.4', '3.1.5', '3.1.6', '3.1.7'])],
+    ['js-yaml', new Set(['4.2.0', '4.2.1', '4.2.2', '4.3.0', '4.3.1'])],
     ['linkify-it', new Set(['5.0.1'])]
   ]);
   for (const [packagePath, packageMetadata] of Object.entries(
