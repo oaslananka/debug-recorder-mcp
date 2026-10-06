@@ -121,10 +121,10 @@
   "overrides": {
     "babel-plugin-istanbul": "8.0.0",
     "express-rate-limit": "8.5.1",
-    "fast-uri": "3.1.6",
+    "fast-uri": "3.1.8",
     "glob": "13.0.6",
-    "hono": "4.12.27",
-    "ip-address": "10.3.1",
+    "hono": "4.13.7",
+    "ip-address": "10.7.1",
     "test-exclude": "8.0.0",
     "@babel/core": "7.29.7",
     "js-yaml": "4.3.1",
