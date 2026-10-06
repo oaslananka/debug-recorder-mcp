@@ -218,8 +218,8 @@ try {
   }
 
   const requiredVersionScopedOverrides = {
-    'brace-expansion@^1.1.7': '1.1.16',
-    'brace-expansion@^5.0.5': '5.0.7'
+    'brace-expansion@^1.1.7': '1.1.21',
+    'brace-expansion@^5.0.5': '5.0.12'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredVersionScopedOverrides
