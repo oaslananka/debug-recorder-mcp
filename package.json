@@ -99,7 +99,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
-    "@jest/globals": "30.4.1",
+    "@jest/globals": "30.5.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "^30.0.0",
     "@types/node": "22.19.17",
