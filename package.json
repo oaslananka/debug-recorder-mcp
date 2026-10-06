@@ -92,7 +92,7 @@
     "url": "https://github.com/oaslananka/debug-recorder-mcp/issues"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "better-sqlite3": "12.8.0",
     "fuse.js": "7.3.0",
     "zod": "3.25.76"
