@@ -203,9 +203,9 @@ try {
   const requiredOverrides = {
     '@hono/node-server': '2.0.11',
     'body-parser': '2.3.0',
-    'fast-uri': '3.1.4',
-    'js-yaml': '4.3.0',
-    'markdown-it': '14.3.0'
+    'fast-uri': '3.1.8',
+    'js-yaml': '4.3.2',
+    'markdown-it': '14.3.2'
   };
   for (const [dependency, expectedVersion] of Object.entries(
     requiredOverrides
@@ -233,8 +233,8 @@ try {
 
   const forbiddenLockedVersions = new Map([
     ['brace-expansion', new Set(['1.1.15', '5.0.6'])],
-    ['fast-uri', new Set(['3.1.2'])],
-    ['js-yaml', new Set(['4.2.0'])],
+    ['fast-uri', new Set(['3.1.2', '3.1.3', '3.1.4', '3.1.5', '3.1.6', '3.1.7'])],
+    ['js-yaml', new Set(['4.2.0', '4.2.1', '4.2.2', '4.3.0', '4.3.1'])],
     ['linkify-it', new Set(['5.0.1'])]
   ]);
   for (const [packagePath, packageMetadata] of Object.entries(
