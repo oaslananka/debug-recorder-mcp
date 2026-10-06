@@ -102,8 +102,8 @@ docker build -t debug-recorder-mcp:local .
 
 All changes to `main` must go through a pull request. The branch protection
 ruleset requires the pull request branch to be up to date, resolved
-conversations, and these passing checks. Required approvals remain zero for the
-solo-maintainer workflow:
+conversations, and these passing checks. The solo-maintainer workflow uses
+self-approval to satisfy code review requirements:
 
 - `Quality / Node 22.22.3`
 - `Quality / Node 24.16.0`
@@ -117,6 +117,14 @@ solo-maintainer workflow:
 Force pushes and branch deletion are disabled for `main`.
 Repository administrators retain emergency bypass because this is currently a
 single-maintainer repository.
+
+### Self-approval workflow
+
+As the sole maintainer, you should self-approve your own pull requests before
+merging. This satisfies the OpenSSF Scorecard Code-Review check by ensuring
+recent commits have an approval on GitHub. The branch protection ruleset
+currently sets required approvals to zero to allow self-merging, but
+self-approval is expected as a best practice.
 
 ## Issue Triage
 
