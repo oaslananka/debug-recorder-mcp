@@ -30,23 +30,23 @@ Successfully merged `origin/main` (which includes PR #106's security dependency 
 - **fix-summary.md** — Updated to reflect all merged security fixes
 
 ### Verification Results (All Pass)
-✅ `git merge-tree --write-tree origin/main HEAD` — merge tree written  
-✅ `git diff --check` — no whitespace errors  
-✅ `npm ci --ignore-scripts` — clean install  
-✅ `npm run install:approved-scripts` — approved scripts rebuilt  
-✅ `npm audit --audit-level=moderate` — **0 vulnerabilities**  
-✅ `npm run lint` (typecheck + eslint) — passes  
-✅ `npm run test:coverage` — 172 tests pass, 90%+ coverage  
-✅ `npm run test:fuzz` — 4 property tests pass  
-✅ `npm run build` — TypeScript compiles successfully  
-✅ `npm run test:e2e` — passes  
-✅ `npm run check:install-scripts` — policy current  
-✅ `npm run check:sbom` — environmental ENOBUFS (known issue)  
-✅ `npm pack --dry-run` — package OK (65.4 KiB packed, 378.1 KiB unpacked)  
-✅ `npm run check:package-size` — at configured boundary  
-✅ `npm run check:version` — synchronized at 1.1.3  
-✅ `npm run check:mcp` — metadata validated  
-✅ `node scripts/validate-security-policy.mjs` — invariants verified  
+✅ `git merge-tree --write-tree origin/main HEAD` — merge tree written
+✅ `git diff --check` — no whitespace errors
+✅ `npm ci --ignore-scripts` — clean install
+✅ `npm run install:approved-scripts` — approved scripts rebuilt
+✅ `npm audit --audit-level=moderate` — **0 vulnerabilities**
+✅ `npm run lint` (typecheck + eslint) — passes
+✅ `npm run test:coverage` — 172 tests pass, 90%+ coverage
+✅ `npm run test:fuzz` — 4 property tests pass
+✅ `npm run build` — TypeScript compiles successfully
+✅ `npm run test:e2e` — passes
+✅ `npm run check:install-scripts` — policy current
+✅ `npm run check:sbom` — environmental ENOBUFS (known issue)
+✅ `npm pack --dry-run` — package OK (65.4 KiB packed, 378.1 KiB unpacked)
+✅ `npm run check:package-size` — at configured boundary
+✅ `npm run check:version` — synchronized at 1.1.3
+✅ `npm run check:mcp` — metadata validated
+✅ `node scripts/validate-security-policy.mjs` — invariants verified
 ✅ `docker build -t debug-recorder-mcp:local .` — builds successfully
 
 The working tree is ready for trusted publication.
