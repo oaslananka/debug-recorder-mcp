@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.3...debug-recorder-mcp-v1.1.4) (2026-10-07)
+
+
+### Bug Fixes
+
+* Security remediation: oaslananka/debug-recorder-mcp code scanning (2) [550a37c5] ([#109](https://github.com/oaslananka/debug-recorder-mcp/issues/109)) ([b47cd3a](https://github.com/oaslananka/debug-recorder-mcp/commit/b47cd3ad072c9c27568147c5e488bd91cbe62ddf))
+* Security remediation: oaslananka/debug-recorder-mcp code scanning (3) ([#106](https://github.com/oaslananka/debug-recorder-mcp/issues/106)) ([93db5c3](https://github.com/oaslananka/debug-recorder-mcp/commit/93db5c342d3a0726cf27e387b655886211c1fab5))
+* Security remediation: oaslananka/debug-recorder-mcp dependabot (3) ([#107](https://github.com/oaslananka/debug-recorder-mcp/issues/107)) ([21ea08a](https://github.com/oaslananka/debug-recorder-mcp/commit/21ea08ade8a34c9c85b94cd3b16b5cd037b2012f))
+
 ## [1.1.3](https://github.com/oaslananka/debug-recorder-mcp/compare/debug-recorder-mcp-v1.1.2...debug-recorder-mcp-v1.1.3) (2026-07-21)
 
 
