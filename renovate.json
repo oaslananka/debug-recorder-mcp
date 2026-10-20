@@ -45,19 +45,37 @@
     ],
     "automerge": false,
     "addLabels": [
-      "lockfile"
+      "lockfile",
+      "automerge:enabled",
+      "risk:low"
     ]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": [
-      "security"
+      "dependencies",
+      "security",
+      "risk:high",
+      "requires-review"
     ],
     "prCreation": "immediate",
     "vulnerabilityFixStrategy": "highest"
   },
-  "osvVulnerabilityAlerts": true,
+  "osvVulnerabilityAlerts": false,
   "packageRules": [
+    {
+      "description": "Delegate low-risk dependency merging to Mergify.",
+      "matchUpdateTypes": [
+        "patch",
+        "digest",
+        "pin"
+      ],
+      "automerge": false,
+      "addLabels": [
+        "automerge:enabled",
+        "risk:low"
+      ]
+    },
     {
       "description": "Group dependency automation and security scanner updates.",
       "matchPackageNames": [
@@ -149,11 +167,11 @@
       "matchUpdateTypes": [
         "digest"
       ],
-      "automerge": true,
+      "automerge": false,
       "automergeType": "pr",
-      "platformAutomerge": false,
       "addLabels": [
-        "automerge"
+        "automerge",
+        "automerge:enabled"
       ]
     },
     {
@@ -294,5 +312,8 @@
       "depNameTemplate": "node",
       "datasourceTemplate": "docker"
     }
-  ]
+  ],
+  "automerge": false,
+  "automergeType": "pr",
+  "platformAutomerge": false
 }
