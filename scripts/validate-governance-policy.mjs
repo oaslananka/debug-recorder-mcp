@@ -143,7 +143,7 @@ try {
     throw new Error('renovate.json must manage the pinned Zizmor engine');
   }
   for (const required of [
-    'ZIZMOR_VERSION: 1.27.0',
+    'ZIZMOR_VERSION: 1.30.1',
     'version: ${{ env.ZIZMOR_VERSION }}'
   ]) {
     assertContains(
